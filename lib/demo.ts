@@ -1,12 +1,12 @@
 export type Role = "ceo" | "cfo" | "manager" | "sales";
-export type View = "overview" | "data" | "workflows" | "intelligence" | "reports" | "agents" | "security" | "integrations";
+export type View = "pilot" | "expansion" | "overview" | "data" | "workflows" | "intelligence" | "reports" | "agents" | "security" | "integrations";
 export type Entity = "all" | "europe" | "gulf" | "asia";
 
 export const roles: Record<Role, {name: string; detail: string; allowed: View[]; entities: Entity[]; agents: string[]; approve: boolean; edit: boolean}> = {
-  ceo: {name:"Group CEO",detail:"Executive, all entities",allowed:["overview","data","workflows","intelligence","reports","agents","security","integrations"],entities:["all","europe","gulf","asia"],agents:["coordinator","financial","quality","automation","forecast","reporting","sales"],approve:true,edit:true},
-  cfo: {name:"Group CFO",detail:"Group finance, all entities",allowed:["overview","data","workflows","intelligence","reports","agents","security","integrations"],entities:["all","europe","gulf","asia"],agents:["financial","quality","automation","forecast","reporting"],approve:true,edit:true},
-  manager: {name:"EMEA Finance Manager",detail:"Europe business unit only",allowed:["overview","data","workflows","intelligence","reports","agents","security","integrations"],entities:["europe"],agents:["financial","quality","forecast","reporting"],approve:false,edit:false},
-  sales: {name:"Sales Representative",detail:"Own commercial records only",allowed:["overview","agents","security","integrations"],entities:[],agents:["sales"],approve:false,edit:false},
+  ceo: {name:"Group CEO",detail:"Executive, all entities",allowed:["pilot","overview","expansion","data","workflows","intelligence","reports","agents","security","integrations"],entities:["all","europe","gulf","asia"],agents:["coordinator","financial","quality","automation","forecast","reporting","sales"],approve:true,edit:true},
+  cfo: {name:"Group CFO",detail:"Group finance, all entities",allowed:["pilot","overview","expansion","data","workflows","intelligence","reports","agents","security","integrations"],entities:["all","europe","gulf","asia"],agents:["financial","quality","automation","forecast","reporting"],approve:true,edit:true},
+  manager: {name:"EMEA Finance Manager",detail:"Europe business unit only",allowed:["pilot","overview","expansion","data","workflows","intelligence","reports","agents","security","integrations"],entities:["europe"],agents:["financial","quality","forecast","reporting"],approve:false,edit:false},
+  sales: {name:"Sales Representative",detail:"Own commercial records only",allowed:["pilot","overview","expansion","agents","security","integrations"],entities:[],agents:["sales"],approve:false,edit:false},
 };
 
 export const entityLabels: Record<Entity, string> = {all:"Group consolidated",europe:"Aurelia Europe",gulf:"Aurelia Gulf",asia:"Aurelia Asia"};
