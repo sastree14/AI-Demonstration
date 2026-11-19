@@ -65,3 +65,12 @@ Implement server-verified SSO/OAuth, identity- and tenant-scoped policies, field
 Awais confirmed an active opportunity to meet the Group CFO and mentioned **reporting, live artifacts and board packs as a likely T1**. The four capability labels used in this demo come from the earlier SC-Analytics technical partnership discussion. This demonstration is **not** an agreed scope, a signed delivery commitment, a representation of an existing client deployment or a replacement for functional discovery and acceptance criteria.
 
 Built to communicate the potential of a tailored finance workflow—not to misrepresent a working enterprise agent.
+## Optional free live demo (GitHub Pages)
+
+This repository includes `.github/workflows/pages.yml`, a static GitHub Pages deployment workflow. The first attempt can fail with HTTP 404 until the repository owner enables Pages.
+
+1. In [Repository Settings → Pages](https://github.com/sastree14/AI-Demonstration/settings/pages), set **Build and deployment → Source → GitHub Actions**.
+2. Open [Actions → Publish static finance demonstration](https://github.com/sastree14/AI-Demonstration/actions/workflows/pages.yml) and choose **Run workflow** (or push another change to `main`).
+3. After a successful deployment, the expected site is **https://sastree14.github.io/AI-Demonstration/**.
+
+The normal **Verify finance demonstration** workflow runs TypeScript and Next.js build checks automatically. The site is a browser-only concept with synthetic data and no API keys.
