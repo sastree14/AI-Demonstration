@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Finance Intelligence | Enterprise Agent Demonstration",
-  description: "Interactive, synthetic finance automation and agent-governance proof of concept by SC-Analytics.",
+  title: "Finance Intelligence | Interactive Reporting Demo",
+  description: "Interactive demonstration of finance reporting, deterministic automation, simulated AI assistance, role controls and configurable reports using fictitious data.",
   robots: { index: false, follow: false },
 };
 
