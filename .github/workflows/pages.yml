@@ -1,0 +1,56 @@
+name: Publish static finance demonstration
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "app/**"
+      - "lib/**"
+      - "public/**"
+      - "next.config.ts"
+      - "package.json"
+      - "tsconfig.json"
+      - ".github/workflows/pages.yml"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: finance-demo-pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Verify TypeScript
+        run: npm run typecheck
+      - name: Build static site
+        env:
+          GITHUB_PAGES: "true"
+        run: npm run build
+      - name: Upload Pages site
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: out/
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
