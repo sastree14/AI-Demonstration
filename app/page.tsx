@@ -116,6 +116,7 @@ export default function FinanceDemo(){
   if(/ignore.*(permission|restriction)|bypass|secret|payroll|salary|other employee|unauthori[sz]ed|private record|all compan(y|ies)/.test(q)&&role!=="ceo"&&role!=="cfo")return "Access denied. Your current role cannot query restricted group, employee or compensation data. This simulation enforces a visible role filter; production would enforce policy on every backend tool call.";
   if(/time|duration|seconds|how long|took/.test(q))return `Recorded example run FIN-2026-${String(runNumber).padStart(3,"0")} started ${runTime} UTC. Seven evidence steps are shown in the run inspector; total illustrative tool and validation duration is 10.4 seconds, plus orchestration. This is a fixture, not measured live processing.`;
   if(/source|origin|lineage|excel|where.*data|provenance/.test(q))return `Inputs: ${sourceMode==="synthetic"?"synthetic workbook, ERP and ledger fixtures":"locally imported CSV"}. Current scope: ${entityLabels[entityScope]}. Each record preserves a source label; open Data Foundations → Source lineage. No customer database or external API has been accessed.`;
+  if(/exclud|duplicate|discard|12 records|why.*(rows|records)/.test(q))return "The current demonstration has 18 synthetic entity-month records, and no evidence of 12 excluded records. One separate $12,500 reconciliation issue is flagged. A production exclusion rule would log affected record IDs, rule versions and reasons so I could answer from the actual evidence. I will not invent an exclusion event.";
   if(/why|variance|budget|revenue|margin|ebitda|drop|decrease/.test(q))return role==="sales"?"I can explain your own illustrative sales pipeline, but not group financials. Finance reporting requires finance authorization.":`Current authorized scope is ${entityLabels[entityScope]}. Revenue is ${money(metrics.revenue)} against ${money(metrics.budget)} budget, a variance of ${money(metrics.variance)} (${metrics.budget?pct(metrics.variance/metrics.budget*100):"N/A"}). EBITDA is ${money(metrics.ebitda)}, margin ${metrics.margin.toFixed(1)}%. Calculations use source rows, not an LLM. This mock cannot determine causality beyond the synthetic dataset.`;
   if(/flag|exception|reconcil|error|failed|quality/.test(q))return hasIssue?"One simulated ledger exception is open: Aurelia Gulf · September 2026, reference GL-2205, difference $12,500. The report is flagged for human review. The evidence is accessible in Data Foundations; no records have been changed.":"The illustrative $12,500 exception has been marked reviewed in this browser. Real approval would require finance identity, immutable evidence and verified ledger reconciliation.";
   if(/schedule|change.*hour|every.*day|reschedul|when.*run/.test(q))return canEdit?`Open Finance Automation → Schedule settings. You can change frequency and execution time. The saved setting is kept in this browser; a production implementation would update a scheduler and audit the approver.`:"Your current role may inspect authorized schedules but cannot modify corporate execution times. Please ask a Group CFO or authorized administrator.";
@@ -125,7 +126,25 @@ export default function FinanceDemo(){
   if(/approve|publish|access|security|permission/.test(q))return canApprove?`You may review and simulate approving a board-pack draft. In production, the backend would verify your identity, entity scope, revision, approval authority and actual write permissions before publication.`:"You are not authorized to publish group board packs. Your current persona may only see approved material within its data scope.";
   return `I am the ${agent.name}, limited to ${agent.department.toLowerCase()}. I can explain available demonstration evidence, permissions, formulas and workflows for ${entityLabels[entityScope]}. This is a deterministic simulated conversation: there is no AI model or open-ended reasoning behind it. Please use one of the example questions or inspect the relevant module.`;
  }
- function ask(text?:string){const q=(text??question).trim();if(!q)return;const answer=computeAgentAnswer(currentAgent,q);setAgentMessages(m=>({...m,[selectedAgent]:[...(m[selectedAgent]||[]),{speaker:"user",content:q},{speaker:"agent",content:answer}]}));setQuestion("");}
+ function ask(text?:string){
+  const q=(text??question).trim();if(!q)return;
+  const lower=q.toLowerCase();let answer="";
+  const persistent=/(from now on|going forward|always|a partir de ahora)/i.test(q);
+  if(persistent&&/(remove|omit|hide|exclude|quitar|eliminar)/i.test(q)&&/(closing|final|last|conclusion|último|conclusi)/i.test(q)){
+   if(!canEdit)answer="Permission denied. You cannot change corporate report templates.";
+   else {const next=enabledSections.filter(s=>s!=="Closing recommendations");setEnabledSections(next);localStorage.setItem("finance-demo:sections",JSON.stringify(next));answer="Approved demo preference saved: future board pack previews omit Closing recommendations. The template preference is stored locally, and production would record an authorized version change.";}
+  } else if(/(filter|show|limit|filtrar|mostrar)/i.test(q)&&/(europe|gulf|asia|europa|golfo)/i.test(q)){
+   const requested:Entity=/europe|europa/i.test(q)?"europe":/gulf|golfo/i.test(q)?"gulf":"asia";
+   if(!roles[role].entities.includes(requested))answer="Access denied. Your role does not have permission to view that business unit.";
+   else {setEntity(requested);answer=`Entity filter applied to ${entityLabels[requested]} for the current demo workspace and future report previews. Source data are unchanged.`;}
+  } else if(/(change|set|schedule|run at|reprogramar|programar)/i.test(q)&&/[01]\d:[0-5]\d|2[0-3]:[0-5]\d/.test(q)){
+   const match=q.match(/(?:[01]\d|2[0-3]):[0-5]\d/);
+   if(!canEdit)answer="Permission denied. Only an authorized financial manager can change corporate run schedules.";
+   else if(match){const next=schedules.map(s=>s.id==="FIN-RPT-04"?{...s,time:match[0]}:s);persistSchedules(next);answer=`Saved the demonstration Daily financial close schedule for ${match[0]} Asia/Dubai. No actual task scheduler was contacted. In production this would generate an auditable configuration revision.`;}
+  }
+  if(!answer)answer=computeAgentAnswer(currentAgent,q);
+  setAgentMessages(m=>({...m,[selectedAgent]:[...(m[selectedAgent]||[]),{speaker:"user",content:q},{speaker:"agent",content:answer}]}));setQuestion("");
+ }
  const denialCount=role==="sales"?6:role==="manager"?2:0;
  const scenarioRevenue=metrics.revenue*(1+revChange/100),scenarioCost=metrics.cost*(1+costChange/100),scenarioEbitda=scenarioRevenue-scenarioCost-metrics.opex;
  return <div className="app-shell">
