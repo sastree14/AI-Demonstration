@@ -2,7 +2,24 @@
 
 **SC-Analytics | Prepared as a finance-transformation concept for Awais Rehman / CFO discussions.**
 
-A polished **Next.js 16** interactive demonstration of the finance-automation operating model. This is a **fully simulated, synthetic-data proof of concept**, not an AI agent, not a financial system, and not a production security implementation.
+An executive-first **Next.js 16** interactive demonstration of one controlled board-pack workflow, with advanced capabilities available for follow-up questions. This is a **fully simulated, synthetic-data proof of concept**, not an AI agent, not a financial system, and not a production security implementation.
+
+## Start with the CFO pilot, not the technical catalogue
+
+**Live demo:** https://sastree14.github.io/AI-Demonstration/
+
+The new landing screen **Start here · CFO pilot** walks through four stages:
+
+1. **Collect** — selected ERP and Excel exports.
+2. **Validate** — schema checks, source mapping and a $12,500 example reconciliation exception.
+3. **Calculate** — deterministic KPIs, budget variance and a reproducible report section.
+4. **Review** — controller/CFO sign-off and a traceable audit record.
+
+Each stage clearly distinguishes **deterministic automation (no AI needed)**, **optional AI assistance** and **human approval**. The original modules remain usable as detailed demonstrations. The final tab, **Beyond the pilot · CFO FAQs**, contains a three-phase expansion roadmap, a user-role sandbox and **32 searchable CFO questions** on permissions, security, reporting, scheduling, governance, data retention, custom formulas, ERP/Power BI and future FP&A.
+
+**Presentation script:** [docs/CFO_PILOT_WALKTHROUGH.md](docs/CFO_PILOT_WALKTHROUGH.md) — a six-minute walkthrough with claims to avoid and five decisions to agree before a real pilot.
+
+The demonstration supports a **Q3 2026** board-pack filter (with six-month and October options). This prevents mixing quarter-labelled figures with six-month totals. An open exception blocks illustrative approval until the reviewer acknowledges it; acknowledgement is explicitly not ledger correction.
 
 ## Four capabilities in one application
 
@@ -15,16 +32,11 @@ The four workstreams follow the SC-Analytics technical partnership discussion:
 
 The app additionally includes a role-based **Agent Workspace** (CEO, Group CFO, EMEA Finance Manager, Sales Representative); a deterministic chat simulator that answers questions about evidence, formulas, timings and access; governance explanations; and illustrated adapters for Power BI, Salesforce, HubSpot, SAP/Dynamics and SQL.
 
-### Example guided demo (8–12 minutes)
+### Suggested six-minute CFO route
 
-1. Start as **Group CEO**, show the consolidated revenue/budget chart and four capabilities.
-2. Open **Data foundations**; inspect the lineage and the intentional $12,500 ledger exception. Review the evidence.
-3. Open **Finance automation**; edit the 08:00 Dubai schedule and run a simulated procedure; click each execution step. Approve the draft if acting as CFO/CEO.
-4. Open **Quantitative intelligence**; vary revenue and direct costs, then save a custom KPI with `variance / 3` and watch the preview update.
-5. Open **Board pack studio**; change narrative tone, disable Closing recommendations, filter to Aurelia Gulf and print to PDF.
-6. Open **Agent workspace**; ask “How long did the task take?”, “Which sources were used?” and “Why is revenue below budget?”.
-7. Change role to **Sales Representative**: finance modules disappear; the Sales Agent cannot disclose payroll/group finance. Explain that production permissions would be enforced server-side, not by browser visibility.
-8. Open **Integrations**: demonstrate how a secured connector could link to SAP, HubSpot, SQL and Power BI without requiring a CRM migration.
+Follow the guided landing page first: **Collect → Validate → Calculate → Review**. Then demonstrate **Finance automation** schedule changes, the **Q3 Board pack** and the simulated **Agent workspace** questions. Show **Access & governance** with a sales persona and reserve **Beyond the pilot · CFO FAQs** for advanced questions.
+
+The complete narration and caveats are in [docs/CFO_PILOT_WALKTHROUGH.md](docs/CFO_PILOT_WALKTHROUGH.md).
 
 ## Run locally
 
