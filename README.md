@@ -1,6 +1,6 @@
 # Finance Intelligence — Interactive Demonstration
 
-A browser-based finance-reporting workflow with simulated automation, role-based views, report configuration, KPIs and governed AI-assistance concepts. Designed as a functional system demonstration, not a sales presentation.
+A browser-based finance-reporting workflow with simulated automation, role-based views, report configuration, KPIs and governed AI-assistance concepts. Built for exploring the workflow and controls, without connecting to any real company systems.
 
 **Open the demo:** https://sastree14.github.io/AI-Demonstration/
 
