@@ -1,4 +1,4 @@
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import sync_playwright, expect
 import sys
 from pathlib import Path
 
@@ -29,7 +29,7 @@ with sync_playwright() as p:
   button('Open board pack').click()
   assert page.get_by_label('Reporting period').input_value()=='oct'
   assert page.locator('.report-stat-row strong').first.inner_text()==octv[0]
-  assert button('Approve draft').is_disabled()
+  expect(button('Approve draft')).to_be_disabled()
   nav('Data foundations')
   button('Inspect evidence').click()
   assert 'GL-2105' in page.locator('.evidence-card').inner_text()
@@ -38,7 +38,7 @@ with sync_playwright() as p:
   button('Approve draft').click()
   assert 'Approved demo' in page.locator('.report-meta').inner_text()
   page.get_by_label('Reporting period').select_option('q3')
-  assert button('Approve draft').is_enabled()
+  expect(button('Approve draft')).to_be_enabled()
   page.pdf(path=f'qa-evidence/board-{width}.pdf',format='A4')
   nav('Board reporting brief')
   for t in ['Collect','Validate','Calculate','Review']:
@@ -50,7 +50,7 @@ with sync_playwright() as p:
   assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
   page.screenshot(path=f'qa-evidence/kenny-{width}.png')
   button('Open assessment report').click()
-  assert page.locator('article').is_visible()
+  expect(page.locator('article')).to_be_visible()
   for s in ['Discovery & intake','Process mapping','AI opportunities','ROI & economics','Implementation roadmap','Meeting & proposals','NDA & governance','Client deliverables']:
    nav(s)
    assert page.locator('main').inner_text().strip()
