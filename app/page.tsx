@@ -1,4 +1,5 @@
 "use client";
+import CfoStudio from "./components/CfoStudio";
 
 import {useEffect,useMemo,useState} from "react";
 import {
@@ -56,7 +57,7 @@ function TrendChart({rows}:{rows:FinanceRecord[]}){
 }
 function Toast({notice,onClose}:{notice:Notice|null;onClose:()=>void}){if(!notice)return null;return <div className="toast"><CheckCircle2 size={19}/><div><strong>{notice.title}</strong><p>{notice.description}</p></div><button aria-label="Dismiss" onClick={onClose}><X size={16}/></button></div>}
 
-export default function FinanceDemo(){
+function LegacyFinanceDemo(){
  const [view,setView]=useState<View>("pilot");
  const [role,setRole]=useState<Role>("ceo");
  const [entity,setEntity]=useState<Entity>("all");
@@ -240,4 +241,12 @@ export default function FinanceDemo(){
 function ScheduleEditor({schedule,onSave,onCancel}:{schedule:Schedule;onSave:(patch:Partial<Schedule>)=>void;onCancel:()=>void}){
  const [time,setTime]=useState(schedule.time);const [frequency,setFrequency]=useState(schedule.frequency);const [zone,setZone]=useState(schedule.zone);
  return <form className="schedule-form" onSubmit={e=>{e.preventDefault();onSave({time,frequency,zone})}}><div className="row-fields"><label className="field">Time<input type="time" required value={time} onChange={e=>setTime(e.target.value)}/></label><label className="field">Frequency<select value={frequency} onChange={e=>setFrequency(e.target.value as Schedule["frequency"])}><option value="weekdays">Weekdays</option><option value="mondays">Mondays</option><option value="daily">Every day</option></select></label></div><label className="field">Timezone<select value={zone} onChange={e=>setZone(e.target.value)}><option>Asia/Dubai</option><option>Europe/Madrid</option><option>UTC</option></select></label><div className="button-row"><button type="button" className="btn ghost" onClick={onCancel}>Cancel</button><button type="submit" className="btn primary"><Check size={15}/> Save schedule</button></div></form>
+}
+
+export default function FinanceDemoPage(){
+  const [advanced,setAdvanced]=useState(false);
+  if(advanced){
+    return <div><button type="button" onClick={()=>setAdvanced(false)} style={{display:"block",width:"100%",textAlign:"left",background:"#f1f5f0",border:"0",borderBottom:"1px solid #dce7dd",padding:"12px 24px",fontSize:"12px",fontWeight:700,color:"#315e48"}}>← Return to executive workspace</button><LegacyFinanceDemo/></div>;
+  }
+  return <CfoStudio onAdvanced={()=>setAdvanced(true)}/>;
 }
