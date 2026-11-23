@@ -12,6 +12,14 @@ with sync_playwright() as p:
   page.on('pageerror',lambda e:errors.append(str(e)))
   def go(path):
    page.goto(base+path,wait_until='networkidle')
+   if errors:
+    import difflib
+    plain=b.new_page(java_script_enabled=False)
+    plain.goto(base+path)
+    def words(tab):
+     return tab.locator('body').inner_text().split()
+    print(list(difflib.unified_diff(words(plain),words(page),n=2))[:100],path,flush=True)
+    plain.close()
   def button(s):return page.get_by_role('button',name=s,exact=True)
   def nav(s):
    if width<500:
