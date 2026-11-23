@@ -84,8 +84,8 @@ function pythonExample(k:Proposal|Kpi):string{
 const nav:[Tab,string,typeof LayoutDashboard][]=[["overview","Overview",LayoutDashboard],["ledger","Data & adjustments",Table2],["studio","KPI design",Sparkles],["controls","Review & controls",ShieldAlert],["report","Board pack",FileText]];
 const startingMessages:Message[]=[{sender:"assistant",body:"Describe the indicator you would like to monitor. I will propose a calculation, explain its inputs and ask for your approval before adding it to the dashboard. This is a guided simulation, not a live AI model."}];
 
-export default function CfoStudio({onAdvanced}:{onAdvanced:()=>void}){
- const [tab,setTab]=useState<Tab>("overview");
+export default function CfoStudio({onAdvanced,embedded=false,initialTab="overview"}:{onAdvanced:()=>void;embedded?:boolean;initialTab?:Tab}){
+ const [tab,setTab]=useState<Tab>(initialTab);
  const [period,setPeriod]=useState<Period>("q3");
  const [entity,setEntity]=useState<Entity>("all");
  const [product,setProduct]=useState<Product>("all");
@@ -118,7 +118,7 @@ export default function CfoStudio({onAdvanced}:{onAdvanced:()=>void}){
   }catch{}
   setLoaded(true);
  },[]);
- useEffect(()=>{if(loaded)localStorage.setItem(key,JSON.stringify({expenses,saved,approved,reviewedNote,reportParts}));},[expenses,saved,approved,reviewedNote,reportParts,loaded]);
+ useEffect(()=>{if(loaded){localStorage.setItem(key,JSON.stringify({expenses,saved,approved,reviewedNote,reportParts}));window.dispatchEvent(new Event("sc-finance:changed"));}},[expenses,saved,approved,reviewedNote,reportParts,loaded]);
  const monthsIn=monthFilter[period];
  const scoped=useMemo(()=>syntheticRows.filter(r=>monthsIn.includes(r.month)&&(entity==="all"||entity===r.entity)&&(product==="all"||product===r.product)),[monthsIn,entity,product]);
  const added=useMemo(()=>expenses.filter(x=>monthsIn.includes(x.month)&&(entity==="all"||entity===x.entity)&&(product==="all"||product===x.product)),[expenses,monthsIn,entity,product]);
@@ -168,11 +168,11 @@ export default function CfoStudio({onAdvanced}:{onAdvanced:()=>void}){
  }
  const selectParts=(p:ReportPart)=>setReportParts(x=>x.includes(p)?x.filter(v=>v!==p):[...x,p]);
  const labelProduct=product==="all"?"All business lines":products.find(x=>x[0]===product)?.[2];
- return <div className={styles.shell}>
-  <header className={styles.header}>
+ return <div className={`${styles.shell} ${embedded?styles.embedded:""}`}>
+  {!embedded&&<header className={styles.header}>
    <div className={styles.brand}><div className={styles.symbol}>S<span>.</span></div><div><strong>SC-Analytics</strong><small>FINANCE INTELLIGENCE / DEMONSTRATION</small></div></div>
    <div className={styles.topNote}><span className={styles.pulse}/>Illustrative data only <span className={styles.topDivider}>/</span> Browser-only workspace</div>
-  </header>
+  </header>}
   <div className={styles.navBar}><div className={styles.navInner}>{nav.map(([id,title,Icon])=><button key={id} type="button" className={tab===id?styles.activeNav:styles.nav} onClick={()=>{setTab(id);setFeedback("");}}><Icon size={16}/><span>{title}</span></button>)}</div></div>
   <main className={styles.main}>
    <div className={styles.heading}><div><div className={styles.overline}>AURELIA GROUP <span className={styles.sep}>/</span> CFO WORKSPACE</div><h1>{tab==="overview"?"A clearer view of the numbers":tab==="ledger"?"Make changes with context":tab==="studio"?"Define the indicators you need":tab==="controls"?"Review exceptions before reporting":"A board pack worth presenting"}</h1><p>{tab==="overview"?"Financial performance, controls and decisions in one place.":tab==="ledger"?"Explore the source records and model additional operating expenses without altering an ERP.":tab==="studio"?"Describe a KPI, review the calculation and add it to your reporting.":tab==="controls"?"See where two simulated source records disagree and document the decision.":"Select only what your board needs. Preview the finished report and save it as a PDF."}</p></div><div className={styles.headingAside}><span>FINANCE PERIOD</span><strong>{periodLabels[period]}</strong><small>Fictional organisation · USD</small></div></div>
@@ -231,6 +231,6 @@ export default function CfoStudio({onAdvanced}:{onAdvanced:()=>void}){
      </div><footer className={styles.reportFoot}>SIMULATED FINANCIAL DATA · NOT A LIVE CLIENT REPORT <span>SC-ANALYTICS</span></footer></article>
    </div>}
   </main>
-  <footer className={styles.footer}><span>SC-Analytics · CFO demonstration · All business data is fictional · Adjustments and KPIs are saved in this browser only</span><button onClick={onAdvanced}>Explore detailed system capabilities <ArrowRight size={13}/></button></footer>
+  {!embedded&&<footer className={styles.footer}><span>SC-Analytics · CFO demonstration · All business data is fictional · Adjustments and KPIs are saved in this browser only</span><button onClick={onAdvanced}>Explore detailed system capabilities <ArrowRight size={13}/></button></footer>}
  </div>;
 }

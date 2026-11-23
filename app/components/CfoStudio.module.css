@@ -17,3 +17,25 @@
 @media(max-width:740px){.header{padding:0 18px;min-height:70px}.brand small{font-size:8px}.topNote{display:none}.navInner{padding:0 18px;gap:21px}.nav,.activeNav{padding:16px 0 13px}.main{padding:27px 17px}.heading{align-items:flex-start;flex-direction:column}.heading h1{font-size:32px}.headingAside{display:none}.toolbar{padding:13px}.toolbar label{flex:1;min-width:130px}.toolbar select{min-width:0;width:100%}.toolbarNote{width:100%;padding:0}.metricGrid{gap:10px}.metric{padding:18px 14px}.metric strong{font-size:24px}.panel{padding:19px 17px}.panelHead h2{font-size:20px}.fields,.reviewGrid,.reportGrid,.reportNumbers{grid-template-columns:1fr}.reportHero{padding:38px 25px}.reportHero h2{font-size:31px}.reportBody{padding:25px}.reportTop{padding:15px}.steps{grid-template-columns:1fr}.step{padding:10px 0}.footer{padding:21px 18px}.compare strong{font-size:21px}}
 @page{size:A4;margin:16mm}
 @media print{.shell{background:#fff!important;color:#161f1a!important;font-size:10pt;min-height:auto}.header,.navBar,.heading,.toolbar,.footer,.reportOptions,.feedback{display:none!important}.main{padding:0!important;max-width:none!important;min-height:0!important}.reportGrid{display:block!important}.reportPage{min-height:0!important;max-width:none!important;border:0!important;box-shadow:none!important}.reportTop{padding:10px 0!important}.reportHero{padding:30px 20px!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}.reportHero h2{font-size:30px!important}.reportBody{padding:22px 20px!important}.reportSection{break-inside:avoid-page;margin-bottom:22px}.reportFoot{padding:10px 0!important}.reportNumbers{grid-template-columns:repeat(2,1fr)!important}}
+
+
+/* The CFO decision studio now lives inside Finance/OS. Keep the original
+   application sidebar, topbar, information density and typography. */
+.embedded{min-height:0;background:transparent;font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;color:#162a27}
+.embedded .main{padding:0;min-height:0;max-width:none}
+.embedded .navBar{border:1px solid #e1e9e4;border-radius:10px;margin:0 0 24px;box-shadow:0 2px 5px rgba(10,54,30,.018)}
+.embedded .navInner{padding:0 20px;gap:23px;flex-wrap:wrap}
+.embedded .nav,.embedded .activeNav{padding:14px 0 12px;font-size:12px}
+.embedded .heading{margin-bottom:23px}
+.embedded .heading h1{font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;font-size:32px;font-weight:800;letter-spacing:-1.2px}
+.embedded .heading p{line-height:1.65}
+.embedded .panel,.embedded .metric,.embedded .toolbar{border-radius:11px;box-shadow:0 2px 5px rgba(10,54,30,.018)}
+.embedded .panelHead h2{font-family:Inter,system-ui,sans-serif;font-size:18px;font-weight:750;letter-spacing:-.5px}
+.embedded .metric strong{font-family:Inter,system-ui,sans-serif;font-size:27px;font-weight:800}
+.embedded .reportHero h2{font-family:Inter,system-ui,sans-serif;font-weight:800;line-height:1.2}
+.embedded .reportPage{border-radius:7px;overflow:hidden}
+.embedded .toolbar{margin-bottom:22px}
+.embedded .headingAside{min-width:180px}
+.embedded .reportStatus{letter-spacing:.8px}
+@media(max-width:740px){.embedded .navInner{gap:17px;flex-wrap:nowrap;padding:0 12px}.embedded .heading h1{font-size:27px}.embedded .headingAside{display:none}}
+@media print{.embedded{background:#fff!important}.embedded .navBar,.embedded .heading,.embedded .toolbar,.embedded .feedback{display:none!important}.embedded .main{padding:0!important}.embedded .reportPage{box-shadow:none!important;border:0!important}}
