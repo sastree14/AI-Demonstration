@@ -1,4 +1,4 @@
-import {type Case,type Suggestion,economics,packages,fmt,clamp} from "./engine";
+import {type Case,type Suggestion,economics,packages,fmt,clamp} from "./engine.ts";
 
 /** Sequence-aware timeline: governance and acceptance cannot be accelerated by adding developers. */
 export function capacityPlan(mode:"pilot"|"scale",contributors:number,client:Case){
