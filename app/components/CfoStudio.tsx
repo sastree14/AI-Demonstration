@@ -118,7 +118,7 @@ export default function CfoStudio({onAdvanced,embedded=false,initialTab="overvie
   }catch{}
   setLoaded(true);
  },[]);
- useEffect(()=>{if(loaded)localStorage.setItem(key,JSON.stringify({expenses,saved,approved,reviewedNote,reportParts}));},[expenses,saved,approved,reviewedNote,reportParts,loaded]);
+ useEffect(()=>{if(loaded){localStorage.setItem(key,JSON.stringify({expenses,saved,approved,reviewedNote,reportParts}));window.dispatchEvent(new Event("sc-finance:changed"));}},[expenses,saved,approved,reviewedNote,reportParts,loaded]);
  const monthsIn=monthFilter[period];
  const scoped=useMemo(()=>syntheticRows.filter(r=>monthsIn.includes(r.month)&&(entity==="all"||entity===r.entity)&&(product==="all"||product===r.product)),[monthsIn,entity,product]);
  const added=useMemo(()=>expenses.filter(x=>monthsIn.includes(x.month)&&(entity==="all"||entity===x.entity)&&(product==="all"||product===x.product)),[expenses,monthsIn,entity,product]);
