@@ -12,7 +12,7 @@ export type Preference={impact:number;ease:number;readiness:number;risk:number;a
 export type Suggestion={id:string;title:string;category:string;description:string;impact:number;ease:number;readiness:number;risk:number;score:number;reason:string;dependencies:string[];weeks:string};
 export type EventItem={id:string;date:string;title:string;detail:string;kind:"meeting"|"decision"|"task"};
 export const fmt=(v:number)=>new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0}).format(Number.isFinite(v)?v:0);
-export const compact=(v:number)=>new Intl.NumberFormat("en-US",{notation:"compact",style:"currency",currency:"USD",maximumFractionDigits:1}).format(Number.isFinite(v)?v:0);
+export const compact=(v:number)=>new Intl.NumberFormat("en-US",{notation:"compact",style:"currency",currency:"USD",minimumFractionDigits:0,maximumFractionDigits:1}).format(Number.isFinite(v)?v:0);
 export const clamp=(v:number,lo:number,hi:number)=>Math.min(hi,Math.max(lo,v));
 export const required:{key:keyof Case;label:string;why:string}[]=[
  {key:"company",label:"Client company",why:"Identify the assessment"},
