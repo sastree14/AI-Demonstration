@@ -473,7 +473,7 @@ export default function WigwamFinanceDemo(){
         {n:"02",title:"Accounts payable pilot",owner:"First implementation candidate",detail:"Connect approved source feeds; extract PDF metadata; validate entity and PO; queue exceptions; preserve ApprovalMax and human sign-off."},
         {n:"03",title:"Reconciliations",owner:"After pilot acceptance",detail:"Introduce matching for payment-system references with a human-controlled exception workflow."},
         {n:"04",title:"Investor reporting and spend controls",owner:"Subsequent implementation",detail:"Prepare quarterly reporting with reconciled sources; expand to Monday.com PO policy and card receipts."},
-        {n:"05",title:"Handover and adoption",owner:"Ongoing",detail:"Train the bookkeeper/Financial Controller, document decisions, test edge cases and measure saved time."]
+        {n:"05",title:"Handover and adoption",owner:"Ongoing",detail:"Train the bookkeeper/Financial Controller, document decisions, test edge cases and measure saved time."}
        ].map((x,i,a)=><div className={css.flowStep} key={x.n}><div className={css.flowRail}><span>{x.n}</span>{i<a.length-1&&<i/>}</div><div className={css.flowInfo}><div><strong>{x.title}</strong><small>{x.owner}</small></div><p>{x.detail}</p></div></div>)}</div>
        <p className={css.smallTip}>No binding scope, schedule or implementation cost has been agreed. The initial review with Nick and Sarah should determine one measurable pilot.</p>
       </Panel>
