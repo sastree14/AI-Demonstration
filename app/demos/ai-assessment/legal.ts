@@ -1,4 +1,4 @@
-import {type Case} from "./engine";
+import {type Case} from "./engine.ts";
 export type NdaClause={id:string;heading:string;text:string;selected:boolean;recommended:boolean;why:string};
 const defs=[
  ["definition","Confidential information","Confidential Information means non-public technical, commercial, operational and financial information disclosed for the agreed Purpose, whether oral, electronic or written, and identified or reasonably understood as confidential."],
