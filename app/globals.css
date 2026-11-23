@@ -188,3 +188,12 @@
 .brief-figures dd{font-size:clamp(22px,2.6vw,36px);font-weight:650;font-variant-numeric:tabular-nums;letter-spacing:-.04em;color:#153c2d;margin:5px 0}
 @media(max-width:600px){.brief-performance{padding:20px}.brief-figures{grid-template-columns:1fr;gap:10px}.brief-figures div{display:grid;grid-template-columns:1fr auto;align-items:baseline}.brief-figures small{grid-column:1/-1}}
 .brief-footer{display:flex;gap:12px;justify-content:space-between;align-items:center;flex-wrap:wrap;border-top:1px solid #deebe3;padding-top:12px;margin-top:16px;color:#526b60;font-size:12px}
+@media screen and (max-width:600px){
+ .top-left,.breadcrumb{min-width:0}
+ .top-left{flex:1}
+ .breadcrumb{display:block;overflow:hidden;font-size:0}
+ .breadcrumb>svg{display:none}
+ .breadcrumb strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}
+ .pilot-hero,.pilot-dual,.pilot-actions-grid{grid-template-columns:minmax(0,1fr)}
+ .pilot-experience .btn{max-width:100%;white-space:normal}
+}

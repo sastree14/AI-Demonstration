@@ -27,7 +27,7 @@ with sync_playwright() as p:
    page.locator('aside nav').get_by_role('button',name=s,exact=True).click()
   go('')
   assert page.get_by_label('Simulate user role').input_value()=='cfo'
-  assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
+  assert page.evaluate('document.documentElement.scrollWidth<=innerWidth'), page.locator('body *').evaluate_all('(els) => els.filter(el => el.getBoundingClientRect().right > innerWidth + 1).slice(0,15).map(el=>[el.tagName,el.className,el.getBoundingClientRect().right])')
   page.screenshot(path=f'qa-evidence/finance-{width}.png')
   period=page.get_by_label('Reporting period')
   q=page.locator('.brief-figures dd').all_text_contents()
@@ -55,7 +55,7 @@ with sync_playwright() as p:
   assert page.locator('.brief-figures').count()==0
   go('demos/ai-assessment/')
   assert page.get_by_role('heading',name='Automation opportunity review').is_visible()
-  assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
+  assert page.evaluate('document.documentElement.scrollWidth<=innerWidth'), page.locator('body *').evaluate_all('(els) => els.filter(el => el.getBoundingClientRect().right > innerWidth + 1).slice(0,15).map(el=>[el.tagName,el.className,el.getBoundingClientRect().right])')
   page.screenshot(path=f'qa-evidence/kenny-{width}.png')
   button('Open assessment report').click()
   expect(page.locator('article')).to_be_visible()
