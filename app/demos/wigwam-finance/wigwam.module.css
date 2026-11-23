@@ -27,3 +27,6 @@
 
 .sidebarOpen{left:0}
 .printArea{min-width:0}
+
+.reportGrid{min-width:0}
+@media print{.reportGrid{display:block!important}.reportGrid>.panel{display:none!important}.reportGrid>.printArea{display:block!important;max-width:none;width:100%}}
