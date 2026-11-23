@@ -181,7 +181,7 @@ export default function AssessmentDemo(){
    else if(ext==="pdf"){
     const pdfjs=await import("pdfjs-dist");
     pdfjs.GlobalWorkerOptions.workerSrc=new URL("pdfjs-dist/build/pdf.worker.min.mjs",import.meta.url).toString();
-    const document=await pdfjs.getDocument({data:new Uint8Array(await file.arrayBuffer()),isEvalSupported:false}).promise;
+    const document=await pdfjs.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise;
     const pages:string[]=[];
     for(let i=1;i<=Math.min(document.numPages,30);i++){const page=await document.getPage(i);const items=await page.getTextContent();pages.push(items.items.map(it=>"str" in it?it.str:"").join(" "));}
     text=pages.join("\n");
