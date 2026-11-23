@@ -29,6 +29,19 @@ jobs:
         run: node --experimental-strip-types --test tests/assessment-engine.test.mjs
       - name: Next.js static build
         run: npm run build
+      - name: Check the CFO and advisory journeys in desktop and mobile Chrome
+        run: |
+          python -m venv "$RUNNER_TEMP/presentation-tests"
+          source "$RUNNER_TEMP/presentation-tests/bin/activate"
+          pip install playwright==1.56.0
+          python -m http.server 8659 --directory out > "$RUNNER_TEMP/preview.log" 2>&1 &
+          python tests/presentation_smoke.py http://localhost:8659/
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: presentation-previews
+          path: qa-evidence/
+          retention-days: 7
       - name: Upload static site artifact
         uses: actions/upload-artifact@v4
         with:

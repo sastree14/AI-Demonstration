@@ -28,7 +28,7 @@ export function summarize(input: FinanceRecord[]): Metrics {
   const revenue=total("revenue"),budget=total("budget"),cost=total("cost"),opex=total("opex"),ebitda=revenue-cost-opex;
   return {revenue,budget,variance:revenue-budget,cost,opex,ebitda,margin:revenue?ebitda/revenue*100:0,cash:total("cash"),items:input.length};
 }
-export const money=(v:number,compact=false)=>new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:compact?2:0,notation:compact?"compact":"standard"}).format(v);
+export const money=(v:number,compact=false)=>new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",minimumFractionDigits:0,maximumFractionDigits:compact?2:0,notation:compact?"compact":"standard"}).format(v);
 export const pct=(n:number)=>`${n>=0?"+":""}${n.toFixed(1)}%`;
 export const sampleSteps=[
   {time:"08:00:00",duration:"0.2s",name:"Execution started",details:"Procedure FIN-RPT-04 v2.3 · triggered by weekday schedule (Asia/Dubai)."},
