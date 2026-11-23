@@ -1,12 +1,20 @@
 # Finance Intelligence — Interactive Demonstration
 
-A browser-based finance-reporting workflow with simulated automation, role-based views, report configuration, KPIs and governed AI-assistance concepts. Built for exploring the workflow and controls, without connecting to any real company systems.
+A browser-based executive finance workspace with simulated sources, adjustable expenses, an explainable KPI-design assistant, reconciliation review, configurable board reporting and detailed workflow modules. No real financial systems are connected.
 
 **Open the demo:** https://sastree14.github.io/AI-Demonstration/
 
-## Navigate the application
+## Executive CFO workspace (default home page)
 
-The home page **Workflow guide · 4 steps** explains the complete process:
+The default page is designed around a finance director's work: period, entity and product-line filters; revenue/EBITDA/budget/cash indicators; synthetic record views; local expense adjustments; guided KPI formula proposals with explicit confirmation; a simulated bank-vs-ledger discrepancy requiring an explanatory review note; and a configurable board pack. In **Board pack**, use **Print / Save PDF** and choose "Save as PDF" in the browser print dialog.
+
+The KPI assistant is a **deterministic, rules-based simulation**, not an LLM or an autonomous code editor. Saved KPI definitions, review notes and manual adjustments remain in this browser's local storage; no Python files, live accounts or source systems are modified. The product dimension is an explicitly synthetic allocation of aggregate financial data, not authentic product-level transactions.
+
+The original more detailed experience remains available through **Explore detailed system capabilities** in the footer of the same demo. There is no navigation to unrelated client demonstrations.
+
+## Detailed system capabilities
+
+The optional **Workflow guide · 4 steps** explains the complete process:
 
 1. **Collect:** spreadsheet and general-ledger inputs.
 2. **Validate:** reconcile sources and flag an exception.
