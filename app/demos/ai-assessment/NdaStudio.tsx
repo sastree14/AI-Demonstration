@@ -6,7 +6,7 @@ import {clausesFor,ndaDocument,ndaLatex,type NdaClause} from "./legal";
 import {saveFormalPdf,saveText,artifactName,ndaModel} from "./artifacts";
 import styles from "./extensions.module.css";
 
-export default function NdaStudio({client,brand,law,onLaw,notify}:{client:Case;brand:string;law:string;onLaw:(v:string)=>void;notify:(message:string)=>void}){
+export default function NdaStudio({client,brand,law,onBrand,onLaw,notify}:{client:Case;brand:string;law:string;onBrand:(v:string)=>void;onLaw:(v:string)=>void;notify:(message:string)=>void}){
  const [clauses,setClauses]=useState<NdaClause[]>(()=>clausesFor(client));
  const [ready,setReady]=useState(false);
  const [newTitle,setNewTitle]=useState("");
@@ -35,7 +35,7 @@ export default function NdaStudio({client,brand,law,onLaw,notify}:{client:Case;b
   <section className={styles.panel}>
    <div className={styles.head}><div><span className={styles.kicker}>GOVERNED DOCUMENT ASSEMBLY</span><h2>Clause-by-clause NDA editor</h2></div><span className={styles.pill}>{count} included</span></div>
    <p className={styles.explanation}>A rules-based adviser suggests clauses from the client's process, information types and likely integrations. You can accept, exclude, rewrite or add clauses. These are not legal recommendations.</p>
-   <div className={styles.formGrid}><label className={styles.formField}>Jurisdiction / governing law<input value={law} onChange={e=>onLaw(e.target.value)} placeholder="To be agreed"/></label><label className={styles.formField}>Parties<span>{brand} · {client.company||"Client name to confirm"}</span></label></div>
+   <div className={styles.formGrid}><label className={styles.formField}>Consultancy legal entity<input value={brand} onChange={e=>onBrand(e.target.value)} placeholder="Exact registered legal entity"/></label><label className={styles.formField}>Governing law<input value={law} onChange={e=>onLaw(e.target.value)} placeholder="To be agreed"/></label></div><p className={styles.disclaimer}>Counterparty: {client.company||"Client legal entity not yet provided"}. Confirm exact legal names before signing.</p>
    <div className={styles.ruleControls}><button onClick={()=>{setClauses(clausesFor(client));notify("Clause recommendations regenerated from the current client facts.");}}><RefreshCw size={14}/> Restore suggested clauses</button><span>Each clause remains editable</span></div>
    <div className={styles.clauseList}>{clauses.map(c=><div className={styles.clause} key={c.id}><div className={styles.clauseHeading}><label><input type="checkbox" checked={c.selected} onChange={e=>edit(c.id,{selected:e.target.checked})}/><strong>{c.heading}</strong></label><span>{c.recommended?"Suggested":"Optional"}</span></div><p>{c.why}</p><textarea rows={c.selected?3:2} value={c.text} onChange={e=>edit(c.id,{text:e.target.value})} aria-label={"Edit "+c.heading}/>{c.id.startsWith("custom-")&&<button className={styles.remove} onClick={()=>setClauses(x=>x.filter(v=>v.id!==c.id))}><Trash2 size={13}/> Remove custom clause</button>}</div>)}</div>
    <div className={styles.addBlock}><h3>Add a bespoke clause</h3><label className={styles.formField}>Clause heading<input value={newTitle} onChange={e=>setNewTitle(e.target.value)} placeholder="e.g. Limited access to audit records"/></label><label className={styles.formField}>Contract text<textarea rows={3} value={newBody} onChange={e=>setNewBody(e.target.value)} placeholder="Write precise draft wording for legal review"/></label><button className={styles.primary} onClick={add}><Plus size={15}/> Add clause</button></div>
