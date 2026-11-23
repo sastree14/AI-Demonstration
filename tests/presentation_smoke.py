@@ -74,6 +74,23 @@ with sync_playwright() as p:
   for s in ['Discovery & intake','Process mapping','AI opportunities','ROI & economics','Implementation roadmap','Meeting & proposals','NDA & governance','Client deliverables']:
    nav(s)
    assert page.locator('main').inner_text().strip()
+  go('demos/wigwam-finance/')
+  expect(page.get_by_role('heading',name='One controlled finance workflow. Fewer manual hand-offs.')).to_be_visible()
+  assert page.evaluate('document.documentElement.scrollWidth<=innerWidth'), page.locator('body *').evaluate_all('(els) => els.filter(el => el.getBoundingClientRect().right > innerWidth + 1).slice(0,15).map(el=>[el.tagName,el.className,el.getBoundingClientRect().right])')
+  page.screenshot(path=f'qa-evidence/wigwam-{width}.png')
+  button('Explore invoice workflow').click()
+  page.locator('tbody tr').filter(has_text='NS-7421').get_by_role('button',name='Review').click()
+  expect(page.get_by_text('Entity differs from invoice evidence',exact=True)).to_be_visible()
+  page.get_by_label('Proposed bookkeeping entity').select_option('property')
+  button('Validate & prepare approval').click()
+  expect(button('Controller sign-off')).to_be_disabled()
+  page.locator('header select').select_option('controller')
+  expect(button('Controller sign-off')).to_be_enabled()
+  button('Controller sign-off').click()
+  expect(page.get_by_text('Controller sign-off recorded locally. Invoice has NOT been paid or posted to Xero.')).to_be_visible()
+  for section in ['Bank reconciliations','Investor reporting','POs & card spending','Workflow blueprint','Connected ecosystem','Finance AI guide','Implementation plan']:
+   nav(section)
+   assert page.locator('main').inner_text().strip()
   assert not errors,errors
   print('Verified',width,base,q,octv,flush=True)
   page.close()
