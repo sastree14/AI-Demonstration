@@ -46,6 +46,11 @@ test("consultant acceptance changes explainable recommendation scores",()=>{
  assert.ok(focus&&changed&&changed.score>=focus.score);
 });
 
+test("consultant can add an assessed custom automation to local methodology",()=>{
+ const r=recommendations(samples[0],{...preferenceDefault,custom:[{id:"special",title:"Vendor exception audit",description:"Review supplier mismatch reasons"}]});
+ assert.ok(r.some(x=>x.id==="special"));
+});
+
 test("ROI includes infrastructure, licences and additional staffing",()=>{
  const d=samples[0],a=economics(d),b=economics(d,d.coverage,d.setup,1000);
  assert.ok(a.hoursYear>0&&a.annualGross>0);
