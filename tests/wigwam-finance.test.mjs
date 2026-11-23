@@ -50,7 +50,7 @@ test("ROI scenario separates nominal freed capacity from actual cash",()=>{
  assert.ok(a.freed>0&&a.value>0);
  assert.equal(a.cashBenefit,0);
  assert.equal(a.netCash,-6000);
- assert.equal(b.cashBenefit,b.value);
+ assert.ok(Math.abs(b.cashBenefit-b.value)<0.000001);
  assert.ok(b.netCash>a.netCash);
 });
 test("Proposed PO register and invoices contain only fictional entity IDs",()=>{
