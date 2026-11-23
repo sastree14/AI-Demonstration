@@ -39,3 +39,4 @@
 .embedded .reportStatus{letter-spacing:.8px}
 @media(max-width:740px){.embedded .navInner{gap:17px;flex-wrap:nowrap;padding:0 12px}.embedded .heading h1{font-size:27px}.embedded .headingAside{display:none}}
 @media print{.embedded{background:#fff!important}.embedded .navBar,.embedded .heading,.embedded .toolbar,.embedded .feedback{display:none!important}.embedded .main{padding:0!important}.embedded .reportPage{box-shadow:none!important;border:0!important}}
+@media(max-width:740px){.chart{gap:4px}.barPair{gap:1px}.barGroup>span{font-size:9px}}

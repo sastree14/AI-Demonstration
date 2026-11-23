@@ -4,10 +4,10 @@ import {useState} from "react";
 import {ArrowRight,ArrowUpRight,Bot,CheckCircle2,ChevronLeft,ChevronRight,Clock3,Database,FileCheck2,FileText,LockKeyhole,Play,ShieldCheck,SlidersHorizontal,Sparkles,Workflow,AlertTriangle,Check,Users} from "lucide-react";
 import {money,roles,type Role,type View,type Metrics,type Schedule} from "@/lib/demo";
 
-type Period = "q3" | "oct" | "sixmonths";
+import PeriodOptions from "./PeriodOptions";
 type Props={
- period:Period;
- onPeriodChange:(period:Period)=>void;
+ period:string;
+ onPeriodChange:(period:string)=>void;
  role:Role;
  metrics:Metrics;
  entityLabel:string;
@@ -41,8 +41,8 @@ export default function PilotWalkthrough({role,metrics,period,onPeriodChange,ent
     <h1>Board reporting brief</h1>
     <p>{finance?"Review performance against plan, trace the figures to their source and decide whether the pack is ready for the board.":"Explore how the finance team prepares a board pack and which actions your role can take."}</p>
     {finance&&<label className="brief-period">Reporting period
-      <select value={period} onChange={e=>onPeriodChange(e.target.value as Period)}>
-       <option value="q3">Q3 2026 · July–September</option><option value="oct">October 2026</option><option value="sixmonths">May–October 2026</option>
+      <select value={period} onChange={e=>onPeriodChange(e.target.value)}>
+       <PeriodOptions/>
       </select>
     </label>}
     <div className="pilot-hero-buttons">
@@ -54,7 +54,7 @@ export default function PilotWalkthrough({role,metrics,period,onPeriodChange,ent
    <div className="pilot-hero-card">
     <div className="pilot-mini-heading"><span>{finance?"FINANCE REVIEW":"ACCESS PROFILE"}</span><FileCheck2 size={19}/></div>
     {finance?<><p className="pilot-quote">{hasIssue?"Board pack on hold":approval==="approved"?"Board pack approved":approval==="rejected"?"Draft rejected":"Ready for sign-off"}</p>
-     <p className="brief-context">{hasIssue?"A $12,500 difference between the sample ledger and control total needs a finance review before sign-off.":approval==="approved"?"Finance has approved this version in the simulation.":approval==="rejected"?"Run the procedure again to submit a fresh draft.":"The sample exception has been acknowledged. An authorised reviewer can now approve the draft."}</p>
+     <p className="brief-context">{hasIssue?"The group close has an open $12,500 ledger difference from September 2026. Finance must review this group-level control before sign-off.":approval==="approved"?"Finance has approved this version in the simulation.":approval==="rejected"?"Run the procedure again to submit a fresh draft.":"The sample exception has been acknowledged. An authorised reviewer can now approve the draft."}</p>
      <button className="brief-link" onClick={()=>onNavigate(hasIssue?"data":"workflows")}>{hasIssue?"Inspect reconciliation evidence":"View approval queue"} <ArrowRight size={15}/></button></>:
      <><p className="pilot-quote">{roles[role].name}</p><p className="brief-context">Group financial results are restricted to finance and executive roles.</p></>}
    </div>
