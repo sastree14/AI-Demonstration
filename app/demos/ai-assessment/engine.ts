@@ -71,6 +71,22 @@ export function parseText(text:string){
  {field:"hourlyCost",regex:/(?:hourly cost|loaded rate)\s*:\s*\$?([\d.]+)/i}
  ];
  for(const x of num){const m=text.match(x.regex);if(m){const n=Number(m[1].replace(/,/g,""));if(n>0&&Number.isFinite(n)){(patch as Record<string,unknown>)[x.field]=n;evidence.push({field:x.field,quote:m[0]})}}}
+ const addObserved=(field:keyof Case,regex:RegExp,number=false)=>{
+  if((patch as Record<string,unknown>)[field])return;
+  const m=text.match(regex);if(!m)return;
+  const raw=(m[1]||"").trim();if(!raw)return;
+  if(number){const v=Number(raw.replace(/,/g,""));if(!Number.isFinite(v)||v<=0)return;(patch as Record<string,unknown>)[field]=v;}
+  else (patch as Record<string,unknown>)[field]=raw.slice(0,360);
+  evidence.push({field,quote:"From call: "+m[0].trim().slice(0,130)});
+ };
+ // Conversational patterns are only suggested when directly evidenced by wording.
+ addObserved("weeklyVolume",/\b(?:process|handle|receive)\s+(?:around|roughly|about|approximately)?\s*([\d,]+)\s*(?:each|per|a)\s*week/i,true);
+ addObserved("weeklyVolume",/\b([\d,]+)\s+(?:invoices|orders|requests|tickets|cases)\s+(?:each|per|a)\s+week\b/i,true);
+ addObserved("minutes",/\b([\d.]+)\s+minutes?\s+(?:per|each|an)\s+(?:invoice|request|order|case|item)\b/i,true);
+ addObserved("systems",/\b(?:we use|we work with|using)\s+([^.;\n]{4,110})/i);
+ addObserved("owner",/\b(the\s+(?:AP|finance|operations|process|accounts payable)\s+manager)\b/i);
+ addObserved("inputs",/\b(PDF invoices[^.\n]{0,110})/i);
+ addObserved("exceptions",/\b(Missing [^.\n]{10,150}human approval)\b/i);
  return {patch,evidence};
 }
 export function recommendations(d:Case,p:Preference):Suggestion[]{
