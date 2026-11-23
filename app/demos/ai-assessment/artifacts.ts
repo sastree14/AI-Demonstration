@@ -1,6 +1,6 @@
-import {type Case,type Suggestion,economics,packages,fmt} from "./engine";
-import {ndaDocument,type NdaClause,toLatex} from "./legal";
-import {allocatedImpacts,capacityPlan} from "./delivery";
+import {type Case,type Suggestion,economics,packages,fmt} from "./engine.ts";
+import {ndaDocument,type NdaClause,toLatex} from "./legal.ts";
+import {allocatedImpacts,capacityPlan} from "./delivery.ts";
 
 type DocumentModel={title:string;subtitle:string;meta:string[];sections:{heading:string;text:string}[];footer:string};
 const safeName=(s:string)=>s.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,45);
