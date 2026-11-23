@@ -350,7 +350,7 @@ export default function WigwamFinanceDemo(){
        ].map(([a,b])=><div key={a}><Database size={16}/><div><strong>{a}</strong><p>{b}</p></div></div>)}</div>
       </Panel>
      </div>
-     <div className={css.grid2}>
+     <div className={css.grid2+" "+css.reportGrid}>
       <Panel label="CUSTOMISE THE BOARD PACK" title="Choose sections to include">
        {["Summary","Exceptions","Source mapping","Approval notice"].map(n=><label className={css.kpiLine} key={n}><span>{n}</span><input type="checkbox" checked={reportSections.includes(n)} onChange={e=>setReportSections(xs=>e.target.checked?[...xs,n]:xs.filter(x=>x!==n))}/></label>)}
        <p className={css.smallTip}>The export uses the browser's Print / Save as PDF function. This pack requires a controller's approval before external distribution.</p>
