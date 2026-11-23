@@ -1,0 +1,60 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {seedInvoices,purchaseOrders,invoiceIssues,canRoute,canApprove,seedBank,bankCheck,cardSpends,cardIssues,investorPeriods,investorMetrics,calculateRoi} from "../app/demos/wigwam-finance/engine.ts";
+
+test("Source-based AP case includes proposed wrong company and other high-risk exceptions",()=>{
+ const wrong=seedInvoices.find(x=>x.id==="wi-2");
+ assert.ok(wrong);
+ assert.ok(invoiceIssues(wrong,seedInvoices).some(x=>x.includes("Entity")));
+ assert.ok(invoiceIssues(seedInvoices.find(x=>x.id==="wi-4"),seedInvoices).some(x=>x.includes("purchase order")));
+ assert.ok(invoiceIssues(seedInvoices.find(x=>x.id==="wi-8"),seedInvoices).some(x=>x.includes("duplicate")));
+});
+test("Changing entity clears wrong-company and PO-entity mismatch but not other issues",()=>{
+ const original=seedInvoices.find(x=>x.id==="wi-2");
+ const corrected={...original,assignedCompany:"property"};
+ const issues=invoiceIssues(corrected,seedInvoices);
+ assert.equal(issues.length,0);
+ assert.equal(original.status,"needs_review");
+ assert.ok(canRoute(corrected,seedInvoices));
+});
+test("Approvals never happen as director or before a controlled hand-off",()=>{
+ const ready=seedInvoices.find(x=>x.id==="wi-1");
+ assert.equal(canApprove(ready,seedInvoices,"director"),false);
+ assert.equal(canApprove(ready,seedInvoices,"controller"),true);
+ const invalid=seedInvoices.find(x=>x.id==="wi-2");
+ assert.equal(canApprove(invalid,seedInvoices,"controller"),false);
+ const override={...invalid,exceptionApproved:true,exceptionNote:"Investigated by Finance Controller",status:"pending_approval"};
+ assert.ok(canApprove(override,seedInvoices,"controller"));
+});
+test("An exception note is required for any override",()=>{
+ const x=seedInvoices.find(x=>x.id==="wi-2");
+ assert.equal(canRoute({...x,exceptionApproved:true,exceptionNote:"short"},seedInvoices),false);
+ assert.equal(canRoute({...x,exceptionApproved:true,exceptionNote:"Signed off after checking the source company"},seedInvoices),true);
+});
+test("Bank line checks distinguish exact, amount, reference and missing",()=>{
+ assert.deepEqual(seedBank.map(bankCheck),["match","match","match","amount","reference","match","missing"]);
+});
+test("Card controls flag a missing receipt or PO",()=>{
+ assert.ok(cardIssues(cardSpends[0]).length===2);
+ assert.equal(cardIssues(cardSpends[1]).length,0);
+});
+test("Investor quarters distinguish the forecast and closing cash snapshot",()=>{
+ assert.equal(investorPeriods.at(-1).id,"2026-Q4F");
+ const q=investorMetrics("2026-Q3");
+ assert.equal(q.operatingResult,q.revenue-q.costs);
+ assert.ok(q.margin>0);
+});
+test("ROI scenario separates nominal freed capacity from actual cash",()=>{
+ const a=calculateRoi(65,11,55,80,25,125,4500,0);
+ const b=calculateRoi(65,11,55,80,25,125,4500,100);
+ assert.ok(a.freed>0&&a.value>0);
+ assert.equal(a.cashBenefit,0);
+ assert.equal(a.netCash,-6000);
+ assert.ok(Math.abs(b.cashBenefit-b.value)<0.000001);
+ assert.ok(b.netCash>a.netCash);
+});
+test("Proposed PO register and invoices contain only fictional entity IDs",()=>{
+ const valid=new Set(["operating","property","services"]);
+ assert.ok(seedInvoices.every(x=>valid.has(x.sourceCompany)&&valid.has(x.assignedCompany)));
+ assert.ok(purchaseOrders.every(x=>valid.has(x.entity)));
+});
