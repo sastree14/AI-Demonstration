@@ -173,3 +173,18 @@
 .finance-overlay-note button{flex:none}
 @media(max-width:700px){.finance-overlay-note{flex-wrap:wrap}.finance-overlay-note button{width:100%}}
 @media print{.finance-overlay-note{display:none!important}}
+
+/* The brief and the board pack share a period and reporting scope. */
+.brief-period{display:grid;gap:5px;margin-top:20px;font-size:12px;font-weight:650;color:#345549}
+.brief-period select{max-width:100%;background:white;border:1px solid #a7bdb1;color:#173d30;border-radius:6px;padding:8px 12px;font:inherit}
+.brief-context{color:#d6e7de;font-size:14px;line-height:1.65;margin:12px 0}
+.brief-link{display:inline-flex;align-self:flex-start;align-items:center;gap:8px;background:transparent;border:0;border-bottom:1px solid #86b09d;color:white;padding:7px 0;font:inherit;font-weight:650;cursor:pointer}
+.brief-performance{background:white;border:1px solid #d5e3da;border-radius:14px;padding:22px 28px}
+.brief-heading{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.brief-heading h2{font-size:20px}.brief-heading span,.brief-figures small{color:#516b5f;font-size:12px}
+.brief-figures{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin:18px 0 0}
+.brief-figures div{border-top:2px solid #b3cbbd;padding-top:12px}
+.brief-figures dt{color:#355849;font-weight:650;font-size:13px}
+.brief-figures dd{font-size:clamp(22px,2.6vw,36px);font-weight:650;font-variant-numeric:tabular-nums;letter-spacing:-.04em;color:#153c2d;margin:5px 0}
+@media(max-width:600px){.brief-performance{padding:20px}.brief-figures{grid-template-columns:1fr;gap:10px}.brief-figures div{display:grid;grid-template-columns:1fr auto;align-items:baseline}.brief-figures small{grid-column:1/-1}}
+.brief-footer{display:flex;gap:12px;justify-content:space-between;align-items:center;flex-wrap:wrap;border-top:1px solid #deebe3;padding-top:12px;margin-top:16px;color:#526b60;font-size:12px}
