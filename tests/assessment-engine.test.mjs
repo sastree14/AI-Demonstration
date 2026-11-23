@@ -96,7 +96,7 @@ test("both commercial scopes scale with resources",()=>{
 });
 test("NDA case recommendations are editable and exported clauses obey selection",()=>{
  const c=clausesFor(samples[0]);
- assert.ok(c.some(x=>x.id==="personal"&&x.selected));
+ assert.ok(c.some(x=>x.id==="ai"&&x.selected));
  const modified=c.map(x=>x.id==="ai"?{...x,selected:false}:x);
  const doc=ndaDocument("Advisory Ltd",samples[0],"England and Wales",modified);
  assert.ok(doc.sections.length<c.filter(x=>x.selected).length);
