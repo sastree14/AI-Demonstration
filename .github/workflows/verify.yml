@@ -25,6 +25,8 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: Typecheck
         run: npm run typecheck
+      - name: Test deterministic assessment calculations
+        run: node --experimental-strip-types --test tests/assessment-engine.test.mjs
       - name: Next.js static build
         run: npm run build
       - name: Upload static site artifact
