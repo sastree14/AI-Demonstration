@@ -24,6 +24,21 @@ type Kpi={id:string;name:string;formula:string;unit:"USD"|"%"|"number";createdBy
 type Msg={speaker:"user"|"agent";content:string};
 type Notice={title:string;description:string};
 type CfoTab="overview"|"ledger"|"studio"|"controls"|"report";
+type CfoMeasure="revenue"|"budget"|"cost"|"opex"|"ebitda"|"variance"|"cash";
+type CfoKpi={id:string;name:string;a:CfoMeasure;b:CfoMeasure;operation:"ratio"|"sum"|"difference";asPercent:boolean;frequency:string};
+type CfoExpense={id:string;month:string;entity:Exclude<Entity,"all">;amount:number;note:string;category:string};
+type CfoOverlay={expenses:CfoExpense[];saved:CfoKpi[];approved:boolean;reviewedNote:string};
+const emptyOverlay:()=>CfoOverlay=()=>({expenses:[],saved:[],approved:false,reviewedNote:""});
+const getOverlay=():CfoOverlay=>{try{
+ const parsed=JSON.parse(localStorage.getItem("sc-finance-cfo-studio-v1")||"{}");
+ return {expenses:Array.isArray(parsed.expenses)?parsed.expenses.filter((x:CfoExpense)=>Number.isFinite(x.amount)&&x.amount>0):[],saved:Array.isArray(parsed.saved)?parsed.saved:[],approved:parsed.approved===true,reviewedNote:typeof parsed.reviewedNote==="string"?parsed.reviewedNote:""};
+}catch{return emptyOverlay();}};
+function cfoKpiValue(k:CfoKpi,t:Metrics):number|null{
+ const a=t[k.a],b=t[k.b];if(!Number.isFinite(a)||!Number.isFinite(b))return null;
+ if(k.operation==="sum")return a+b;
+ if(k.operation==="difference")return a-b;
+ return b===0?null:a/b*(k.asPercent?100:1);
+}
 const nav:Array<{id:View;title:string;icon:typeof LayoutDashboard;section:string}>=[
  {id:"pilot",title:"Workflow guide · 4 steps",icon:FileCheck2,section:"workspace"},
  {id:"overview",title:"Executive overview",icon:LayoutDashboard,section:"workspace"},
@@ -62,6 +77,7 @@ function Toast({notice,onClose}:{notice:Notice|null;onClose:()=>void}){if(!notic
 export default function FinanceDemoPage(){
  const [view,setView]=useState<View>("pilot");
  const [cfoTab,setCfoTab]=useState<CfoTab>("overview");
+ const [cfoOverlay,setCfoOverlay]=useState<CfoOverlay>(emptyOverlay);
  const [role,setRole]=useState<Role>("ceo");
  const [entity,setEntity]=useState<Entity>("all");
  const [sideOpen,setSideOpen]=useState(false);
@@ -98,13 +114,28 @@ export default function FinanceDemoPage(){
    setReportStyle(getStored("finance-demo:style","Executive"));
    setEnabledSections(getStored("finance-demo:sections",reportSections));
  },[]);
+ useEffect(()=>{
+  const refresh=()=>setCfoOverlay(getOverlay());
+  refresh();window.addEventListener("sc-finance:changed",refresh);
+  return ()=>window.removeEventListener("sc-finance:changed",refresh);
+ },[]);
  const canEdit=roles[role].edit,canApprove=roles[role].approve;
  const entityScope:Entity=roles[role].entities.includes(entity)?entity:(roles[role].entities[0]||"all");
  const allRows=sourceMode==="csv"&&csvRows?csvRows:records;
  const scopedRows=useMemo(()=>allRows.filter(r=>entityScope==="all"||r.entity===entityScope),[allRows,entityScope]);
- const metrics=useMemo(()=>summarize(scopedRows),[scopedRows]);
+ const baseMetrics=useMemo(()=>summarize(scopedRows),[scopedRows]);
+ const addedExpenses=useMemo(()=>sourceMode==="synthetic"?cfoOverlay.expenses.filter(e=>(entityScope==="all"||e.entity===entityScope)&&months.includes(e.month)).reduce((sum,e)=>sum+e.amount,0):0,[cfoOverlay.expenses,entityScope,sourceMode]);
+ const metrics=useMemo(()=>{
+  const opex=baseMetrics.opex+addedExpenses,ebitda=baseMetrics.revenue-baseMetrics.cost-opex;
+  return {...baseMetrics,opex,ebitda,margin:baseMetrics.revenue?ebitda/baseMetrics.revenue*100:0};
+ },[baseMetrics,addedExpenses]);
  const reportRows=useMemo(()=>scopedRows.filter(r=>reportPeriod==="sixmonths"||(reportPeriod==="q3"?["Jul 2026","Aug 2026","Sep 2026"].includes(r.month):r.month==="Oct 2026")),[scopedRows,reportPeriod]);
- const reportMetrics=useMemo(()=>summarize(reportRows),[reportRows]);
+ const reportBase=useMemo(()=>summarize(reportRows),[reportRows]);
+ const reportExpense=useMemo(()=>sourceMode==="synthetic"?cfoOverlay.expenses.filter(e=>(entityScope==="all"||e.entity===entityScope)&&reportRows.some(r=>r.month===e.month)).reduce((sum,e)=>sum+e.amount,0):0,[cfoOverlay.expenses,entityScope,sourceMode,reportRows]);
+ const reportMetrics=useMemo(()=>{
+  const opex=reportBase.opex+reportExpense,ebitda=reportBase.revenue-reportBase.cost-opex;
+  return {...reportBase,opex,ebitda,margin:reportBase.revenue?ebitda/reportBase.revenue*100:0};
+ },[reportBase,reportExpense]);
  const currentAgent=agents.find(a=>a.id===selectedAgent) || agents[1];
  const allowedAgents=agents.filter(a=>roles[role].agents.includes(a.id));
  const allowed=roles[role].allowed;
