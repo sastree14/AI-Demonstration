@@ -162,3 +162,14 @@
 @media(max-width:840px){.pilot-dual,.expansion-identity,.expansion-final{grid-template-columns:1fr}.pilot-stage-bottom{flex-direction:column;align-items:stretch}.pilot-stage-actions{justify-content:flex-start}.pilot-result-metrics{grid-template-columns:1fr 1fr}.expansion-phase-grid{grid-template-columns:1fr}.expansion-phase h3{min-height:auto}.capability-columns{grid-template-columns:1fr}.capability-columns>div{border-left:0;border-top:1px solid #d9e3d9;padding:13px 0 0}.capability-columns>div:first-child{border-top:0;padding-top:0}}
 @media(max-width:600px){.pilot-hero-copy{padding:28px 20px}.pilot-hero h1{font-size:30px;letter-spacing:-1.3px}.pilot-hero-card{padding:24px 20px}.pilot-tabs{grid-template-columns:1fr 1fr}.pilot-stage{padding:20px 16px}.pilot-dual,.pilot-actions-grid{grid-template-columns:1fr}.pilot-actions-grid .pilot-action-card:last-child{grid-column:auto}.pilot-rule{grid-template-columns:1fr}.pilot-section-head{flex-direction:column;align-items:flex-start}.pilot-result-metrics{grid-template-columns:1fr 1fr}.pilot-later{flex-direction:column;align-items:flex-start}.pilot-restricted{flex-direction:column;align-items:flex-start}.expansion-hero{padding:26px 22px}.expansion-hero h1{font-size:30px}.expansion-faq{padding:18px 12px}.expansion-faq-answer{padding:0 14px 15px 15px}.expansion-identity,.expansion-final{padding:19px}.pilot-stage-actions .btn{flex:1;justify-content:center}}
 @media print{.pilot-experience,.expansion-experience,.capability-explainer{display:none!important}}
+
+/* CFO overlay is shared with the existing finance modules. */
+.finance-overlay-note{display:flex;align-items:center;gap:13px;background:#f0f6f1;border:1px solid #d9e9dc;color:#2e6650;padding:13px 17px;border-radius:10px;margin-bottom:20px;font-size:11px}
+.finance-overlay-note>svg{flex:none}
+.finance-overlay-note>div{flex:1;min-width:0}
+.finance-overlay-note strong,.finance-overlay-note span{display:block}
+.finance-overlay-note strong{font-size:12px;margin-bottom:3px}
+.finance-overlay-note span{color:#5c7968;line-height:1.6}
+.finance-overlay-note button{flex:none}
+@media(max-width:700px){.finance-overlay-note{flex-wrap:wrap}.finance-overlay-note button{width:100%}}
+@media print{.finance-overlay-note{display:none!important}}
