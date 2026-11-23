@@ -12,10 +12,11 @@ The demo deliberately **does not connect to Awais' Finance Intelligence applicat
 4. **AI opportunities.** Inspect weighted scores and reasons. Approve/reject a suggestion and show rankings respond to consultant feedback.
 5. **Proposal architect.** Compare a limited Proof of Value and a governed rollout. Numbers are **fictional sample customer project prices**, not the cost to develop this toolkit.
 6. **ROI & economics.** Vary automation coverage, labour, infrastructure, licensing and staffing; inspect year-one and three-year results.
-7. **Roadmap & pipeline.** Pick a package; show accountable milestones, capacity constraints, meeting actions and multi-client prioritisation.
-8. **NDA & governance.** Prepare a **non-signature-ready** legal-review draft; see role matrix and implementation controls.
+7. **Roadmap & pipeline.** Pick a package; change technical contributors and show how actual phase start/end weeks and total duration recalculate (with diminishing parallelisation). Compare multiple clients.
+8. **NDA & governance.** The rules-based assistant proposes NDA clauses based on the case. Toggle clauses, edit their language or add your own; download a professional PDF and an editable Overleaf `.tex` document. Legal review is mandatory.
 9. **Connected ecosystem.** Show Google/Microsoft file intake, calendars, CRM, databases, orchestration and LLM integration *as architecture proposals only*.
 10. **Agent workspace & deliverables.** Ask a specialist a domain question and generate a configurable, print-to-PDF assessment.
+11. **Meeting & proposals.** Pick automations to discuss and show apportioned (not additive) hours/dollars impact, generate a 45-minute client review agenda and importable calendar `.ics`, build typeset proposal PDF or `.tex` for Overleaf, download a 5-slide presentation PDF, then generate/edit a client-specific email draft with an optional support/legal CC.
 
 ## Product promises versus static demonstration
 | Capability | This Pages demo | Required for production |
@@ -25,15 +26,21 @@ The demo deliberately **does not connect to Awais' Finance Intelligence applicat
 | Mapping | Editable, gated deterministic stages | Connected company data, approvals, feedback versions |
 | Recommendations | Explainable weighted rules, local feedback | Calibrated methodology with evidence, evaluation and review |
 | AI chat | Deterministic context answers | Protected LLM + RAG + access-controlled tools |
-| ROI | Editable assumptions and transparent formulas | Verified baseline and ongoing actual-vs-expected results |
-| NDA | Unreviewed illustrative downloadable text | Qualified jurisdiction-specific legal drafting and signature workflow |
+| ROI | Editable automation share, fixed 80% realisation assumption, separately adjustable 0–100% cash monetisation and transparent formulas | Verified baseline and ongoing actual-vs-expected results |
+| NDA | Selected/edited clauses, recommended defaults based on case context, typeset PDF and editable Overleaf `.tex` | Qualified jurisdiction-specific legal drafting, managed approvals and signature workflow |
 | Integrations | Clickable conceptual connectors, no network calls | OAuth, server-side policy, audit trails, rate limits, retry handling |
 | Project records | localStorage only | Tenant-isolated database, roles, backups, deletion and retention |
-| Client PDF | Browser print-to-PDF | Governed document service and approval/version registry |
+| Client PDF | Browser print-to-PDF; separately generated proposal PDF and 5-slide presentation PDF | Governed document service and approval/version registry |
+| Follow-up meeting | Agenda generation and local `.ics` download; no booking | Connected Google/Microsoft calendar with attendee notifications and confirmation |
+| Email follow-up | Personalised, editable `mailto:` draft and optional CC; PDF must be attached manually | Authorised SMTP/Gmail/Outlook send with governed attachment, audit and delivery receipt |
+| Delivery capacity | Stage dates and total weeks respond to 1–6 technical contributors under diminishing returns | Historical estimates, capacity calendars, skills and dependency graph |
 
 ### Safety and sales boundaries
 - All organisations, people, amounts, timelines, agents and evidence are invented for this demonstration.
 - **Never upload customer data, confidential calls, PII, NDA-protected material or real credentials to a publicly hosted demo.**
+- Email buttons open a new draft in the user's mail client; they do **not** send mail, attach files automatically, or connect to a support inbox. The user must select the recipient/CC and manually attach reviewed exports.
+- Calendar downloads are not live bookings or attendee invitations. They produce `.ics` files to import using the user's chosen calendar.
+- Automated NDA recommendations are deterministic case rules, not legal counsel. The Overleaf-compatible `.tex` is editable source and the generated PDF is not itself signature-ready.
 - Imported document contents are parsed within the browser; applied fields and transcripts may persist in browser storage. This is not a secured production data store.
 - Consultant feedback changes local preferences. It does **not** train an AI model or deploy new software.
 - Client proposal prices are scenario illustrations, not an offer by SC-Analytics, an estimate for building the white-label toolkit, or a fixed customer quotation.
