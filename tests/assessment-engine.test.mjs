@@ -30,6 +30,15 @@ test("transcript extraction does not invent information",()=>{
  assert.equal(x.patch.systems,undefined);
 });
 
+test("conversational transcript extracts only directly evidenced facts",()=>{
+ const x=parseText(samples[0].transcript);
+ assert.equal(x.patch.weeklyVolume,210);
+ assert.equal(x.patch.minutes,18);
+ assert.match(x.patch.systems,/Dynamics/i);
+ assert.equal(x.patch.company,undefined);
+ assert.ok(x.evidence.length>=2);
+});
+
 test("consultant acceptance changes explainable recommendation scores",()=>{
  const d=samples[0],base=recommendations(d,preferenceDefault);
  const focus=base.find(x=>x.id==="capture");
