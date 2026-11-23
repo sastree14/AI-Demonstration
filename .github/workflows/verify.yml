@@ -27,6 +27,8 @@ jobs:
         run: npm run typecheck
       - name: Test deterministic assessment calculations
         run: node --experimental-strip-types --test tests/assessment-engine.test.mjs
+      - name: Test Wigwam finance controls and demonstration calculations
+        run: node --experimental-strip-types --test tests/wigwam-finance.test.mjs
       - name: Next.js static build
         run: npm run build
       - name: Check the CFO and advisory journeys in desktop and mobile Chrome
