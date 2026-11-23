@@ -74,3 +74,50 @@ test("NDA generator never represents the sample as signature-ready",()=>{
  assert.match(x,/Consultancy/);
  assert.match(x,/Fictional Client/);
 });
+
+
+import {capacityPlan,allocatedImpacts,meetingAgenda,personalisedEmail} from "../app/demos/ai-assessment/delivery.ts";
+import {clausesFor,ndaDocument,ndaLatex} from "../app/demos/ai-assessment/legal.ts";
+
+test("delivery dates respond to technical capacity without skipping signoff",()=>{
+ const one=capacityPlan("scale",1,samples[0]);
+ const four=capacityPlan("scale",4,samples[0]);
+ assert.ok(four.totalWeeks<one.totalWeeks);
+ assert.ok(one.totalWeeks>0&&four.totalWeeks>0);
+ assert.equal(one.phases[0].duration,four.phases[0].duration);
+ assert.equal(one.phases[3].duration,four.phases[3].duration);
+ assert.equal(one.phases[2].technical,true);
+ assert.equal(one.phases.at(-1).end,one.rawWeeks);
+});
+test("both commercial scopes scale with resources",()=>{
+ const a=capacityPlan("pilot",2,samples[0]),b=capacityPlan("pilot",6,samples[0]);
+ assert.ok(b.totalWeeks<=a.totalWeeks);
+ assert.ok(b.effectiveFte<6);
+});
+test("NDA case recommendations are editable and exported clauses obey selection",()=>{
+ const c=clausesFor(samples[0]);
+ assert.ok(c.some(x=>x.id==="ai"&&x.selected));
+ const modified=c.map(x=>x.id==="ai"?{...x,selected:false}:x);
+ const doc=ndaDocument("Advisory Ltd",samples[0],"England and Wales",modified);
+ assert.ok(doc.sections.length<c.filter(x=>x.selected).length);
+ assert.ok(!doc.sections.some(x=>/AI models/i.test(x.heading)));
+ const tex=ndaLatex("Advisory Ltd",samples[0],"England and Wales",modified);
+ assert.match(tex,/documentclass/);
+ assert.match(tex,/section/);
+ assert.doesNotMatch(tex,/section\\*\\{\\d+\\\\?\\. AI models/);
+});
+test("opportunity impact allocation avoids double counting",()=>{
+ const d=samples[0],recommended=recommendations(d,preferenceDefault);
+ const v=allocatedImpacts(d,recommended);
+ const t=economics(d);
+ const sum=v.reduce((a,x)=>a+x.hours,0);
+ assert.ok(Math.abs(sum-t.hoursYear)<.001);
+ assert.equal(meetingAgenda(d,recommended).reduce((a,x)=>a+x.minutes,0),45);
+});
+test("draft client correspondence is personal and labelled conditional",()=>{
+ const v=personalisedEmail(samples[0],"Consulting Partner","pilot",65,"Validate source API");
+ assert.match(v.subject,/Meridian Distribution/);
+ assert.match(v.body,/not guaranteed cash|not guaranteed cash savings/i);
+ assert.match(v.body,/Validate source API/);
+ assert.doesNotMatch(v.body,/toolkit development|internal build budget/i);
+});

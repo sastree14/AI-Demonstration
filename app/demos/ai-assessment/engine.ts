@@ -1,5 +1,5 @@
 /* Browser-only, transparent methodology. Every company is fictional. */
-export type Module="overview"|"discovery"|"mapping"|"assessment"|"commercial"|"roi"|"roadmap"|"pipeline"|"governance"|"integrations"|"agents"|"deliverables";
+export type Module="overview"|"discovery"|"mapping"|"assessment"|"commercial"|"roi"|"roadmap"|"pipeline"|"handoff"|"governance"|"integrations"|"agents"|"deliverables";
 export type Case={
  id:string;company:string;sector:string;employees:number;revenue:number;systems:string;process:string;
  owner:string;trigger:string;inputs:string;steps:string;outputs:string;exceptions:string;objective:string;
