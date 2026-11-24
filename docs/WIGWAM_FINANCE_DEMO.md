@@ -22,9 +22,37 @@ https://sastree14.github.io/AI-Demonstration/demos/wigwam-finance/
 
 This route is independent of all other client demo pages, without links between client workspaces. The simple existence of a route is NOT an authentication control; do not load confidential customer material here.
 
+## Guided release — end-to-end client-story workflow
+
+The new **Guided AP walkthrough** in the first sidebar group is the recommended commercial starting point. It uses **shared application state** so updates propagate to Supplier invoices, the dashboard, audit trail and CSV export.
+
+1. Open Command centre in Director view to explain the **business-value hypothesis**, not validated savings.
+2. Click **Run guided AP walkthrough**. Choose **Receive a new sample invoice** to generate fictional invoice \`NS-DEMO-6041\` (subsequent clicks create separate numbered samples).
+3. Inspect the visually rendered fictional invoice — document legal entity B, proposed accounting entity A, and a PO belonging to entity B. Fields are synthetic test values, not actual PDF extraction.
+4. In Director view the corrections are disabled. Click **Switch to Controller**, correct the legal entity and run the validation. Wrong-company, duplicate and PO-supplier/PO-entity mismatches are **hard stops**, regardless of justification notes.
+5. Check that the invoice moves to **Awaiting human approval**. Click **Record human approval** from the simulated Controller perspective.
+6. Only after approval, click **Download approved invoice CSV**. The local review file includes the flag **NOT SENT TO XERO**. The demo records staging in local state and updates its dashboard. It neither posts accounts nor initiates payments.
+7. Open Supplier invoices to inspect this case and all others; correct the deliberately problematic \`NS-7421\` for a second example.
+8. Explore reconciliations and record a documented difference review. An investigation note does not change or force reconciliation of source ledger balances.
+9. Open investor reporting and customise the fictional quarterly pack. Controller can record a review note of at least 20 characters; changes to period, report sections or financial-case state invalidate that review. PDF is always an illustrative draft (never a factual investor statement).
+10. Inspect PO and card policy checks, integrations, explainability guide and implementation priorities. In the guide ask for a particular invoice ID or “explain this invoice” for a deterministic context-aware answer.
+11. Click **Reset scenario** to clear local financial-case decisions before another sales presentation.
+
+The Director perspective focuses on commercial value and oversight. Financial Controller perspective permits **simulated** edits, exception notes, invoice approvals and report review. This selector is not real authentication.
+
+### Quality and integrity acceptance checks
+- Entity, supplier/PO and duplicate problems cannot be waived by free-text note.
+- Only eligible missing-PO or overspend exceptions can proceed with Controller justification and separate final approval.
+- Approved or staged invoice fields cannot be silently changed.
+- Xero-staging export is available only to Controller after approval and cannot be repeated for an already staged case.
+- Card spending checks existence, PO entity, amount and receipt evidence.
+- Quarterly pack remains clearly fictional and any changed underlying status invalidates its simulated review.
+- All steps are local browser interactions; none sends emails, bank instructions, Xero writes or approval requests.
+- Tests run in TypeScript, Node unit tests and desktop/mobile Playwright smoke tests. The same smoke suite checks the existing Awais and Kenny demos for regressions.
+
 ## Suggested discovery walkthrough (12–18 minutes)
 1. **Command centre:** show the first AP pilot and visible exceptions. Four workstreams mirror the supplied conversation.
-2. **Supplier invoices:** review synthetic wrong-company invoice NS-7421, missing PO WR-2319, possible duplicate, PO overspend, and controller sign-off. Switch simulated perspective from Director to Financial Controller. Explain that no payment or Xero posting occurs.
+2. **Supplier invoices:** review synthetic wrong-company invoice NS-7421, missing PO WR-2319, possible duplicate, PO overspend and Controller sign-off. A separate approved-only CSV staging step never posts to Xero. Switch simulated perspective from Director to Financial Controller. Explain that no payment or Xero posting occurs.
 3. **Bank reconciliations:** sample Stripe / GoCardless references and value discrepancies. Record a human investigation note.
 4. **Quarterly investor pack:** show historical sample quarters vs an explicitly labelled Q4 forecast; export PDF using browser Print and CSV.
 5. **POs and card spending:** view Monday.com PO placeholders and receipt/PO exceptions.
@@ -35,7 +63,7 @@ This route is independent of all other client demo pages, without links between 
 
 ## Safety and implementation boundaries
 - NO live Gmail, Outlook, SharePoint, Xero, Stripe, GoCardless, Hubdoc, ApprovalMax, Monday.com, Space Manager, or Power Automate connections.
-- NO real document uploads, stored bank credentials, external email, ledger posting, payment execution, or autonomous approval.
+- NO real document uploads, stored bank credentials, external email, ledger posting, payment execution, or autonomous approval. The synthetic invoice preview is rendered in HTML, not parsed from a genuine PDF.
 - ALL invoices, legal entities (A/B/C), supplier names, POs, card spends, reconciliations, quarterly balances, percentages and ROI numbers are invented.
 - A “Financial Controller view” in this public demo does NOT authenticate as Sarah. Production needs server-side accounts, least-privilege permissions, audit logs, API permission review and secure storage.
 - State changes persist only in localStorage in the current browser and are resettable. Exception overrides are documented separately from approval.
