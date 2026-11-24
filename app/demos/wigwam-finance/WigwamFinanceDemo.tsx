@@ -272,7 +272,7 @@ export default function WigwamFinanceDemo(){
  function navLink(item:{id:Screen;label:string;icon:typeof LayoutDashboard}){const Icon=item.icon;return <button key={item.id} onClick={()=>navigate(item.id)} className={screen===item.id?css.navCurrent:css.navLink}><Icon size={16}/><span>{item.label}</span>{screen===item.id&&<i/>}</button>;}
  const reviewCases=flagged.slice(0,4);
  const stagedCount=invoices.filter(x=>x.staged).length;
- const reportSignature=JSON.stringify({period,reportSections,inv:invoices.map(x=>[x.id,x.status,x.assignedCompany,x.poId,x.exceptionApproved]),bank:banks.map(x=>[x.id,x.reviewed,x.note])});
+ const reportSignature=JSON.stringify({period,reportSections,reportNote,inv:invoices.map(x=>[x.id,x.status,x.assignedCompany,x.poId,x.exceptionApproved]),bank:banks.map(x=>[x.id,x.reviewed,x.note])});
  const reportSigned=reportReview?.signature===reportSignature;
  return <div className={css.shell}>
   {menuOpen&&<button className={css.mobileBackdrop} aria-label="Close navigation" onClick={()=>setMenuOpen(false)}/>}
@@ -401,7 +401,7 @@ export default function WigwamFinanceDemo(){
      <div className={css.grid2+" "+css.reportGrid}>
       <Panel label="CUSTOMISE THE BOARD PACK" title="Choose sections to include">
        {["Summary","Exceptions","Source mapping","Approval notice"].map(n=><label className={css.kpiLine} key={n}><span>{n}</span><input type="checkbox" checked={reportSections.includes(n)} onChange={e=>setReportSections(xs=>e.target.checked?[...xs,n]:xs.filter(x=>x!==n))}/></label>)}
-       <p className={css.smallTip}>The export uses the browser's Print / Save as PDF function. This pack requires a controller's approval before external distribution.</p>
+       <div className={css.smallDivider}/><label className={css.field}>Controller review notes<textarea rows={3} value={reportNote} onChange={e=>setReportNote(e.target.value)} disabled={role!=="controller"} placeholder="Document checks, source verification, unresolved items and owner." /></label><button className={css.secondary} onClick={signInvestorDraft} disabled={role!=="controller"||reportNote.trim().length<20||reportSigned}><ShieldCheck size={15}/> Record controller review</button><p className={css.smallTip}>{reportSigned?"Review recorded locally for this exact set of figures and sections. Any material changes require another sign-off.":"This remains an unreviewed draft. You can print it for discussion, but it is not a real investor statement."} Export using the browser's Print / Save PDF function.</p>
       </Panel>
       <div className={css.printArea}><div className={css.reportPaper}>
        <div className={css.reportPaperHead}><small>WIGWAM STORAGE / ILLUSTRATIVE FINANCE DEMO</small><h2>Quarterly investor overview</h2><p>{current.name} · fictional numbers · {reportSigned?"Controller-reviewed DEMO draft":"UNREVIEWED draft"}</p></div>
