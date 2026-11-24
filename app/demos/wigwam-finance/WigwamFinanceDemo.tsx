@@ -90,13 +90,13 @@ function FinanceGuide(query:string,role:Role,invoices:Invoice[],bank:BankLine[],
  }
 
  if(/invoice|supplier|hubdoc|payable|bookkeeper|manual|log.?jam|flow|automation/.test(q)){
-  return "The first proposed pilot is supplier invoice handling, building on the shared inbox → Hubdoc → Xero → ApprovalMax route Nick described. Extra entity, PO and duplicate checks are hypothetical controls pending validation with the finance team. This sample contains "+problem.length+" invoices with outstanding validation flags. The solution should reduce repetitive routing while preserving Finance Controller sign-off. None of these integrations are currently connected.";
+  return "An example supplier-invoice workflow connects document capture, entity and PO checks, exception review and human approval. This sample contains "+problem.length+" invoices with validation flags. A connected implementation could reduce manual handling while preserving human approval. This demonstration has no live connections.";
  }
  if(/approve|pay|payment|sign.?off|policy|control|human|security/.test(q)){
   return "People remain accountable. The rules engine can identify issues and prepare an approval request, but only the simulated Financial Controller view can mark an invoice approved. This is a UI demonstration, not authentication. There is intentionally no payment execution, bank instruction or live Xero posting.";
  }
  if(/company|entity|legal|wrong|duplicate|po\b|purchase/.test(q)){
-  return "This fictional example compares the invoice entity, proposed bookkeeping entity and a sample purchase order. Three illustrative legal entities and a PO-required rule were invented for the demo: we do not know Wigwam's actual entity structure or which expenses require POs. Open Supplier invoices to inspect the sample evidence.";
+  return "This fictional example compares the invoice entity, proposed bookkeeping entity and a sample purchase order. The three legal entities and PO-required rule are fictional and configurable. Open Supplier invoices to inspect the sample evidence.";
  }
  if(/bank|stripe|gocardless|reconcil|settlement|match/.test(q)){
   const mismatches=bank.filter(x=>bankCheck(x)!=="match");
@@ -106,13 +106,13 @@ function FinanceGuide(query:string,role:Role,invoices:Invoice[],bank:BankLine[],
   return "The investor pack uses completely invented revenue, cash and occupancy data to illustrate possible reporting. Xero, payment systems and Space Manager are potential inputs only. We must confirm actual data sources, metrics and approvers. Q4 2026 is marked as a sample forecast.";
  }
  if(/roi|value|save|cost|hour|money|budget/.test(q)){
-  return "The opportunity model calculates estimated time released from invoices per week × minutes each × automatable share × realised share. It separates nominal productive-capacity value from actual cash savings, defaulting cash conversion to zero. We need Sarah's baseline volumes and labour costs before treating any result as a business case.";
+  return "The opportunity model calculates estimated time released from invoices per week × minutes each × automatable share × realised share. It separates nominal productive-capacity value from actual cash savings, defaulting cash conversion to zero. Use verified volumes and labour costs before treating any result as a business case.";
  }
- if(/nick|sarah|director|controller|role/.test(q)){
-  return "Director and Financial Controller views are fictional perspectives for discussion, not a statement about Nick or Sarah's actual authorities. Switching roles does not authenticate anyone; production permissions and the approval matrix must be agreed with Wigwam.";
+ if(/director|controller|role|permission/.test(q)){
+  return "Director and Financial Controller are illustrative role perspectives. The selector is not authentication. Live permissions and approval rules are established through controlled configuration.";
  }
  if(/implement|roadmap|phase|pilot|connect|system/.test(q)){
-  return "First confirm invoice volumes, existing Hubdoc and ApprovalMax automation, legal entities, PO exemptions and who actually approves. A supplier-invoice pilot is an option, not yet an agreed scope; reconciliations, reporting and card controls are other areas Nick identified for discussion.";
+  return "A phased delivery can start with a controlled invoice workflow: document existing tools, configure validation and human approvals, measure performance and expand into reconciliation, reporting or spending controls where valuable.";
  }
  return "This prototype offers a rules-based explanation of the supplied requirements rather than an LLM connected to company data. Try asking: Which invoices require review? How would approval work? What bank mismatches exist? How would quarterly reporting be prepared?";
 }
@@ -250,7 +250,7 @@ export default function WigwamFinanceDemo(){
   setNotice("Fictional scenario reset to its initial state.");
  }
  function exportInvoices(){
-  safeDownload("wigwam-synthetic-accounts-payable.csv",csv([["Invoice","Supplier","Legal entity","PO","Amount GBP","Status","Issues","Exception note"],
+  safeDownload("example-accounts-payable.csv",csv([["Invoice","Supplier","Legal entity","PO","Amount GBP","Status","Issues","Exception note"],
    ...invoices.map(i=>[i.number,i.supplier,entityName(i.assignedCompany),i.poId,i.amount,statusLabel(i.status),invoiceIssues(i,invoices).join("; "),i.exceptionNote])]));
  }
  function signInvestorDraft(){
@@ -261,7 +261,7 @@ export default function WigwamFinanceDemo(){
   setNotice("Illustrative pack review recorded locally. This is still not a factual investor report.");
  }
  function exportReport(){
-  safeDownload("wigwam-synthetic-investor-quarters.csv",csv([["Period","Status","Revenue GBP","Operating costs GBP","Operating result GBP","Closing cash GBP","Collections GBP","Occupancy percent"],
+  safeDownload("example-investor-quarters.csv",csv([["Period","Status","Revenue GBP","Operating costs GBP","Operating result GBP","Closing cash GBP","Collections GBP","Occupancy percent"],
    ...investorPeriods.map(q=>[q.name,q.id.endsWith("F")?"Forecast / synthetic":"Synthetic historical",q.revenue,q.costs,q.revenue-q.costs,q.cash,q.collections,q.occupancy])]));
  }
  function ask(question?:string){
@@ -366,7 +366,7 @@ export default function WigwamFinanceDemo(){
      </div>}
     </>}
     {screen==="reconciliations"&&<>
-     {page("Bank reconciliations","02 / CROSS-SYSTEM CONTROL","Compare illustrative settlements and financial ledger records from Stripe, GoCardless, bank feeds and Space Manager. Exact matches may be proposed; mismatches must be explained by a person.",<button className={css.secondary} onClick={()=>safeDownload("wigwam-synthetic-reconciliations.csv",csv([["Reference","Source","External amount","Ledger reference","Ledger amount","Difference","Status"],...banks.map(x=>[x.reference,x.system,x.amount,x.ledgerReference,x.ledgerAmount,x.amount-x.ledgerAmount,bankCheck(x)])]))}><Download size={14}/> Export examples</button>)}
+     {page("Bank reconciliations","02 / CROSS-SYSTEM CONTROL","Compare illustrative settlements and financial ledger records from Stripe, GoCardless, bank feeds and Space Manager. Exact matches may be proposed; mismatches must be explained by a person.",<button className={css.secondary} onClick={()=>safeDownload("example-reconciliations.csv",csv([["Reference","Source","External amount","Ledger reference","Ledger amount","Difference","Status"],...banks.map(x=>[x.reference,x.system,x.amount,x.ledgerReference,x.ledgerAmount,x.amount-x.ledgerAmount,bankCheck(x)])]))}><Download size={14}/> Export examples</button>)}
      <div className={css.metrics}><Metric label="Illustrative settlement lines" value={banks.length} sub="Four hypothetical sources"/><Metric label="Exact reference + amount" value={banks.filter(x=>bankCheck(x)==="match").length} sub="Potential auto-matches" tone="accent"/><Metric label="Exceptions outstanding" value={unreconciled.length} sub="Reference, amount or missing entry" tone="alert"/><Metric label="Reviewer-completed checks" value={banks.filter(x=>x.reviewed).length} sub="Notes retained locally"/></div>
      <Panel label="RECONCILIATION QUEUE" title="Suggested ledger matches"><div className={css.dataTableWrap}><table className={css.dataTable}><thead><tr><th>Date / source</th><th>Reference</th><th>Source amount</th><th>Ledger amount</th><th>Difference</th><th>Check result</th><th/></tr></thead><tbody>{banks.map(x=><tr key={x.id}><td><strong>{x.system}</strong><small>{x.date}</small></td><td>{x.reference}</td><td>{money(x.amount)}</td><td>{money(x.ledgerAmount)}</td><td><strong>{money(x.amount-x.ledgerAmount)}</strong></td><td>{x.reviewed?<Badge type={bankCheck(x)==="match"?"good":"warn"}>{bankCheck(x)==="match"?"Match reviewed":"Investigated · "+bankCheck(x)+" difference"}</Badge>:bankCheck(x)==="match"?<Badge type="good">Exact match</Badge>:<Badge type="warn">{bankCheck(x)==="amount"?"Amount mismatch":bankCheck(x)==="reference"?"Reference mismatch":"Missing ledger value"}</Badge>}</td><td><button className={css.selectRow} onClick={()=>{setSelectedBankId(x.id);setReviewNote(x.note);}}>Inspect <ArrowRight size={13}/></button></td></tr>)}</tbody></table></div></Panel>
      <div className={css.grid2}>
@@ -516,8 +516,8 @@ export default function WigwamFinanceDemo(){
          ["Traceability","Link each recommendation to a source record and explain confidence and limitations."]
         ].map(([a,b])=><div key={a}><ShieldCheck size={16}/><div><strong>{a}</strong><p>{b}</p></div></div>)}</div>
        </Panel>
-       <Panel label="CURRENT OPEN QUESTIONS" title="What we must ask in discovery">
-        <div className={css.alertList}>{["How many supplier invoices arrive per week, across how many legal entities?","What currently causes most errors or rework in Hubdoc and Xero?","Which POs and approval thresholds should be enforced?","Who is permitted to approve exceptions and invoice payments?","Which investor KPIs and quarter-end reconciliations matter most?"].map(q=><div className={css.alertItem} key={q}><MessageCircle size={16}/><div><p>{q}</p></div></div>)}</div>
+       <Panel label="IMPLEMENTATION FOUNDATIONS" title="Configurable workflow inputs">
+        <div className={css.alertList}>{["Supplier volume and company structure","Document capture and data quality rules","Purchase-order requirements and permitted exceptions","Human approval limits and access permissions","Reporting definitions and reconciliation sources"].map(q=><div className={css.alertItem} key={q}><MessageCircle size={16}/><div><p>{q}</p></div></div>)}</div>
        </Panel>
       </div>
      </div>
