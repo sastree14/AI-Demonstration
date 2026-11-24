@@ -20,7 +20,7 @@ import GuidedJourney from "./GuidedJourney";
 type Screen="overview"|"journey"|"invoices"|"reconciliations"|"reporting"|"spend"|"automation"|"integrations"|"assistant"|"roadmap";
 type Role="director"|"controller";
 type Conversation={id:string;from:"user"|"assistant";text:string};
-type Store={invoices:Invoice[];bank:BankLine[];cards:CardSpend[];audit:Audit[]};
+type Store={invoices:Invoice[];bank:BankLine[];cards:CardSpend[];audit:Audit[];reportReview?:{signature:string;note:string}|null;reportNote?:string};
 const storageKey="sc-wigwam-finance-provisional-v1";
 const menuGroups:{title:string;items:{id:Screen;label:string;icon:typeof LayoutDashboard}[]}[]=[
  {title:"WORKSPACE",items:[
@@ -151,12 +151,12 @@ export default function WigwamFinanceDemo(){
   try{
    const saved=JSON.parse(localStorage.getItem(storageKey)||"null") as Store|null;
    if(saved&&Array.isArray(saved.invoices)&&Array.isArray(saved.bank)&&Array.isArray(saved.cards)&&Array.isArray(saved.audit)){
-    setInvoices(saved.invoices);setBanks(saved.bank);setCards(saved.cards);setAudit(saved.audit);
+    setInvoices(saved.invoices);setBanks(saved.bank);setCards(saved.cards);setAudit(saved.audit);if(saved.reportReview)setReportReview(saved.reportReview);if(saved.reportNote)setReportNote(saved.reportNote);
    }
   }catch{}
   setHydrated(true);
  },[]);
- useEffect(()=>{if(hydrated){try{localStorage.setItem(storageKey,JSON.stringify({invoices,bank:banks,cards,audit}));}catch{}}},[invoices,banks,cards,audit,hydrated]);
+ useEffect(()=>{if(hydrated){try{localStorage.setItem(storageKey,JSON.stringify({invoices,bank:banks,cards,audit,reportReview,reportNote}));}catch{}}},[invoices,banks,cards,audit,reportReview,reportNote,hydrated]);
  const flagged=useMemo(()=>invoices.filter(x=>x.status!=="rejected"&&invoiceIssues(x,invoices).length>0),[invoices]);
  const awaiting=useMemo(()=>invoices.filter(x=>x.status==="pending_approval"),[invoices]);
  const unreconciled=useMemo(()=>banks.filter(x=>!x.reviewed&&bankCheck(x)!=="match"),[banks]);
@@ -250,6 +250,13 @@ export default function WigwamFinanceDemo(){
  function exportInvoices(){
   safeDownload("wigwam-synthetic-accounts-payable.csv",csv([["Invoice","Supplier","Legal entity","PO","Amount GBP","Status","Issues","Exception note"],
    ...invoices.map(i=>[i.number,i.supplier,entityName(i.assignedCompany),i.poId,i.amount,statusLabel(i.status),invoiceIssues(i,invoices).join("; "),i.exceptionNote])]));
+ }
+ function signInvestorDraft(){
+  if(role!=="controller"){setNotice("Only the simulated Financial Controller can review the draft report.");return;}
+  if(reportNote.trim().length<20){setNotice("Document at least 20 characters of reporting checks and outstanding exceptions.");return;}
+  setReportReview({signature:reportSignature,note:reportNote.trim()});
+  log("Investor pack review","Reviewed "+period+" with caveats; fictional figures, not a real investor statement");
+  setNotice("Illustrative pack review recorded locally. This is still not a factual investor report.");
  }
  function exportReport(){
   safeDownload("wigwam-synthetic-investor-quarters.csv",csv([["Period","Status","Revenue GBP","Operating costs GBP","Operating result GBP","Closing cash GBP","Collections GBP","Occupancy percent"],
@@ -397,12 +404,12 @@ export default function WigwamFinanceDemo(){
        <p className={css.smallTip}>The export uses the browser's Print / Save as PDF function. This pack requires a controller's approval before external distribution.</p>
       </Panel>
       <div className={css.printArea}><div className={css.reportPaper}>
-       <div className={css.reportPaperHead}><small>WIGWAM STORAGE / ILLUSTRATIVE FINANCE DEMO</small><h2>Quarterly investor overview</h2><p>{current.name} · fictional numbers · draft, unapproved</p></div>
+       <div className={css.reportPaperHead}><small>WIGWAM STORAGE / ILLUSTRATIVE FINANCE DEMO</small><h2>Quarterly investor overview</h2><p>{current.name} · fictional numbers · {reportSigned?"Controller-reviewed DEMO draft":"UNREVIEWED draft"}</p></div>
        <div className={css.reportPaperBody}>
         {reportSections.includes("Summary")&&<section><h3>01 · Financial highlights</h3><p>Modelled revenue {money(current.revenue)}, operating costs {money(current.costs)}, operating result {money(current.operatingResult)} ({current.margin.toFixed(1)}% margin), closing cash {money(current.cash)} and occupancy {current.occupancy}%.</p></section>}
         {reportSections.includes("Exceptions")&&<section><h3>02 · Exceptions requiring attention</h3><p>{unreconciled.length} outstanding example bank exceptions and {flagged.length} invoice validation flags. These are independent synthetic cases and must not be presented as real company issues.</p></section>}
         {reportSections.includes("Source mapping")&&<section><h3>03 · Data lineage plan</h3><p>Proposed sources: Xero (ledger), Stripe and GoCardless (settlements), Space Manager (operations) and SharePoint (approved board documents). No sources are live-connected.</p></section>}
-        {reportSections.includes("Approval notice")&&<section><h3>04 · Approval and distribution</h3><p>Controller to review reconciliations, adjustments, periods and final commentary before an authorised director shares the pack externally.</p></section>}
+        {reportSections.includes("Approval notice")&&<section><h3>04 · Approval and distribution</h3><p>{reportSigned?"Controller review documented in this browser. Notes: "+(reportReview?.note||""):"Unreviewed: controller must validate all reconciliations, adjustments, periods and commentary."} All data are fictional and never approved for actual investor distribution.</p></section>}}
        </div><div className={css.reportPaperFoot}>Demonstration only · No source verification · Not an actual investor statement</div>
       </div></div>
      </div>
