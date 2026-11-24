@@ -117,7 +117,20 @@ export function bankCheck(item:BankLine):"match"|"amount"|"reference"|"missing"{
  if(Math.abs(item.amount-item.ledgerAmount)>.01)return "amount";
  return "match";
 }
-export function cardIssues(c:CardSpend){return [!c.receipt?"Missing receipt":"",!c.poId?"No PO reference":""].filter(Boolean)}
+export function cardIssues(c:CardSpend,orders:PurchaseOrder[]=purchaseOrders){
+ const issues:string[]=[];
+ if(!c.receipt)issues.push("Missing receipt");
+ if(!c.poId)issues.push("No PO reference");
+ else{
+  const po=orders.find(x=>x.id===c.poId);
+  if(!po)issues.push("PO record not found");
+  else{
+   if(po.entity!==c.entity)issues.push("PO belongs to a different legal entity");
+   if(c.amount>po.amount*1.05)issues.push("Card value exceeds the PO amount");
+  }
+ }
+ return issues;
+}
 export function investorMetrics(periodId:string){const item=investorPeriods.find(x=>x.id===periodId)||investorPeriods[6];return {...item,margin:(item.revenue-item.costs)/item.revenue*100,operatingResult:item.revenue-item.costs}}
 export function calculateRoi(invoicesPerWeek:number,minutesPerInvoice:number,automatablePct:number,realisablePct:number,hourlyRate:number,runCostMonthly:number,setupCost:number,cashCapturePct:number){
  const baseline=invoicesPerWeek*minutesPerInvoice/60*52;
