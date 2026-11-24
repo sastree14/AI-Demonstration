@@ -10,7 +10,7 @@ const docs=readFileSync("docs/WIGWAM_FINANCE_DEMO.md","utf8");
 const publicCopy=ui+"\n"+guide+"\n"+map+"\n"+engine;
 
 test("Public presentation focuses on benefits, workflow and human control, not meeting preparation",()=>{
- for(const claim of ["DOCUMENT INTAKE","CONTROLLED VALIDATION","HUMAN OVERSIGHT","FINANCE OPERATIONS","HUMAN CONTROLLED"]){
+ for(const claim of ["DOCUMENT INTAKE","CONTROLLED VALIDATION","HUMAN OVERSIGHT","FINANCE OPERATIONS","HUMAN-IN-THE-LOOP"]){
   assert.match(publicCopy,new RegExp(claim.replaceAll(" ","\\s+"),"i"),"Missing presentation concept: "+claim);
  }
  for(const internal of [/\bNick\b/i,/\bSarah\b/i,/QUESTIONS FOR THE FINANCE TEAM/i,/CURRENT OPEN QUESTIONS/i,/LIVE CLIENT STORY/i,/What we must ask in discovery/i,/The client has not shared/i,/Named by Nick/i]){
