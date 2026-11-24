@@ -10,7 +10,7 @@ export type InvoiceStatus="received"|"needs_review"|"pending_approval"|"approved
 export type Invoice={
  id:string;number:string;supplier:string;date:string;due:string;amount:number;vat:number;
  sourceCompany:EntityId;assignedCompany:EntityId;poId:string;document:string;status:InvoiceStatus;
- exceptionApproved:boolean;exceptionNote:string;booked:boolean
+ exceptionApproved:boolean;exceptionNote:string;booked:boolean;staged?:boolean
 };
 export type PurchaseOrder={id:string;supplier:string;entity:EntityId;amount:number;category:string;owner:string;status:"issued"|"received"|"closed"};
 export type BankLine={id:string;date:string;system:"Stripe"|"GoCardless"|"Bank transfer"|"Space Manager";reference:string;amount:number;ledgerReference:string;ledgerAmount:number;entity:EntityId;reviewed:boolean;note:string};
@@ -85,13 +85,31 @@ export function invoiceIssues(inv:Invoice,items:Invoice[]=seedInvoices,orders:Pu
    if(inv.amount>po.amount*1.05)issues.push("Invoice exceeds authorised PO value");
   }
  }
- const duplicates=items.filter(x=>x.id!==inv.id&&x.number.trim().toLowerCase()===inv.number.trim().toLowerCase()&&x.supplier.trim().toLowerCase()===inv.supplier.trim().toLowerCase());
+ const duplicates=items.filter(x=>x.id!==inv.id&&x.status!=="rejected"&&x.number.trim().toLowerCase()===inv.number.trim().toLowerCase()&&x.supplier.trim().toLowerCase()===inv.supplier.trim().toLowerCase());
  if(duplicates.length)issues.push("Potential duplicate supplier invoice number");
  return issues;
 }
-export function canRoute(inv:Invoice,all:Invoice[]){return invoiceIssues(inv,all).length===0||inv.exceptionApproved&&inv.exceptionNote.trim().length>=12}
+export function canRoute(inv:Invoice,all:Invoice[]){
+ const issues=invoiceIssues(inv,all);
+ if(!issues.length)return true;
+ // Entity misclassification, duplicate invoices, and PO supplier/entity mismatches
+ // are hard stops, regardless of any waiver notes.
+ const hardStop=issues.some(x=>/entity|duplicate|supplier and PO/i.test(x));
+ if(hardStop)return false;
+ return inv.exceptionApproved&&inv.exceptionNote.trim().length>=12;
+}
+export function canStage(inv:Invoice,all:Invoice[],role:"director"|"controller"){
+ return role==="controller"&&inv.status==="approved"&&!inv.staged&&canRoute(inv,all);
+}
+export function workflowStage(inv:Invoice,all:Invoice[]):"intake"|"exceptions"|"approval"|"staging"|"ready"{
+ if(inv.staged)return "ready";
+ if(inv.status==="approved")return "staging";
+ if(inv.status==="pending_approval")return "approval";
+ if(inv.status==="needs_review"||invoiceIssues(inv,all).length)return "exceptions";
+ return "intake";
+}
 export function canApprove(inv:Invoice,all:Invoice[],role:"director"|"controller"){
- return role==="controller"&&inv.status==="pending_approval"&&canRoute(inv,all);
+ return role==="controller"&&inv.status==="pending_approval"&&!inv.staged&&canRoute(inv,all);
 }
 export function bankCheck(item:BankLine):"match"|"amount"|"reference"|"missing"{
  if(item.ledgerAmount===0)return "missing";
@@ -99,7 +117,20 @@ export function bankCheck(item:BankLine):"match"|"amount"|"reference"|"missing"{
  if(Math.abs(item.amount-item.ledgerAmount)>.01)return "amount";
  return "match";
 }
-export function cardIssues(c:CardSpend){return [!c.receipt?"Missing receipt":"",!c.poId?"No PO reference":""].filter(Boolean)}
+export function cardIssues(c:CardSpend,orders:PurchaseOrder[]=purchaseOrders){
+ const issues:string[]=[];
+ if(!c.receipt)issues.push("Missing receipt");
+ if(!c.poId)issues.push("No PO reference");
+ else{
+  const po=orders.find(x=>x.id===c.poId);
+  if(!po)issues.push("PO record not found");
+  else{
+   if(po.entity!==c.entity)issues.push("PO belongs to a different legal entity");
+   if(c.amount>po.amount*1.05)issues.push("Card value exceeds the PO amount");
+  }
+ }
+ return issues;
+}
 export function investorMetrics(periodId:string){const item=investorPeriods.find(x=>x.id===periodId)||investorPeriods[6];return {...item,margin:(item.revenue-item.costs)/item.revenue*100,operatingResult:item.revenue-item.costs}}
 export function calculateRoi(invoicesPerWeek:number,minutesPerInvoice:number,automatablePct:number,realisablePct:number,hourlyRate:number,runCostMonthly:number,setupCost:number,cashCapturePct:number){
  const baseline=invoicesPerWeek*minutesPerInvoice/60*52;
@@ -112,7 +143,15 @@ export function calculateRoi(invoicesPerWeek:number,minutesPerInvoice:number,aut
  const paybackNominal=value>annualRun?setupCost/((value-annualRun)/12):null;
  return {baseline,freed,value,annualRun,cashBenefit,netNominal,netCash,paybackNominal};
 }
-export function csv(rows:(string|number)[][]){return rows.map(row=>row.map(cell=>'"'+String(cell).replaceAll('"','""')+'"').join(",")).join("\r\n")}
+export function csv(rows:(string|number)[][]){
+ return rows.map(row=>row.map(cell=>{
+  const raw=String(cell);
+  // Spreadsheet applications may evaluate cells starting with formula operators.
+  // Prefix untrusted text with apostrophe; numeric values remain numeric.
+  const guarded=typeof cell==="string"&&/^[\s\u0000-\u001f]*[=+\-@]/.test(raw)?"'"+raw:raw;
+  return '"'+guarded.replaceAll('"','""')+'"';
+ }).join(",")).join("\r\n");
+}
 export function safeDownload(name:string,content:string,mime="text/csv;charset=utf-8"){
  const blob=new Blob([content],{type:mime});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
 }

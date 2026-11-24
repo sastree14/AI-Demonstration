@@ -30,3 +30,16 @@
 
 .reportGrid{min-width:0}
 @media print{.reportGrid{display:block!important}.reportGrid>.panel{display:none!important}.reportGrid>.printArea{display:block!important;max-width:none;width:100%}}
+
+/* Executive storytelling and live cross-module value assumptions. */
+.executiveStrip{display:flex;align-items:center;gap:24px;background:#fff;border:1px solid #dce8e2;border-radius:10px;padding:18px 23px;margin-bottom:20px}
+.executiveStrip>div:first-child{flex:1;min-width:170px;max-width:530px}.executiveStrip h3{font-size:15px;color:#1f4751;margin:6px 0}.executiveStrip p:not(.eyebrow){font-size:10px;color:#8ba1a2;line-height:1.65}
+.executiveFigure{display:flex;flex-direction:column;gap:5px;min-width:130px;border-left:1px solid #e2ece7;padding-left:22px}
+.executiveFigure strong{font-size:22px;color:#266f62;letter-spacing:-.5px;white-space:nowrap}
+.executiveFigure span{font-size:10px;color:#94a5a4;max-width:155px}
+.executiveStrip>.secondary{flex:none}
+.metricsFive{grid-template-columns:repeat(5,minmax(0,1fr))}
+@media(max-width:1330px){.metricsFive{grid-template-columns:repeat(3,minmax(0,1fr))}.executiveStrip{gap:13px}.executiveFigure{padding-left:13px}}
+@media(max-width:1010px){.executiveStrip{flex-wrap:wrap}.executiveStrip>div:first-child{width:100%;max-width:none;flex-basis:100%}.executiveStrip>.secondary{margin-left:auto}}
+@media(max-width:620px){.metricsFive{grid-template-columns:repeat(2,minmax(0,1fr))}.executiveStrip{padding:17px;gap:13px}.executiveFigure{min-width:110px}.executiveFigure strong{font-size:20px}.executiveStrip>.secondary{width:100%}}
+@media print{.executiveStrip{display:none!important}}

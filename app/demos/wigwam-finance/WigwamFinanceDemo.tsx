@@ -6,24 +6,26 @@ import {
  Check,CheckCircle2,ChevronDown,ChevronRight,ClipboardCheck,Clock3,Cloud,Database,Download,
  FileCheck2,FileDown,FileSearch,FileText,GitBranch,Inbox,LayoutDashboard,Link2,LockKeyhole,
  Mail,Menu,MessageCircle,Plus,RefreshCw,Search,Send,Settings2,ShieldCheck,SlidersHorizontal,
- Sparkles,TrendingUp,Upload,Users,WalletCards,Workflow,X
+ Sparkles,TrendingUp,Upload,Users,WalletCards,Workflow,Waypoints,X
 } from "lucide-react";
 import {
  type Invoice,type InvoiceStatus,type BankLine,type CardSpend,type Audit,type EntityId,
  entities,seedInvoices,seedBank,cardSpends,purchaseOrders,investorPeriods,scenarios,
  money,moneyPrecise,entityName,invoiceIssues,canRoute,canApprove,bankCheck,cardIssues,
- investorMetrics,calculateRoi,csv,safeDownload
+ investorMetrics,calculateRoi,csv,safeDownload,canStage
 } from "./engine";
 import css from "./wigwam.module.css";
+import GuidedJourney from "./GuidedJourney";
 
-type Screen="overview"|"invoices"|"reconciliations"|"reporting"|"spend"|"automation"|"integrations"|"assistant"|"roadmap";
+type Screen="overview"|"journey"|"invoices"|"reconciliations"|"reporting"|"spend"|"automation"|"integrations"|"assistant"|"roadmap";
 type Role="director"|"controller";
 type Conversation={id:string;from:"user"|"assistant";text:string};
-type Store={invoices:Invoice[];bank:BankLine[];cards:CardSpend[];audit:Audit[]};
+type Store={invoices:Invoice[];bank:BankLine[];cards:CardSpend[];audit:Audit[];reportReview?:{signature:string;note:string}|null;reportNote?:string};
 const storageKey="sc-wigwam-finance-provisional-v1";
 const menuGroups:{title:string;items:{id:Screen;label:string;icon:typeof LayoutDashboard}[]}[]=[
  {title:"WORKSPACE",items:[
   {id:"overview",label:"Command centre",icon:LayoutDashboard},
+  {id:"journey",label:"Guided AP walkthrough",icon:Waypoints},
   {id:"invoices",label:"Supplier invoices",icon:Inbox},
   {id:"reconciliations",label:"Bank reconciliations",icon:GitBranch},
   {id:"reporting",label:"Investor reporting",icon:BarChart3},
@@ -37,7 +39,7 @@ const menuGroups:{title:string;items:{id:Screen;label:string;icon:typeof LayoutD
  ]}
 ];
 const names:Record<Screen,string>={
- overview:"Command centre",invoices:"Supplier invoices",reconciliations:"Bank reconciliations",reporting:"Investor reporting",
+ overview:"Command centre",journey:"Guided AP walkthrough",invoices:"Supplier invoices",reconciliations:"Bank reconciliations",reporting:"Investor reporting",
  spend:"POs & card spending",automation:"Workflow blueprint",integrations:"Connected ecosystem",assistant:"Finance AI guide",roadmap:"Implementation plan"
 };
 const phases=[
@@ -77,8 +79,14 @@ function Panel({label,title,children,action}:{label:string;title:string;children
 function Header({kicker,title,description,action}:{kicker:string;title:string;description:string;action?:React.ReactNode}){
  return <div className={css.head}><div><p className={css.eyebrow}>{kicker}</p><h1>{title}</h1><p>{description}</p></div>{action&&<div className={css.headActions}>{action}</div>}</div>;
 }
-function FinanceGuide(query:string,role:Role,invoices:Invoice[],bank:BankLine[]){
+function FinanceGuide(query:string,role:Role,invoices:Invoice[],bank:BankLine[],selectedId?:string){
  const q=query.toLowerCase(),problem=invoices.filter(x=>invoiceIssues(x,invoices).length>0&&x.status!=="rejected");
+ const referenced=invoices.find(x=>q.includes(x.number.toLowerCase()))||(/this invoice|selected invoice|current invoice|why flagged|explain this/.test(q)?invoices.find(x=>x.id===selectedId):undefined);
+ if(referenced){
+  const flags=invoiceIssues(referenced,invoices);
+  return "Invoice "+referenced.number+" ("+referenced.supplier+") is "+referenced.status.replaceAll("_"," ")+". Document entity: "+entityName(referenced.sourceCompany)+", proposed booking: "+entityName(referenced.assignedCompany)+", PO: "+(referenced.poId||"missing")+". "+(flags.length?"Checks identified: "+flags.join("; ")+".":"Document, company and PO checks currently pass.")+" "+(referenced.exceptionApproved?"An eligible exception was documented, but distinct human approval is still required.":"Correct blocking errors before submitting to Controller sign-off.")+" No payment or ledger posting is possible.";
+ }
+
  if(/invoice|supplier|hubdoc|payable|bookkeeper|manual|log.?jam|flow|automation/.test(q)){
   return "The first proposed pilot is supplier invoice handling: shared inbox → Hubdoc → entity/PO/duplicate checks → finance exception review → ApprovalMax → controlled Xero hand-off. This sample contains "+problem.length+" invoices with outstanding validation flags. The solution should reduce repetitive routing while preserving Finance Controller sign-off. None of these integrations are currently connected.";
  }
@@ -137,16 +145,18 @@ export default function WigwamFinanceDemo(){
  const [messages,setMessages]=useState<Conversation[]>(startChat);
  const [chatInput,setChatInput]=useState("");
  const [pickedPilot,setPickedPilot]=useState("ap");
+ const [reportReview,setReportReview]=useState<{signature:string;note:string}|null>(null);
+ const [reportNote,setReportNote]=useState("");
  useEffect(()=>{
   try{
    const saved=JSON.parse(localStorage.getItem(storageKey)||"null") as Store|null;
    if(saved&&Array.isArray(saved.invoices)&&Array.isArray(saved.bank)&&Array.isArray(saved.cards)&&Array.isArray(saved.audit)){
-    setInvoices(saved.invoices);setBanks(saved.bank);setCards(saved.cards);setAudit(saved.audit);
+    setInvoices(saved.invoices);setBanks(saved.bank);setCards(saved.cards);setAudit(saved.audit);if(saved.reportReview)setReportReview(saved.reportReview);if(saved.reportNote)setReportNote(saved.reportNote);
    }
   }catch{}
   setHydrated(true);
  },[]);
- useEffect(()=>{if(hydrated){try{localStorage.setItem(storageKey,JSON.stringify({invoices,bank:banks,cards,audit}));}catch{}}},[invoices,banks,cards,audit,hydrated]);
+ useEffect(()=>{if(hydrated){try{localStorage.setItem(storageKey,JSON.stringify({invoices,bank:banks,cards,audit,reportReview,reportNote}));}catch{}}},[invoices,banks,cards,audit,reportReview,reportNote,hydrated]);
  const flagged=useMemo(()=>invoices.filter(x=>x.status!=="rejected"&&invoiceIssues(x,invoices).length>0),[invoices]);
  const awaiting=useMemo(()=>invoices.filter(x=>x.status==="pending_approval"),[invoices]);
  const unreconciled=useMemo(()=>banks.filter(x=>!x.reviewed&&bankCheck(x)!=="match"),[banks]);
@@ -163,11 +173,13 @@ export default function WigwamFinanceDemo(){
  function log(action:string,detail:string){setAudit(x=>[{id:"a-"+Date.now()+"-"+Math.random().toString(36).slice(2,5),when:new Date().toLocaleString("en-GB",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"}),actor:role==="controller"?"Finance Controller · simulated":"Director · simulated",action,detail},...x].slice(0,40));}
  function patchInvoice(changes:Partial<Invoice>,action?:string){
   if(!selected)return;
+  if(role!=="controller"){setNotice("Only the simulated Financial Controller can edit financial fields and exception notes.");return;}
+  if(["approved","rejected"].includes(selected.status)||selected.staged){setNotice("Approved, rejected or staged invoices cannot be edited.");return;}
   setInvoices(xs=>xs.map(x=>x.id===selected.id?{...x,...changes}:x));
   if(action)log(action,selected.number+" · "+(changes.assignedCompany?entityName(changes.assignedCompany):changes.poId||"Review field updated"));
  }
  function validateSelected(){
-  if(!selected||selected.status==="approved"){setNotice("Approved invoices are locked in this demo; no accounting or payment action is performed.");return;}
+  if(!selected||["approved","rejected"].includes(selected.status)||selected.staged){setNotice("Closed invoices cannot be revalidated. Use a new sample invoice.");return;}
   const issues=invoiceIssues(selected,invoices);
   if(issues.length>0&&!selected.exceptionApproved){
    patchInvoice({status:"needs_review"},"Validation: exception");
@@ -185,6 +197,7 @@ export default function WigwamFinanceDemo(){
  function acceptException(){
   if(role!=="controller"){setNotice("A Financial Controller must document and accept any exception.");return;}
   if(!selected||selected.exceptionNote.trim().length<12){setNotice("Enter a specific justification (at least 12 characters) before accepting an exception.");return;}
+  if(invoiceIssues(selected,invoices).some(x=>/entity|duplicate|supplier and PO/i.test(x))){setNotice("This is a blocking integrity failure. Fix the legal entity, duplicate or supplier/PO mismatch; it cannot be waived.");return;}
   patchInvoice({exceptionApproved:true,status:"needs_review"},"Exception accepted for approval routing");
   setNotice("Exception justified. You can now prepare the approval request; the exception remains visible in the audit trail.");
  }
@@ -207,15 +220,42 @@ export default function WigwamFinanceDemo(){
   setReviewNote("");
   setNotice("Review recorded locally. No bank feed, source ledger or Xero balance was changed.");
  }
+ function createGuidedInvoice(){
+  const serial=6041+invoices.filter(x=>x.id.startsWith("journey-demo-")).length;
+  const sample:Invoice={id:"journey-demo-"+serial,number:"NS-DEMO-"+serial,supplier:"Northpoint Security",date:"2026-11-23",due:"2026-12-15",amount:3690,vat:738,sourceCompany:"property",assignedCompany:"operating",poId:"PO-1022",document:"fictional-Northpoint-"+serial+".pdf",status:"received",exceptionApproved:false,exceptionNote:"",booked:false,staged:false};
+  setInvoices(xs=>[sample,...xs]);
+  setSelectedInvoiceId(sample.id);
+  log("Fictional supplier intake","Synthetic invoice "+sample.number+" entered via illustrated inbox → Hubdoc pathway");
+  setNotice("New fictional supplier invoice "+sample.number+" received. Correct the wrong legal entity before approval.");
+ }
+ function stageSelected(){
+  if(!selected||!canStage(selected,invoices,role)){setNotice("Staging is blocked until a Controller approves a validated invoice. No Xero posting occurs.");return;}
+  safeDownload("xero-staging-"+selected.number+".csv",csv([["Invoice","Supplier","Entity","PO","Issue date","Due date","Net GBP","VAT GBP","Controller status","Transfer status"],[selected.number,selected.supplier,entityName(selected.assignedCompany),selected.poId,selected.date,selected.due,selected.amount,selected.vat,"Approved locally","NOT SENT TO XERO"]]));
+  setInvoices(xs=>xs.map(x=>x.id===selected.id?{...x,staged:true}:x));
+  log("Approved-only CSV staging","Invoice "+selected.number+" downloaded for manual review; no Xero integration or payment");
+  setNotice("Approved-only CSV downloaded. This is a reviewable staging file, not an accounting entry or payment.");
+ }
+ function rejectSelected(){
+  if(role!=="controller"||!selected||selected.staged||["approved","rejected"].includes(selected.status)||selected.exceptionNote.trim().length<12){setNotice("Controller-only rejection requires a reason of at least 12 characters and an open invoice.");return;}
+  patchInvoice({status:"rejected",exceptionApproved:false},"Human rejection recorded");
+  setNotice("Invoice rejected with an auditable reason. It cannot progress to approval or staging.");
+ }
  function reset(){
   if(!window.confirm("Restore this fictional demonstration to its initial data? This clears local approvals and notes."))return;
   setInvoices(seedInvoices.map(x=>({...x})));setBanks(seedBank.map(x=>({...x})));setCards(cardSpends.map(x=>({...x})));setAudit(initialAudit);
-  setSelectedInvoiceId("wi-2");setSelectedBankId("bn-4");setSelectedCardId("card-1");setEntityFilter("all");setInvoiceFilter("all");
+  setSelectedInvoiceId("wi-2");setSelectedBankId("bn-4");setSelectedCardId("card-1");setEntityFilter("all");setInvoiceFilter("all");setReportReview(null);setReportNote("");
   setNotice("Fictional scenario reset to its initial state.");
  }
  function exportInvoices(){
   safeDownload("wigwam-synthetic-accounts-payable.csv",csv([["Invoice","Supplier","Legal entity","PO","Amount GBP","Status","Issues","Exception note"],
    ...invoices.map(i=>[i.number,i.supplier,entityName(i.assignedCompany),i.poId,i.amount,statusLabel(i.status),invoiceIssues(i,invoices).join("; "),i.exceptionNote])]));
+ }
+ function signInvestorDraft(){
+  if(role!=="controller"){setNotice("Only the simulated Financial Controller can review the draft report.");return;}
+  if(reportNote.trim().length<20){setNotice("Document at least 20 characters of reporting checks and outstanding exceptions.");return;}
+  setReportReview({signature:reportSignature,note:reportNote.trim()});
+  log("Investor pack review","Reviewed "+period+" with caveats; fictional figures, not a real investor statement");
+  setNotice("Illustrative pack review recorded locally. This is still not a factual investor report.");
  }
  function exportReport(){
   safeDownload("wigwam-synthetic-investor-quarters.csv",csv([["Period","Status","Revenue GBP","Operating costs GBP","Operating result GBP","Closing cash GBP","Collections GBP","Occupancy percent"],
@@ -223,13 +263,16 @@ export default function WigwamFinanceDemo(){
  }
  function ask(question?:string){
   const value=(question??chatInput).trim();if(!value)return;
-  setMessages(xs=>[...xs,{id:"u-"+Date.now(),from:"user",text:value},{id:"r-"+Date.now(),from:"assistant",text:FinanceGuide(value,role,invoices,banks)}]);
+  setMessages(xs=>[...xs,{id:"u-"+Date.now(),from:"user",text:value},{id:"r-"+Date.now(),from:"assistant",text:FinanceGuide(value,role,invoices,banks,selected?.id)}]);
   setChatInput("");
  }
  function switchRole(v:Role){setRole(v);setNotice(v==="controller"?"Financial Controller simulation enabled. This is a role preview, not authentication.":"Director overview enabled. Financial approval actions are disabled.");}
  function page(title:string,kicker:string,description:string,action?:React.ReactNode){return <Header title={title} kicker={kicker} description={description} action={action}/>;}
  function navLink(item:{id:Screen;label:string;icon:typeof LayoutDashboard}){const Icon=item.icon;return <button key={item.id} onClick={()=>navigate(item.id)} className={screen===item.id?css.navCurrent:css.navLink}><Icon size={16}/><span>{item.label}</span>{screen===item.id&&<i/>}</button>;}
  const reviewCases=flagged.slice(0,4);
+ const stagedCount=invoices.filter(x=>x.staged).length;
+ const reportSignature=JSON.stringify({period,reportSections,reportNote,inv:invoices.map(x=>[x.id,x.status,x.assignedCompany,x.poId,x.exceptionApproved]),bank:banks.map(x=>[x.id,x.reviewed,x.note])});
+ const reportSigned=reportReview?.signature===reportSignature;
  return <div className={css.shell}>
   {menuOpen&&<button className={css.mobileBackdrop} aria-label="Close navigation" onClick={()=>setMenuOpen(false)}/>}
   <aside className={menuOpen?css.sidebar+" "+css.sidebarOpen:css.sidebar}>
@@ -242,9 +285,13 @@ export default function WigwamFinanceDemo(){
    <header className={css.topbar}><div className={css.crumb}><button className={css.menu} onClick={()=>setMenuOpen(true)} aria-label="Open navigation"><Menu size={19}/></button><span>FINANCE OPERATIONS</span><ChevronRight size={14}/><strong>{names[screen]}</strong></div><div className={css.topRight}><span className={css.simulation}><i/> DEMONSTRATION</span><label className={css.viewSwitch}><span>Perspective</span><select value={role} onChange={e=>switchRole(e.target.value as Role)}><option value="director">Director view</option><option value="controller">Financial Controller view</option></select></label></div></header>
    <main className={css.work}>
     {notice&&<div className={css.banner} role="status"><CheckCircle2 size={16}/><span>{notice}</span><button onClick={()=>setNotice("")} aria-label="Dismiss"><X size={14}/></button></div>}
+    {screen==="journey"&&<>
+     {page("Guided supplier invoice walkthrough","LIVE CLIENT STORY / FIRST AP PILOT","A single connected story for Nick and Sarah: synthetic invoice arrival, rule-based validation, finance correction, human approval and download of an approved-only staging file.",<button className={css.secondary} onClick={reset}><RefreshCw size={14}/> Reset the fictional scenario</button>)}
+     <GuidedJourney invoices={invoices} selected={selected} role={role} create={createGuidedInvoice} pick={setSelectedInvoiceId} patch={patchInvoice} validate={validateSelected} acceptException={acceptException} approve={approveSelected} stage={stageSelected} changeRole={switchRole} openQueue={()=>navigate("invoices")}/>
+    </>}
     {screen==="overview"&&<>
      <div className={css.hero}>
-      <div className={css.heroBody}><p className={css.eyebrow}>A PRACTICAL STARTING POINT FOR NICK & SARAH</p><h1>One controlled finance workflow. Fewer manual hand-offs.</h1><p>Explore how supplier invoices, entity checks, purchase orders and human approvals could work together — then expand into reconciliations, quarterly reporting and spend controls.</p><div className={css.heroBtns}><button className={css.primary} onClick={()=>navigate("invoices")}>Explore invoice workflow <ArrowRight size={15}/></button><button className={css.secondary} onClick={()=>navigate("automation")}>See proposed architecture <GitBranch size={15}/></button></div><small>Concept demonstrator · Synthetic UK financial data · No accounts or payment systems connected</small></div>
+      <div className={css.heroBody}><p className={css.eyebrow}>{role==="director"?"EXECUTIVE VIEW / FINANCE TRANSFORMATION":"CONTROLLER VIEW / DAILY FINANCE DESK"}</p><h1>{role==="director"?"One controlled finance workflow. Fewer manual hand-offs.":"Every exception explained. Every approval accountable."}</h1><p>{role==="director"?"See how a first accounts-payable pilot could cut repetitive administration, strengthen controls and provide visibility across financial workstreams.":"Validate supplier invoices, investigate exceptions and record human decisions before anything is prepared for accounting."}</p><div className={css.heroBtns}><button className={css.primary} onClick={()=>navigate("journey")}>Run guided AP walkthrough <ArrowRight size={15}/></button><button className={css.secondary} onClick={()=>navigate("automation")}>See proposed architecture <GitBranch size={15}/></button></div><small>Concept demonstrator · Synthetic UK financial data · No accounts or payment systems connected</small></div>
       <div className={css.heroAside}><small>FIRST PILOT PRIORITY</small><strong>Supplier invoice processing</strong><div><b>{flagged.length}</b><span>sample invoices<br/>requiring investigation</span></div><p>Entity assignment, missing PO references, suspected duplicates and an approval trail — without autonomous payments.</p></div>
      </div>
      <div className={css.metrics}>
@@ -252,6 +299,12 @@ export default function WigwamFinanceDemo(){
       <Metric label="Validation exceptions" value={flagged.length} sub="Require evidence or review" tone="alert"/>
       <Metric label="Awaiting human sign-off" value={awaiting.length} sub="No automatic approval"/>
       <Metric label="Bank mismatches" value={unreconciled.length} sub="Unresolved sample reconciliation lines" tone="accent"/>
+     </div>
+     <div className={css.executiveStrip}>
+       <div><p className={css.eyebrow}>{role==="director"?"ILLUSTRATIVE BUSINESS CASE":"CONTROLLER WORKLOAD"}</p><h3>{role==="director"?"What the first pilot could release":"Where manual attention is needed"}</h3><p>{role==="director"?"No savings have been verified. Adjust these assumptions in the implementation-plan calculator.":"A controller must check evidence and approve; the sample automation cannot approve or pay on its own."}</p></div>
+       <div className={css.executiveFigure}><strong>{role==="director"?Math.round(roi.freed).toLocaleString()+" h":String(awaiting.length)}</strong><span>{role==="director"?"Potential hours per year":"Pending approval packets"}</span></div>
+       <div className={css.executiveFigure}><strong>{role==="director"?money(roi.value):String(stagedCount)}</strong><span>{role==="director"?"Nominal capacity value, not cash saved":"Accounting staging files prepared"}</span></div>
+       <button className={css.secondary} onClick={()=>navigate(role==="director"?"roadmap":"invoices")}>{role==="director"?"Inspect assumptions":"Open controller queue"} <ArrowRight size={14}/></button>
      </div>
      <div className={css.grid2}>
       <Panel label="01 / SUPPLIER INVOICES" title="From a fragmented process to controlled review" action={<button className={css.textLink} onClick={()=>navigate("automation")}>Full workflow <ArrowRight size={13}/></button>}>
@@ -273,12 +326,12 @@ export default function WigwamFinanceDemo(){
      </Panel>
     </>}
     {screen==="invoices"&&<>
-     {page("Supplier invoices","01 / ACCOUNTS PAYABLE","A practical response to the shared inbox → Hubdoc → Xero → ApprovalMax logjam. Inspect each example, correct company allocation, check purchase orders and record an auditable human approval.",<><button className={css.secondary} onClick={exportInvoices}><Download size={14}/> Export example CSV</button><button className={css.primary} onClick={validateBatch}><Sparkles size={15}/> Validate received invoices</button></>)}
-     <div className={css.metrics}>
+     {page("Supplier invoices","01 / ACCOUNTS PAYABLE","A practical response to the shared inbox → Hubdoc → Xero → ApprovalMax logjam. Inspect each example, correct company allocation, check purchase orders and record an auditable human approval.",<><button className={css.secondary} onClick={()=>navigate("journey")}><Waypoints size={14}/> Guided walkthrough</button><button className={css.secondary} onClick={exportInvoices}><Download size={14}/> Export example CSV</button><button className={css.primary} onClick={validateBatch}><Sparkles size={15}/> Validate received invoices</button></>)}
+     <div className={css.metrics+" "+css.metricsFive}>
       <Metric label="Invoices in example" value={invoices.length} sub="Source PDFs simulated"/>
       <Metric label="Total face value" value={money(invoices.reduce((a,x)=>a+x.amount,0))} sub="No payment execution"/>
       <Metric label="Open validation flags" value={flagged.length} sub="Wrong entity, PO or duplicate" tone="alert"/>
-      <Metric label="Controller approvals pending" value={awaiting.length} sub="ApprovalMax route proposed"/>
+      <Metric label="Controller approvals pending" value={awaiting.length} sub="ApprovalMax route proposed"/><Metric label="Approved-only staging files" value={stagedCount} sub="CSV prepared, never posted"/>
      </div>
      <Panel label="AP REVIEW QUEUE" title="Invoices and automated checks">
       <div className={css.filterBar}><div className={css.filterGroup}><label className={css.viewSwitch}>Entity <select value={entityFilter} onChange={e=>setEntityFilter(e.target.value as "all"|EntityId)}><option value="all">All entities</option>{entities.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select></label><label className={css.viewSwitch}>Focus <select value={invoiceFilter} onChange={e=>setInvoiceFilter(e.target.value)}><option value="all">All cases</option><option value="exceptions">Flagged cases</option><option value="approvals">Pending sign-off</option></select></label></div><div className={css.filterGroup}><Search size={16}/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Find supplier, invoice or PO" aria-label="Search invoices"/></div></div>
@@ -286,18 +339,18 @@ export default function WigwamFinanceDemo(){
      </Panel>
      {selected&&<div className={css.detailGrid}>
       <Panel label="DOCUMENT REVIEW" title={selected.number+" · "+selected.supplier} action={<Badge type={safeStatus(selected.status)}>{statusLabel(selected.status)}</Badge>}>
-       <div className={css.stateSteps}>{["Source received","Validation","Human sign-off","Xero hand-off"].map((n,i)=><span key={n} className={i<=(selected.status==="approved"?2:selected.status==="pending_approval"?1:0)?css.active:""}>{n}</span>)}</div>
+       <div className={css.stateSteps}>{["Source received","Validation","Human sign-off","Xero staging"].map((n,i)=><span key={n} className={i<=(selected.staged?3:selected.status==="approved"?2:selected.status==="pending_approval"?1:0)?css.active:""}>{n}</span>)}</div>
        <div className={css.detailMini}><div><small>Example document</small><strong>{selected.document}</strong></div><div><small>Amount excl. VAT</small><strong>{money(selected.amount)}</strong></div><div><small>Invoice evidence: legal entity</small><strong>{entityName(selected.sourceCompany)}</strong></div><div><small>VAT (illustrative)</small><strong>{money(selected.vat)}</strong></div></div>
-       <div className={css.formGrid}><label className={css.field}>Proposed bookkeeping entity<select value={selected.assignedCompany} disabled={selected.status==="approved"} onChange={e=>patchInvoice({assignedCompany:e.target.value as EntityId,exceptionApproved:false,status:"received"},"Entity assignment edited")}>{entities.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select></label><label className={css.field}>Referenced purchase order<select value={selected.poId} disabled={selected.status==="approved"} onChange={e=>patchInvoice({poId:e.target.value,exceptionApproved:false,status:"received"},"PO reference edited")}><option value="">No purchase order</option>{purchaseOrders.map(x=><option value={x.id} key={x.id}>{x.id} · {x.supplier} · {entityName(x.entity)}</option>)}</select></label></div>
-       <div className={css.buttons}><button className={css.primary} onClick={validateSelected} disabled={selected.status==="approved"||selected.status==="rejected"}><FileSearch size={14}/> Validate & prepare approval</button><button className={css.secondary} onClick={approveSelected} disabled={!canApprove(selected,invoices,role)}><CheckCircle2 size={14}/> Controller sign-off</button></div>
-       <p className={css.smallTip}>All actions are local. A signed-off invoice is NOT paid, posted or transmitted to Xero or ApprovalMax. To approve, select Financial Controller perspective; this is only a simulation of permissions.</p>
+       <div className={css.formGrid}><label className={css.field}>Proposed bookkeeping entity<select value={selected.assignedCompany} disabled={role!=="controller"||selected.status==="approved"||selected.status==="rejected"||selected.staged} onChange={e=>patchInvoice({assignedCompany:e.target.value as EntityId,exceptionApproved:false,status:"received"},"Entity assignment edited")}>{entities.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select></label><label className={css.field}>Referenced purchase order<select value={selected.poId} disabled={role!=="controller"||selected.status==="approved"||selected.status==="rejected"||selected.staged} onChange={e=>patchInvoice({poId:e.target.value,exceptionApproved:false,status:"received"},"PO reference edited")}><option value="">No purchase order</option>{purchaseOrders.map(x=><option value={x.id} key={x.id}>{x.id} · {x.supplier} · {entityName(x.entity)}</option>)}</select></label></div>
+       <div className={css.buttons}><button className={css.primary} onClick={validateSelected} disabled={selected.status==="approved"||selected.status==="rejected"||selected.staged}><FileSearch size={14}/> Validate & prepare approval</button><button className={css.secondary} onClick={approveSelected} disabled={!canApprove(selected,invoices,role)}><CheckCircle2 size={14}/> Controller sign-off</button><button className={css.secondary} onClick={stageSelected} disabled={!canStage(selected,invoices,role)}><FileDown size={14}/> Download Xero staging CSV</button><button className={css.quiet} onClick={rejectSelected} disabled={role!=="controller"||selected.status==="approved"||selected.status==="rejected"||selected.exceptionNote.trim().length<12}>Reject with note</button></div>
+       <p className={css.smallTip}>Controller-only approval and accounting CSV staging are local demonstrations. NO invoice is posted to Xero, transmitted to ApprovalMax, or paid. The exported CSV is not a provider-specific import guarantee.</p>
       </Panel>
       <div>
        <Panel label="AUTOMATED EXCEPTION LOGIC" title="Evidence and risk checks" action={<ShieldCheck size={17}/>}>
         {invoiceIssues(selected,invoices).length?invoiceIssues(selected,invoices).map(x=><div className={css.issue} key={x}><AlertCircle size={15}/><span>{x}</span></div>):<div className={css.safe}><CheckCircle2 size={17}/><span>Entity, PO, value and duplicate checks currently pass.</span></div>}
         <div className={css.smallDivider}/>
-        <label className={css.field}>Financial Controller exception justification<textarea rows={3} value={selected.exceptionNote} disabled={selected.status==="approved"} placeholder="Explain why this exception may proceed, citing the evidence and required approval" onChange={e=>patchInvoice({exceptionNote:e.target.value,exceptionApproved:false})}/><small>Use this only when source information cannot be corrected. Exceptions require a documented human decision.</small></label>
-        <button className={css.secondary} disabled={role!=="controller"||selected.status==="approved"||selected.exceptionApproved} onClick={acceptException}><FileCheck2 size={14}/> Accept documented exception</button>
+        <label className={css.field}>Financial Controller exception justification<textarea rows={3} value={selected.exceptionNote} disabled={role!=="controller"||selected.status==="approved"||selected.status==="rejected"||selected.staged} placeholder="Explain why this exception may proceed, citing the evidence and required approval" onChange={e=>patchInvoice({exceptionNote:e.target.value,exceptionApproved:false})}/><small>Use this only when source information cannot be corrected. Exceptions require a documented human decision.</small></label>
+        <button className={css.secondary} disabled={role!=="controller"||selected.status==="approved"||selected.exceptionApproved||invoiceIssues(selected,invoices).some(x=>/entity|duplicate|supplier and PO/i.test(x))} onClick={acceptException}><FileCheck2 size={14}/> Accept documented exception</button>
         {selected.exceptionApproved&&<div className={css.safe}><CheckCircle2 size={16}/><span>Exception accepted for routing, subject to separate human sign-off. Issues remain visible.</span></div>}
        </Panel>
        <Panel label="GUARDRAIL" title="Payments remain outside the automation"><div className={css.callout}><b>Non-negotiable:</b> automated checks and draft approval packets never trigger a bank payment. The real user and approval model would need to be confirmed with Nick and Sarah.</div><button className={css.quiet} disabled style={{marginTop:14}}><LockKeyhole size={14}/> Execute payment · disabled</button></Panel>
@@ -353,15 +406,15 @@ export default function WigwamFinanceDemo(){
      <div className={css.grid2+" "+css.reportGrid}>
       <Panel label="CUSTOMISE THE BOARD PACK" title="Choose sections to include">
        {["Summary","Exceptions","Source mapping","Approval notice"].map(n=><label className={css.kpiLine} key={n}><span>{n}</span><input type="checkbox" checked={reportSections.includes(n)} onChange={e=>setReportSections(xs=>e.target.checked?[...xs,n]:xs.filter(x=>x!==n))}/></label>)}
-       <p className={css.smallTip}>The export uses the browser's Print / Save as PDF function. This pack requires a controller's approval before external distribution.</p>
+       <div className={css.smallDivider}/><label className={css.field}>Controller review notes<textarea rows={3} value={reportNote} onChange={e=>setReportNote(e.target.value)} disabled={role!=="controller"} placeholder="Document checks, source verification, unresolved items and owner." /></label><button className={css.secondary} onClick={signInvestorDraft} disabled={role!=="controller"||reportNote.trim().length<20||reportSigned}><ShieldCheck size={15}/> Record controller review</button><p className={css.smallTip}>{reportSigned?"Review recorded locally for this exact set of figures and sections. Any material changes require another sign-off.":"This remains an unreviewed draft. You can print it for discussion, but it is not a real investor statement."} Export using the browser's Print / Save PDF function.</p>
       </Panel>
       <div className={css.printArea}><div className={css.reportPaper}>
-       <div className={css.reportPaperHead}><small>WIGWAM STORAGE / ILLUSTRATIVE FINANCE DEMO</small><h2>Quarterly investor overview</h2><p>{current.name} · fictional numbers · draft, unapproved</p></div>
+       <div className={css.reportPaperHead}><small>WIGWAM STORAGE / ILLUSTRATIVE FINANCE DEMO</small><h2>Quarterly investor overview</h2><p>{current.name} · fictional numbers · {reportSigned?"Controller-reviewed DEMO draft":"UNREVIEWED draft"}</p></div>
        <div className={css.reportPaperBody}>
         {reportSections.includes("Summary")&&<section><h3>01 · Financial highlights</h3><p>Modelled revenue {money(current.revenue)}, operating costs {money(current.costs)}, operating result {money(current.operatingResult)} ({current.margin.toFixed(1)}% margin), closing cash {money(current.cash)} and occupancy {current.occupancy}%.</p></section>}
         {reportSections.includes("Exceptions")&&<section><h3>02 · Exceptions requiring attention</h3><p>{unreconciled.length} outstanding example bank exceptions and {flagged.length} invoice validation flags. These are independent synthetic cases and must not be presented as real company issues.</p></section>}
         {reportSections.includes("Source mapping")&&<section><h3>03 · Data lineage plan</h3><p>Proposed sources: Xero (ledger), Stripe and GoCardless (settlements), Space Manager (operations) and SharePoint (approved board documents). No sources are live-connected.</p></section>}
-        {reportSections.includes("Approval notice")&&<section><h3>04 · Approval and distribution</h3><p>Controller to review reconciliations, adjustments, periods and final commentary before an authorised director shares the pack externally.</p></section>}
+        {reportSections.includes("Approval notice")&&<section><h3>04 · Approval and distribution</h3><p>{reportSigned?"Controller review documented in this browser. Notes: "+(reportReview?.note||""):"Unreviewed: controller must validate all reconciliations, adjustments, periods and commentary."} All data are fictional and never approved for actual investor distribution.</p></section>}
        </div><div className={css.reportPaperFoot}>Demonstration only · No source verification · Not an actual investor statement</div>
       </div></div>
      </div>
@@ -394,9 +447,9 @@ export default function WigwamFinanceDemo(){
       <Panel label="CARD EXCEPTION" title={selCard.merchant} action={<Badge type={cardIssues(selCard).length?"warn":"good"}>{cardIssues(selCard).length?cardIssues(selCard).length+" flag(s)":"Evidence complete"}</Badge>}>
        <div className={css.detailMini}><div><small>Card holder</small><strong>{selCard.holder}</strong></div><div><small>Transaction</small><strong>{money(selCard.amount)}</strong></div><div><small>Legal entity</small><strong>{entityName(selCard.entity)}</strong></div><div><small>Category</small><strong>{selCard.category}</strong></div></div>
        {cardIssues(selCard).map(x=><div className={css.issue} key={x}><AlertCircle size={16}/>{x}</div>)}
-       <label className={css.field}>PO reference (simulation)<select value={selCard.poId} onChange={e=>{setCards(xs=>xs.map(x=>x.id===selCard.id?{...x,poId:e.target.value}:x));log("Card PO reference edited",selCard.merchant);}}><option value="">No purchase order</option>{purchaseOrders.filter(p=>p.entity===selCard.entity).map(p=><option key={p.id} value={p.id}>{p.id} · {p.supplier}</option>)}</select></label>
-       <label className={css.kpiLine}><span>Receipt obtained and checked (simulation)</span><input type="checkbox" checked={selCard.receipt} onChange={e=>{setCards(xs=>xs.map(x=>x.id===selCard.id?{...x,receipt:e.target.checked}:x));log("Card evidence amended",selCard.merchant);}}/></label>
-       <p className={css.smallTip}>Card receipt confirmation is only a local example. No real card provider is connected and no spend is authorised here.</p>
+       <label className={css.field}>PO reference (simulation)<select value={selCard.poId} disabled={role!=="controller"} onChange={e=>{setCards(xs=>xs.map(x=>x.id===selCard.id?{...x,poId:e.target.value}:x));log("Card PO reference edited",selCard.merchant);}}><option value="">No purchase order</option>{purchaseOrders.filter(p=>p.entity===selCard.entity).map(p=><option key={p.id} value={p.id}>{p.id} · {p.supplier}</option>)}</select></label>
+       <label className={css.kpiLine}><span>Receipt obtained and checked (simulation)</span><input type="checkbox" checked={selCard.receipt} disabled={role!=="controller"} onChange={e=>{setCards(xs=>xs.map(x=>x.id===selCard.id?{...x,receipt:e.target.checked}:x));log("Card evidence amended",selCard.merchant);}}/></label>
+       <p className={css.smallTip}>Only the simulated Financial Controller can amend card evidence. These checks are local examples; no card provider is connected and no spend is authorised here.</p>
       </Panel>
      </div>
     </>}
