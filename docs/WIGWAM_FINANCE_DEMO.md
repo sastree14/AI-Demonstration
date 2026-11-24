@@ -17,6 +17,34 @@ He asked for implementation alongside Financial Controller Sarah Shaw and stipul
 
 Luke Finance referred Nick to an implementation partner and proposed discovery with Nick and Sarah. Do not imply the scope or pricing was agreed, or that all systems have accessible APIs. This demonstration uses synthetic entities and transaction amounts to illustrate workflow options.
 
+## Source fidelity and non-negotiable discovery framing
+
+**This is a first-call exploratory concept. It is not an audit of Wigwam's internal systems.**
+
+### What Nick actually confirmed
+- Supplier PDFs arrive in a **shared inbox** (provider not specified); invoices then move through **Hubdoc, Xero and ApprovalMax**. He described manual work and fragmented hand-offs, but **did not say** data are re-keyed at each step.
+- Problems include **missing purchase orders** and **incorrect company information**. Nick confirmed **Monday.com** is used for PO management; he did not provide the actual PO exceptions, purchasing policy or connection to Xero.
+- Other possible improvement areas: bank reconciliations across payment systems, quarterly investor reporting, card expenditure control.
+- Tools in use: **Xero, Hubdoc, ApprovalMax, Power Automate, SharePoint, Stripe, GoCardless and Space Manager**, plus Monday.com for POs.
+- He seeks **practical implementation alongside the Financial Controller**. People must remain in charge of approvals and payments.
+
+### Do not present these design assumptions as facts
+- No evidence the shared inbox is **Outlook**.
+- No evidence the bookkeeper **re-enters identical data** across all systems.
+- No evidence **all invoice types require a PO**. The demonstration has a **sample PO-required policy** only.
+- No evidence Wigwam has exactly **three entities**; the Operating A, Property B and Services C entities are fictional.
+- No verified company-level invoice counts, accounting figures, amounts, revenue, cash, occupancy, suppliers or acceptance tolerances.
+- Sarah is the Financial Controller, but **her precise authority, duties and approval thresholds are not known**.
+- No evidence actual invoices, reports or card receipts are stored in **SharePoint**, nor that **Space Manager provides occupancy for investor reporting**.
+- The **seven specialist agents are optional conceptual capabilities**, not an agreed client requirement. They are deterministic simulated functions, not deployed agents.
+- Other than the described AP sequence, **cross-tool data mappings, active integrations, API permissions and automation configuration are unverified**.
+- A proposed supplier master-data lookup or supplier email follow-up agent is a potentially useful **hypothesis**, not a confirmed pain point and not a live functionality.
+
+### First-call narrative
+Lead with a short, useful summary of what Nick described; label the example company policies, role permissions and integrations as **illustrative** and invite corrections from the finance team. Do not present seven agents or an entire multi-module platform as the project's agreed scope. Ask Sarah which step creates real manual effort, what Hubdoc and ApprovalMax already automate, which expenses require POs, how company allocation works, and who reviews or approves exceptions.
+
+The public concept should help the prospect say **"that is close, but our process differs here"** without feeling contradicted or audited.
+
 ## Live route
 https://sastree14.github.io/AI-Demonstration/demos/wigwam-finance/
 
@@ -91,8 +119,8 @@ Existing Finance Intelligence and AI Transformation routes are unchanged.
 ## Meeting route (12 minutes)
 - 0–2: Open Command centre as Director. Compare today's inbox/Hubdoc/Xero/ApprovalMax hand-offs with one controlled AP pilot. Open the assumptions behind annual hours released. Ask Nick which manual step consumes most time.
 - 2–7: Receive a new sample in Guided AP walkthrough. Inspect the PDF, extracted company and Monday.com PO. Show that the Director cannot approve. As Controller, correct the company, run checks and explicitly sign off. Download the staging CSV, then open the updated command centre.
-- 7–9: Open Connected ecosystem and inspect the settlement comparison. In Finance specialists run the reconciliation sample STR-1029; open its workflow and document the difference. The source amounts never change.
+- 7–9: Open Connected ecosystem and FIRST clarify confirmed software versus proposed integration. Then inspect the settlement comparison. In Finance specialists run the reconciliation sample STR-1029; open its workflow and document the difference. The source amounts never change.
 - 9–11: Inspect a missing card receipt, then select a quarter in Investor reporting. Show Xero, collections, occupancy and the review note before printing the fictional pack.
 - 11–12: In Implementation plan, ask Sarah for sample invoice volume, handling time, actual PO rules and who owns each approval. Use those inputs to scope the first AP pilot. Dates, scope and costs require separate agreement.
 
-The seven proposed specialist examples read the same selected invoice, settlement, card or reporting quarter as their linked workspaces. Running a specialist changes no financial record. The nine-stage evidence trail can be inspected in any order; actual mutations still require the workflow controls. Sample PO checks compare against the authorised value without an implicit tolerance.
+The seven OPTIONAL specialist examples read the same fictional selected invoice, settlement, card or reporting quarter as their linked workspaces. Running a specialist changes no financial record. The nine-stage evidence trail can be inspected in any order; actual mutations still require the workflow controls. Sample PO checks compare against the authorised value without an implicit tolerance.

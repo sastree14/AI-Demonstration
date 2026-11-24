@@ -43,3 +43,17 @@
 @media(max-width:1010px){.executiveStrip{flex-wrap:wrap}.executiveStrip>div:first-child{width:100%;max-width:none;flex-basis:100%}.executiveStrip>.secondary{margin-left:auto}}
 @media(max-width:620px){.metricsFive{grid-template-columns:repeat(2,minmax(0,1fr))}.executiveStrip{padding:17px;gap:13px}.executiveFigure{min-width:110px}.executiveFigure strong{font-size:20px}.executiveStrip>.secondary{width:100%}}
 @media print{.executiveStrip{display:none!important}}
+
+
+/* Explicit provenance for a first discovery call: known requirements vs illustrative design. */
+.discoveryBanner{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;border:1px solid #dce7e4;border-radius:10px;overflow:hidden;background:#fff;margin:0 0 21px}
+.discoveryBanner>div{padding:17px 19px;min-width:0;border-right:1px solid #e8eeeb}
+.discoveryBanner>div:last-child{border-right:0}
+.discoveryTag{display:block;font-size:9px;font-weight:820;letter-spacing:.85px;color:#367c6b;margin-bottom:8px}
+.discoveryBanner strong{display:block;color:#234753;font-size:12px;margin-bottom:6px}
+.discoveryBanner p{font-size:10.5px;color:#79949a;line-height:1.7}
+.discoveryNotice{display:flex;align-items:flex-start;gap:10px;background:#f4faf6;border:1px solid #d9e9df;border-radius:8px;color:#51786e;padding:15px 17px;font-size:11px;line-height:1.75;margin-bottom:17px}
+.discoveryNotice svg{flex:none;margin-top:2px;color:#378d74}
+.discoveryNotice b{color:#216554}
+@media(max-width:1080px){.discoveryBanner{grid-template-columns:1fr}.discoveryBanner>div{border-right:0;border-bottom:1px solid #e8eeeb}.discoveryBanner>div:last-child{border-bottom:0}}
+@media print{.discoveryBanner,.discoveryNotice{display:none!important}}
