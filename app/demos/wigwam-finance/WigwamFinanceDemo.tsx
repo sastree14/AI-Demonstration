@@ -295,8 +295,25 @@ export default function WigwamFinanceDemo(){
     {screen==="overview"&&<>
      <div className={css.hero}>
       <div className={css.heroBody}><p className={css.eyebrow}>{role==="director"?"EXECUTIVE VIEW / FINANCE TRANSFORMATION":"CONTROLLER VIEW / DAILY FINANCE DESK"}</p><h1>{role==="director"?"One controlled finance workflow. Fewer manual hand-offs.":"Every exception explained. Every approval accountable."}</h1><p>{role==="director"?"Nick described invoice PDFs arriving in a shared inbox and moving through Hubdoc, Xero and ApprovalMax, with manual work, missing POs and company-detail problems. Explore one possible improvement and help us validate the real bottleneck with the finance team.":"Validate supplier invoices, investigate exceptions and record human decisions before anything is prepared for accounting."}</p><div className={css.heroBtns}><button className={css.primary} onClick={()=>navigate("journey")}>Run guided AP walkthrough <ArrowRight size={15}/></button><button className={css.secondary} onClick={()=>navigate("integrations")}>See proposed architecture <GitBranch size={15}/></button><button className={css.secondary} onClick={()=>navigate("agents")}>Explore possible AI support <Bot size={15}/></button></div><small>Exploratory concept · All company records and policies in this interface are fictional · No live integrations</small></div>
-      <div className={css.heroAside}><small>FIRST PILOT PRIORITY</small><strong>Supplier invoice processing</strong><div><b>{flagged.length}</b><span>sample invoices<br/>requiring investigation</span></div><p>Entity assignment, missing PO references, suspected duplicates and an approval trail — without autonomous payments.</p></div>
+      <div className={css.heroAside}><small>PROPOSED FIRST USE CASE</small><strong>Supplier invoice processing</strong><div><b>{flagged.length}</b><span>sample invoices<br/>requiring investigation</span></div><p>Entity assignment, missing PO references, suspected duplicates and an approval trail — without autonomous payments.</p></div>
      </div>
+     <section className={css.discoveryBanner} aria-label="Confirmed context and discovery questions">
+      <div>
+       <span className={css.discoveryTag}>CONFIRMED BY NICK</span>
+       <strong>Invoice flow and priorities</strong>
+       <p>Shared email PDFs → Hubdoc → Xero → ApprovalMax; manual work, missing POs and wrong-company details. He also raised reconciliations, reporting and spending controls.</p>
+      </div>
+      <div>
+       <span className={css.discoveryTag}>ILLUSTRATIVE EXAMPLES</span>
+       <strong>Not actual Wigwam data or rules</strong>
+       <p>Three sample legal entities, supplier names, transaction values, PO requirements, proposed AI specialists, role permissions and cross-tool integrations are fictional.</p>
+      </div>
+      <div>
+       <span className={css.discoveryTag}>QUESTIONS FOR THE FINANCE TEAM</span>
+       <strong>Validate before scoping</strong>
+       <p>Where is the manual bottleneck? Which purchases need POs? What can Hubdoc and ApprovalMax already automate? Who reviews exceptions and approves?</p>
+      </div>
+     </section>
      <div className={css.metrics}>
       <Metric label="Open supplier invoices" value={invoices.filter(x=>x.status!=="approved"&&x.status!=="rejected").length} sub="Fictional shared-inbox cases"/>
       <Metric label="Validation exceptions" value={flagged.length} sub="Require evidence or review" tone="alert"/>
@@ -312,7 +329,7 @@ export default function WigwamFinanceDemo(){
      <div className={css.grid2}>
       <Panel label="01 / SUPPLIER INVOICES" title="From a fragmented process to controlled review" action={<button className={css.textLink} onClick={()=>navigate("automation")}>Full workflow <ArrowRight size={13}/></button>}>
        <div className={css.flow+" "+css.flowCompact}>{phases.map((p,i)=><div className={css.flowStep} key={p.n}><div className={css.flowRail}><span>{p.n}</span>{i<phases.length-1&&<i/>}</div><div className={css.flowInfo}><div><strong>{p.title}</strong><small>{p.state}</small></div><p>{p.detail}</p></div></div>)}</div>
-       <div className={css.callout}><b>Important:</b> automated checks can prepare information. Actual exception owners, approvers and rules must be confirmed; people remain responsible for approvals and payments.</div>
+       <div className={css.callout}><b>For discussion:</b> these checks are examples, not a diagnosed future solution. We should first assess the automation already available in Hubdoc, Xero and ApprovalMax. People retain payment and approval authority.</div>
       </Panel>
       <div>
        <Panel label="CURRENT DEMONSTRATION" title="Exceptions worth investigating" action={<Badge type="warn">{reviewCases.length} examples</Badge>}>
@@ -482,6 +499,7 @@ export default function WigwamFinanceDemo(){
     </>}
     {screen==="integrations"&&<>
      {page("Connected ecosystem","06 / CONFIRMED SOFTWARE · POSSIBLE LINKS","Nick named these systems, but did not describe most of their current connections. The map below is a proposed architecture for discussion. None of the software has been accessed or connected by this demo.")}
+     <div className={css.discoveryNotice}><ShieldCheck size={17}/><span><b>Confirmed:</b> Nick named these tools and described the shared-inbox → Hubdoc → Xero → ApprovalMax invoice flow. <b>Not verified:</b> connections to Monday.com, Power Automate, SharePoint, payment systems, the exact Space Manager product or any approval matrix. Everything in the architecture below is a possible design.</span></div>
      <SystemMap open={navigate}/>
      <div className={css.connectorGrid}>{connectors.map(c=><div className={css.connector} key={c.name}><Link2 size={20}/><strong>{c.name}</strong><p>{c.role}</p><small>{c.category.toUpperCase()} · USED BY WIGWAM / DEMO NOT CONNECTED</small></div>)}</div>
      <div style={{height:12}}/>
