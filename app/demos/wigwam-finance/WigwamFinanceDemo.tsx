@@ -486,7 +486,7 @@ export default function WigwamFinanceDemo(){
      <Panel label="POTENTIAL LATER MODULES" title="One workflow first. Expand once the pilot is reliable."><div className={css.capGrid}>{scenarios.slice(1).map((x,i)=>{const Icon=[GitBranch,BarChart3,WalletCards][i],routes:Screen[]=["reconciliations","reporting","spend"];return <button className={css.cap} key={x.id} onClick={()=>navigate(routes[i])}><Icon size={20}/><strong>{x.title}</strong><span>{x.value}</span><small>OPTIONAL CAPABILITY</small></button>})}</div></Panel>
     </>}
     {screen==="integrations"&&<>
-     {page("Connected ecosystem","06 / CONFIRMED SOFTWARE · POSSIBLE LINKS","Explore how finance, purchasing, document and payment tools could work together. The connections shown are conceptual, not live integrations.")}
+     {page("Connected ecosystem","06 / SYSTEM ECOSYSTEM · CONCEPT MAP","Explore how finance, purchasing, document and payment tools could work together. The connections shown are conceptual, not live integrations.")}
      <div className={css.discoveryNotice}><ShieldCheck size={17}/><span><b>Existing tools, potential connections.</b> Supplier inbox, Hubdoc, Xero and ApprovalMax form the described invoice route. Other data flows on this page illustrate possible integrations. No software connection is active in this demonstration.</span></div>
      <SystemMap open={navigate}/>
      <div className={css.connectorGrid}>{connectors.map(c=><div className={css.connector} key={c.name}><Link2 size={20}/><strong>{c.name}</strong><p>{c.role}</p><small>{c.category.toUpperCase()} · DEMO NOT CONNECTED</small></div>)}</div>
@@ -500,7 +500,7 @@ export default function WigwamFinanceDemo(){
      ].map(([a,b])=><div key={a}><ShieldCheck size={16}/><div><strong>{a}</strong><p>{b}</p></div></div>)}</div></Panel>
     </>}
     {screen==="agents"&&<>
-     {page("Potential AI assistants","OPTIONAL CAPABILITIES · NOT AN AGREED SCOPE","Explore specialist tasks for document intake, validation, exception handling, reconciliation, reporting and spending. Each example uses rule-based simulation and synthetic records.")}
+     {page("Potential AI assistants","OPTIONAL CAPABILITIES · RULE-BASED CONCEPTS","Explore specialist tasks for document intake, validation, exception handling, reconciliation, reporting and spending. Each example uses rule-based simulation and synthetic records.")}
      <Specialists invoice={selected} invoices={invoices} bank={selBank} card={selCard} period={period} open={navigate} selectInvoice={setSelectedInvoiceId} selectBank={id=>{setSelectedBankId(id);setReviewNote("")}} selectCard={setSelectedCardId} banks={banks} cards={cards} selectPeriod={setPeriod} quarters={investorPeriods}/>
     </>}
     {screen==="assistant"&&<>
@@ -525,7 +525,7 @@ export default function WigwamFinanceDemo(){
     {screen==="roadmap"&&<>
      {page("Implementation plan","08 / DELIVERY DESIGN","Explore an incremental approach: configure existing capabilities, validate one finance workflow, expand based on measured value and document the handover.")}
      <div className={css.grid2}>
-      <Panel label="WHAT SHOULD BE IMPLEMENTED FIRST?" title="Proposed staged delivery">
+      <Panel label="PRIORITISED DELIVERY" title="Proposed staged delivery">
        <div className={css.flow}>{[
         {n:"01",title:"Process and baseline",owner:"Review existing workflows",detail:"Map volumes, company allocation, exceptions, approvals and current handling time."},
         {n:"02",title:"Accounts payable pilot",owner:"First implementation candidate",detail:"Connect approved source feeds; extract PDF metadata; validate entity and PO; queue exceptions; preserve ApprovalMax and human sign-off."},
@@ -536,7 +536,7 @@ export default function WigwamFinanceDemo(){
        <p className={css.smallTip}>Indicative delivery sequence. Final scope, schedule and cost depend on system access, policies and requirements.</p>
       </Panel>
       <div>
-       <Panel label="ROI HYPOTHESES" title="Estimate the first AP use case">
+       <Panel label="ILLUSTRATIVE VALUE SCENARIO" title="Estimate the first AP use case">
         <p className={css.panelIntro}>Adjust the example assumptions to explore possible time released. These figures do not represent measured operations or guaranteed savings.</p>
         <div className={css.formGrid}><label className={css.field}>Supplier invoices per week<input type="number" min="0" value={weeklyVolume} onChange={e=>setWeeklyVolume(Math.max(0,Number(e.target.value)||0))}/></label><label className={css.field}>Current minutes per invoice<input type="number" min="0" value={minutes} onChange={e=>setMinutes(Math.max(0,Number(e.target.value)||0))}/></label><label className={css.field}>Loaded value per hour (£)<input type="number" min="0" value={hourlyRate} onChange={e=>setHourlyRate(Math.max(0,Number(e.target.value)||0))}/></label><label className={css.field}>One-off implementation (£)<input type="number" min="0" value={setupCost} onChange={e=>setSetupCost(Math.max(0,Number(e.target.value)||0))}/></label></div>
         <div className={css.roiSlider}><label>Share of time automatable <b>{coverage}%</b></label><input type="range" min="0" max="95" step="5" value={coverage} onChange={e=>setCoverage(Number(e.target.value))}/></div>
