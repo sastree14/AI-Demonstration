@@ -22,7 +22,7 @@ export default function GuidedJourney({invoices,selected,role,create,pick,patch,
   ["Explain","Exception assistant",issues.length?issues.join(" · "):"The current evidence passes the sample checks."],
   ["Correct","Finance reviewer · example",selected?"The proposed ledger is "+entityName(selected.assignedCompany)+". An authorised finance reviewer could correct it against the document; actual responsibilities are unconfirmed.":"Select an invoice first."],
   ["Prepare","Approval packet",selected?"Packet: "+selected.number+" · "+(selected.poId||"PO exception")+" · "+money(selected.amount)+". Run checks before requesting sign-off.":"Waiting for a validated packet."],
-  ["Sign off","ApprovalMax · proposed hand-off",selected?.status==="approved"?"Example Controller decision recorded in this browser.":"The actual approval matrix and integration must be confirmed with Wigwam."],
+  ["Sign off","ApprovalMax · proposed hand-off",selected?.status==="approved"?"Example Controller decision recorded in this browser.":"Approval flows and authorisations are configurable. This example records a local decision only."],
   ["Hand off","Xero preparation",selected?.staged?"Approved staging file prepared for the bookkeeper.":"The CSV is available only after a human approval."],
   ["Review outcome","Command centre",selected?.staged?"The shared queue and audit trail now show the approved file.":"The dashboard follows each change to this invoice."]
  ];
@@ -31,7 +31,7 @@ export default function GuidedJourney({invoices,selected,role,create,pick,patch,
  const actionable=selected?.status!=="approved"&&selected?.status!=="rejected"&&!selected?.staged;
  return <div className={s.journey}>
   <div className={s.summary}>
-   <div><p className={s.eyebrow}>END-TO-END WORKFLOW · FICTIONAL TRANSACTION</p><h2>Follow one possible invoice workflow</h2><p>Based on the steps Nick described. This is not a map of Wigwam's verified internal rules: the sample companies, PO requirements, permissions and document fields are illustrative. Actions update the same example queue and dashboard.</p></div>
+   <div><p className={s.eyebrow}>END-TO-END WORKFLOW · FICTIONAL TRANSACTION</p><h2>Follow one possible invoice workflow</h2><p>See how document intake, configurable validation, human review and accounting preparation could work together. Sample companies, policies and values are fictional; actions update the shared example queue and dashboard.</p></div>
    <button onClick={()=>{setInspect(null);create()}} className={s.primary}><RefreshCcw size={15}/> Receive a new sample invoice</button>
   </div>
   <section className={s.story}><div className={s.storyHead}><strong>Invoice evidence trail</strong><small>Inspect any stage · controls below change the case</small></div>
@@ -63,7 +63,7 @@ export default function GuidedJourney({invoices,selected,role,create,pick,patch,
      <label className={s.label}>Purchase order in Monday.com<select aria-label="Guided PO reference" value={selected?.poId||""} disabled={!actionable||role!=="controller"} onChange={e=>patch({poId:e.target.value,exceptionApproved:false,status:"received"},"Guided correction of PO reference")}><option value="">No PO reference</option>{purchaseOrders.map(p=><option value={p.id} key={p.id}>{p.id} · {p.supplier} · {entityName(p.entity)}</option>)}</select></label>
     </div>
     {issues.length?<div className={s.issueList}>{issues.map(x=><div key={x}><ShieldAlert size={15}/>{x}</div>)}</div>:<div className={s.valid}><CheckCircle2 size={16}/> Entity, PO, supplier and duplicate validation checks pass.</div>}
-    <p className={s.hint}>Sample policy: this demo flags a missing PO. Wigwam may exempt certain types of spend; that rule, the entity structure and any tolerance must be agreed with its finance team. In this example, wrong-company and duplicate errors cannot be waived.</p>
+    <p className={s.hint}>Illustrative PO policy: the example flags missing orders, while an implementation may allow category-based exemptions. Legal-entity and duplicate checks remain blocking controls in this scenario.</p>
     <button className={s.secondary} disabled={!actionable||role!=="controller"} onClick={validate}><ShieldCheck size={16}/> Run checks & prepare approval</button>
     <div className={s.rule}/>
     <div className={s.sectionTitle}><span>02</span><strong>Simulated reviewer decision</strong></div>
@@ -76,7 +76,7 @@ export default function GuidedJourney({invoices,selected,role,create,pick,patch,
      <button className={s.outline} disabled={role!=="controller"||!actionable||selected.exceptionApproved} onClick={acceptException}><ClipboardCheck size={15}/> Accept eligible documented exception</button>
     </div>}
     <button className={s.primary} onClick={approve} disabled={!selected||!canApprove(selected,invoices,role)}><CheckCircle2 size={16}/> Record human approval</button>
-    <p className={s.hint}>The Controller selector only demonstrates human-in-the-loop controls; it does not assert that Sarah personally has this approval authority. Nothing triggers a bank payment.</p>
+    <p className={s.hint}>Only the simulated Controller perspective can approve here. Live permissions are configured separately; no payment is made.</p>
     <div className={s.rule}/>
     <div className={s.sectionTitle}><span>03</span><strong>Prepare a sample accounting hand-off CSV</strong></div>
     <button className={s.primary} onClick={stage} disabled={!selected||!canStage(selected,invoices,role)}><FileDown size={16}/> Download approved invoice CSV</button>
@@ -86,9 +86,9 @@ export default function GuidedJourney({invoices,selected,role,create,pick,patch,
    </div>
   </div>
   <div className={s.outcomes}>
-   <div><span className={s.eyebrow}>CURRENT CONTEXT · CONFIRMED BY NICK</span><h3>Manual work around the invoice route</h3><p>Nick described supplier PDFs received by shared email, then Hubdoc, Xero and ApprovalMax, with manual processing, missing POs and incorrect company details. Exact manual steps remain to be mapped.</p></div>
+   <div><span className={s.eyebrow}>EXISTING FINANCE TOOLCHAIN</span><h3>Documents and approvals across systems</h3><p>Shared invoice inbox → Hubdoc → Xero → ApprovalMax. Manual checks, PO references and legal-entity allocation can create extra hand-offs.</p></div>
    <ArrowRight size={23} className={s.outcomesArrow}/>
-   <div><span className={s.eyebrow}>POSSIBLE PILOT · FOR DISCUSSION</span><h3>A configurable review journey</h3><p>Illustrative document checks, exception handling, human sign-off and a generic staging CSV. We would reuse and configure existing capabilities before introducing new software.</p></div>
+   <div><span className={s.eyebrow}>POTENTIAL CONNECTED WORKFLOW</span><h3>One controlled review journey</h3><p>Document checks, transparent exceptions, human sign-off and accounting preparation, designed to complement existing software.</p></div>
   </div>
   <div className={s.locked}><LockKeyhole size={17}/> <span>In production, real role permissions, source-linked extraction, API connectivity and Xero/ApprovalMax verification would be developed separately. This publicly accessible demonstration uses fictional data.</span></div>
  </div>;

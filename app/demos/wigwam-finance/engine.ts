@@ -66,9 +66,9 @@ export const investorPeriods=[
  {id:"2026-Q4F",name:"Q4 2026 · forecast",revenue:320000,costs:230000,collections:312000,cash:256000,occupancy:87}
 ];
 export const scenarios=[
- {id:"ap",title:"Supplier invoice handling",problem:"Nick described a manual, fragmented shared inbox → Hubdoc → Xero → ApprovalMax process",value:"Potentially fewer hand-offs, earlier validation and retained human approvals",type:"Suggested first discussion"},
- {id:"bank",title:"Multi-system reconciliation",problem:"Nick identified reconciliation as an improvement area; actual source connections are unverified",value:"Could propose matches and expose differences for finance review",type:"Possible expansion"},
- {id:"report",title:"Quarterly investor reporting",problem:"Nick wants to improve quarterly investor reports; actual templates and sources are unknown",value:"Could prepare draft reporting views with traceable inputs and human review",type:"Possible expansion"},
+ {id:"ap",title:"Supplier invoice handling",problem:"Shared inbox → Hubdoc → Xero → ApprovalMax with opportunities to reduce manual hand-offs",value:"Potentially fewer hand-offs, earlier validation and retained human approvals",type:"Illustrative first workflow"},
+ {id:"bank",title:"Multi-system reconciliation",problem:"Collection, bank and ledger entries may require cross-system reconciliation",value:"Could propose matches and expose differences for finance review",type:"Possible expansion"},
+ {id:"report",title:"Quarterly investor reporting",problem:"Quarterly financial and operating reports can require repeatable source checks",value:"Could prepare draft reporting views with traceable inputs and human review",type:"Possible expansion"},
  {id:"spend",title:"Purchase orders & card spending",problem:"POs are in Monday.com and card controls are an area of interest; receipt policies are unknown",value:"Could test agreed PO and receipt rules and explain exceptions",type:"Possible expansion"}
 ];
 export function money(n:number){return new Intl.NumberFormat("en-GB",{style:"currency",currency:"GBP",maximumFractionDigits:0}).format(n)}
