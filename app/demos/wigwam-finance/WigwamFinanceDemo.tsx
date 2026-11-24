@@ -48,21 +48,21 @@ const phases=[
  {n:"01",title:"Shared finance inbox",owner:"Shared email (provider unconfirmed)",detail:"Supplier PDFs arrive by email. The exact inbox provider, existing rules and required document fields need confirmation",state:"Source intake"},
  {n:"02",title:"Document capture",owner:"Hubdoc (existing)",detail:"Use the capture capabilities already available, then assess where validation or exception handling could add value",state:"AI-assisted"},
  {n:"03",title:"Entity and PO validation",owner:"Proposed Xero + Monday.com checks",detail:"Compare entity and PO evidence where relevant. Confirm which invoice types require a PO and how entities are configured",state:"Rules + AI"},
- {n:"04",title:"Finance exception queue",owner:"Finance team (roles to confirm)",detail:"Route missing or inconsistent evidence to the authorised person, using rules agreed during discovery",state:"Human review"},
+ {n:"04",title:"Finance exception queue",owner:"Finance review",detail:"Hold incomplete or inconsistent records for a documented human decision",state:"Human review"},
  {n:"05",title:"Approval request",owner:"ApprovalMax (existing)",detail:"Retain the established human approval process; actual approvers and limits need confirmation",state:"Human approval"},
- {n:"06",title:"Reviewed Xero hand-off",owner:"Accounting team (proposed)",detail:"Prepare a reviewed example hand-off. Xero mapping, posting responsibilities and payment steps need discovery",state:"Controlled export"}
+ {n:"06",title:"Reviewed accounting hand-off",owner:"Controlled preparation",detail:"Prepare an approved-only example file. Live accounting and payment actions remain outside this demonstration",state:"Sample export"}
 ];
 const connectors=[
- {name:"Shared finance inbox",category:"Confirmed entry point",role:"Nick described PDF invoices arriving in a shared mailbox. The email provider and inbox rules are not yet known.",status:"Confirmed"},
- {name:"Hubdoc",category:"Existing tool",role:"Named in the current invoice route; its extraction settings, existing automation and gaps still need review.",status:"Confirmed"},
- {name:"Xero",category:"Existing tool",role:"Accounting platform in the described invoice flow. Entity structure, mappings and API availability are unverified.",status:"Confirmed"},
- {name:"ApprovalMax",category:"Existing tool",role:"Existing approval stage. The real approver roles, thresholds and routing need confirmation.",status:"Confirmed"},
- {name:"Monday.com",category:"Existing tool",role:"Nick confirmed purchase orders are managed here. An automated lookup from invoices is a proposal, not an existing connection.",status:"Confirmed"},
- {name:"Stripe",category:"Existing tool",role:"Named by Nick. Settlement matching with the ledger is a possible improvement; current feeds are unknown.",status:"Confirmed"},
- {name:"GoCardless",category:"Existing tool",role:"Named by Nick. Proposed use: compare collections and accounting records; actual integration is unverified.",status:"Confirmed"},
- {name:"Space Manager",category:"Existing tool",role:"Named by Nick. Its exact product, operating data and reporting role must be confirmed.",status:"Confirmed"},
- {name:"SharePoint",category:"Existing tool",role:"Named by Nick. Document storage for invoices or investor packs is an option, not a confirmed workflow.",status:"Confirmed"},
- {name:"Power Automate",category:"Existing tool",role:"Named by Nick. Its current flows and possible orchestration role require discovery.",status:"Confirmed"}
+ {name:"Shared finance inbox",category:"Document intake",role:"Supplier invoices arrive as PDF attachments. The exact email provider and intake rules can vary.",status:"Current system"},
+ {name:"Hubdoc",category:"Document capture",role:"Document collection and extraction. Potentially reuse existing configuration before adding checks.",status:"Current system"},
+ {name:"Xero",category:"Accounting",role:"Invoice and ledger records. Company allocation and hand-off rules are illustrated, not connected.",status:"Current system"},
+ {name:"ApprovalMax",category:"Approvals",role:"Human approval workflows. Existing permissions remain authoritative in a live implementation.",status:"Current system"},
+ {name:"Monday.com",category:"Purchase orders",role:"Purchase-order records. An automatic invoice-to-PO check is a possible integration.",status:"Current system"},
+ {name:"Stripe",category:"Collections",role:"Payment records and settlement information, potentially useful for reconciliation.",status:"Current system"},
+ {name:"GoCardless",category:"Collections",role:"Direct-debit collection information, potentially useful for reconciliation.",status:"Current system"},
+ {name:"Space Manager",category:"Operations",role:"Potential operating-data source. Available modules and reporting fields determine its role.",status:"Current system"},
+ {name:"SharePoint",category:"Documents",role:"Potential controlled document storage and evidence management.",status:"Current system"},
+ {name:"Power Automate",category:"Automation",role:"Potential workflow orchestration and notifications, alongside existing automations.",status:"Current system"}
 ];
 const initialAudit:Audit[]=[
  {id:"audit-01",when:"2026-11-19 11:02",actor:"Finance Controller (example)",action:"Review completed",detail:"Matched an example bank entry after manual inspection"},
@@ -279,8 +279,8 @@ export default function WigwamFinanceDemo(){
  return <div className={css.shell}>
   {menuOpen&&<button className={css.mobileBackdrop} aria-label="Close navigation" onClick={()=>setMenuOpen(false)}/>}
   <aside className={menuOpen?css.sidebar+" "+css.sidebarOpen:css.sidebar}>
-   <div className={css.brand}><span className={css.brandLogo}>W</span><div><strong>WIGWAM FINANCE</strong><small>OPERATIONS INTELLIGENCE</small></div><button className={css.brandClose} onClick={()=>setMenuOpen(false)} aria-label="Close navigation"><X size={18}/></button></div>
-   <div className={css.sideCase}><small>PROPOSED WORKSPACE</small><strong>Wigwam Storage</strong><span>Finance operations · UK</span></div>
+   <div className={css.brand}><span className={css.brandLogo}>W</span><div><strong>WIGWAM STORAGE</strong><small>FINANCE OPERATIONS</small></div><button className={css.brandClose} onClick={()=>setMenuOpen(false)} aria-label="Close navigation"><X size={18}/></button></div>
+   <div className={css.sideCase}><small>INTERACTIVE CONCEPT</small><strong>Connected finance workflows</strong><span>Illustrative records · Human control</span></div>
    <nav className={css.navScroll}>{menuGroups.map(g=><div className={css.navGroup} key={g.title}><p>{g.title}</p>{g.items.map(navLink)}</div>)}</nav>
    <div className={css.sidebarFoot}><div><ShieldCheck size={14}/> <strong>Approval-first architecture</strong></div><p>All financial examples fictitious. No live connections, bank actions or AI model calls.</p></div>
   </aside>
@@ -289,12 +289,12 @@ export default function WigwamFinanceDemo(){
    <main className={css.work}>
     {notice&&<div className={css.banner} role="status"><CheckCircle2 size={16}/><span>{notice}</span><button onClick={()=>setNotice("")} aria-label="Dismiss"><X size={14}/></button></div>}
     {screen==="journey"&&<>
-     {page("Guided supplier invoice walkthrough","LIVE CLIENT STORY / FIRST AP PILOT","A single connected story for Nick and Sarah: synthetic invoice arrival, rule-based validation, finance correction, human approval and download of an approved-only staging file.",<button className={css.secondary} onClick={reset}><RefreshCw size={14}/> Reset the fictional scenario</button>)}
+     {page("Guided supplier invoice walkthrough","ACCOUNTS PAYABLE · INTERACTIVE DEMONSTRATION","Follow a sample invoice from document capture through validation, exception handling and human sign-off to a controlled accounting file.",<button className={css.secondary} onClick={reset}><RefreshCw size={14}/> Reset the fictional scenario</button>)}
      <GuidedJourney invoices={invoices} selected={selected} role={role} create={createGuidedInvoice} pick={setSelectedInvoiceId} patch={patchInvoice} validate={validateSelected} acceptException={acceptException} approve={approveSelected} stage={stageSelected} changeRole={switchRole} openQueue={()=>navigate("invoices")} openDashboard={()=>navigate("overview")}/>
     </>}
     {screen==="overview"&&<>
      <div className={css.hero}>
-      <div className={css.heroBody}><p className={css.eyebrow}>{role==="director"?"EXECUTIVE VIEW / FINANCE TRANSFORMATION":"CONTROLLER VIEW / DAILY FINANCE DESK"}</p><h1>{role==="director"?"One controlled finance workflow. Fewer manual hand-offs.":"Every exception explained. Every approval accountable."}</h1><p>{role==="director"?"Nick described invoice PDFs arriving in a shared inbox and moving through Hubdoc, Xero and ApprovalMax, with manual work, missing POs and company-detail problems. Explore one possible improvement and help us validate the real bottleneck with the finance team.":"Validate supplier invoices, investigate exceptions and record human decisions before anything is prepared for accounting."}</p><div className={css.heroBtns}><button className={css.primary} onClick={()=>navigate("journey")}>Run guided AP walkthrough <ArrowRight size={15}/></button><button className={css.secondary} onClick={()=>navigate("integrations")}>See proposed architecture <GitBranch size={15}/></button><button className={css.secondary} onClick={()=>navigate("agents")}>Explore possible AI support <Bot size={15}/></button></div><small>Exploratory concept · All company records and policies in this interface are fictional · No live integrations</small></div>
+      <div className={css.heroBody}><p className={css.eyebrow}>{role==="director"?"EXECUTIVE VIEW / FINANCE TRANSFORMATION":"CONTROLLER VIEW / DAILY FINANCE DESK"}</p><h1>{role==="director"?"One controlled finance workflow. Fewer manual hand-offs.":"Every exception explained. Every approval accountable."}</h1><p>{role==="director"?"Explore a connected approach to supplier invoice processing: fewer manual hand-offs, clearer exceptions and human-controlled approvals, designed to work alongside existing finance software.":"Review supplier invoices, investigate exceptions and record controlled decisions before accounting preparation."}</p><div className={css.heroBtns}><button className={css.primary} onClick={()=>navigate("journey")}>Run guided AP walkthrough <ArrowRight size={15}/></button><button className={css.secondary} onClick={()=>navigate("integrations")}>See proposed architecture <GitBranch size={15}/></button><button className={css.secondary} onClick={()=>navigate("agents")}>Explore possible AI support <Bot size={15}/></button></div><small>Interactive concept · Sample records and rules · No live financial system access</small></div>
       <div className={css.heroAside}><small>PROPOSED FIRST USE CASE</small><strong>Supplier invoice processing</strong><div><b>{flagged.length}</b><span>sample invoices<br/>requiring investigation</span></div><p>Entity assignment, missing PO references, suspected duplicates and an approval trail — without autonomous payments.</p></div>
      </div>
      <section className={css.discoveryBanner} aria-label="Confirmed context and discovery questions">
@@ -329,7 +329,7 @@ export default function WigwamFinanceDemo(){
      <div className={css.grid2}>
       <Panel label="01 / SUPPLIER INVOICES" title="From a fragmented process to controlled review" action={<button className={css.textLink} onClick={()=>navigate("automation")}>Full workflow <ArrowRight size={13}/></button>}>
        <div className={css.flow+" "+css.flowCompact}>{phases.map((p,i)=><div className={css.flowStep} key={p.n}><div className={css.flowRail}><span>{p.n}</span>{i<phases.length-1&&<i/>}</div><div className={css.flowInfo}><div><strong>{p.title}</strong><small>{p.state}</small></div><p>{p.detail}</p></div></div>)}</div>
-       <div className={css.callout}><b>For discussion:</b> these checks are examples, not a diagnosed future solution. We should first assess the automation already available in Hubdoc, Xero and ApprovalMax. People retain payment and approval authority.</div>
+       <div className={css.callout}><b>Designed for existing tools:</b> validation can complement the capabilities already available in Hubdoc, Xero and ApprovalMax. People remain in control of approvals and payments.</div>
       </Panel>
       <div>
        <Panel label="CURRENT DEMONSTRATION" title="Exceptions worth investigating" action={<Badge type="warn">{reviewCases.length} examples</Badge>}>
@@ -342,11 +342,11 @@ export default function WigwamFinanceDemo(){
      </div>
      <Panel label="AUDITABILITY" title="Recent sample activity" action={<button className={css.textLink} onClick={reset}><RefreshCw size={13}/> Reset scenario</button>}>
       {audit.slice(0,5).map(a=><div className={css.kpiLine} key={a.id}><span><strong>{a.action}</strong> · {a.detail}</span><small>{a.when}</small></div>)}
-      <p className={css.smallTip}>Demonstration actions are saved in this browser only. They are not connected to Wigwam's systems.</p>
+      <p className={css.smallTip}>Demo actions are saved in this browser only. No live systems are connected.</p>
      </Panel>
     </>}
     {screen==="invoices"&&<>
-     {page("Supplier invoices","01 / ACCOUNTS PAYABLE · ILLUSTRATIVE RULES","Explore one possible response to the invoice-handling problem Nick described. Entities, PO requirements, approval limits and documents here are sample configurations, not Wigwam policies.",<><button className={css.secondary} onClick={()=>navigate("journey")}><Waypoints size={14}/> Guided walkthrough</button><button className={css.secondary} onClick={exportInvoices}><Download size={14}/> Export example CSV</button><button className={css.primary} disabled={role!=="controller"} onClick={validateBatch}><Sparkles size={15}/> Validate received invoices</button></>)}
+     {page("Supplier invoices","01 / ACCOUNTS PAYABLE","Review a fictional invoice queue, inspect exceptions and test entity, PO and human-approval checks. Rules and entities are configurable examples.",<><button className={css.secondary} onClick={()=>navigate("journey")}><Waypoints size={14}/> Guided walkthrough</button><button className={css.secondary} onClick={exportInvoices}><Download size={14}/> Export example CSV</button><button className={css.primary} disabled={role!=="controller"} onClick={validateBatch}><Sparkles size={15}/> Validate received invoices</button></>)}
      <div className={css.metrics+" "+css.metricsFive}>
       <Metric label="Invoices in example" value={invoices.length} sub="Source PDFs simulated"/>
       <Metric label="Total face value" value={money(invoices.reduce((a,x)=>a+x.amount,0))} sub="No payment execution"/>
@@ -363,7 +363,7 @@ export default function WigwamFinanceDemo(){
        <div className={css.detailMini}><div><small>Example document</small><strong>{selected.document}</strong></div><div><small>Amount excl. VAT</small><strong>{money(selected.amount)}</strong></div><div><small>Invoice evidence: legal entity</small><strong>{entityName(selected.sourceCompany)}</strong></div><div><small>VAT (illustrative)</small><strong>{money(selected.vat)}</strong></div></div>
        <div className={css.formGrid}><label className={css.field}>Proposed bookkeeping entity<select value={selected.assignedCompany} disabled={role!=="controller"||selected.status==="approved"||selected.status==="rejected"||selected.staged} onChange={e=>patchInvoice({assignedCompany:e.target.value as EntityId,exceptionApproved:false,status:"received"},"Entity assignment edited")}>{entities.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select></label><label className={css.field}>Referenced purchase order<select value={selected.poId} disabled={role!=="controller"||selected.status==="approved"||selected.status==="rejected"||selected.staged} onChange={e=>patchInvoice({poId:e.target.value,exceptionApproved:false,status:"received"},"PO reference edited")}><option value="">No purchase order</option>{purchaseOrders.map(x=><option value={x.id} key={x.id}>{x.id} · {x.supplier} · {entityName(x.entity)}</option>)}</select></label></div>
        <div className={css.buttons}><button className={css.primary} onClick={validateSelected} disabled={selected.status==="approved"||selected.status==="rejected"||selected.staged}><FileSearch size={14}/> Validate & prepare approval</button><button className={css.secondary} onClick={approveSelected} disabled={!canApprove(selected,invoices,role)}><CheckCircle2 size={14}/> Controller sign-off</button><button className={css.secondary} onClick={stageSelected} disabled={!canStage(selected,invoices,role)}><FileDown size={14}/> Download Xero staging CSV</button><button className={css.quiet} onClick={rejectSelected} disabled={role!=="controller"||selected.status==="approved"||selected.status==="rejected"||selected.exceptionNote.trim().length<12}>Reject with note</button></div>
-       <p className={css.smallTip}>Sample role permissions, three companies and PO checks are examples only. Confirm Wigwam's actual approvers and exemptions with the finance team. NO invoice is posted to Xero, transmitted to ApprovalMax, or paid. The CSV is not a provider-specific import guarantee.</p>
+       <p className={css.smallTip}>Role permissions, legal entities and PO requirements are example configurations. No invoice is posted to Xero, sent to ApprovalMax or paid. The CSV is not a validated provider import file.</p>
       </Panel>
       <div>
        <Panel label="AUTOMATED EXCEPTION LOGIC" title="Evidence and risk checks" action={<ShieldCheck size={17}/>}>
@@ -373,7 +373,7 @@ export default function WigwamFinanceDemo(){
         <button className={css.secondary} disabled={role!=="controller"||selected.status==="approved"||selected.exceptionApproved||invoiceIssues(selected,invoices).some(x=>/entity|duplicate|supplier and PO/i.test(x))} onClick={acceptException}><FileCheck2 size={14}/> Accept documented exception</button>
         {selected.exceptionApproved&&<div className={css.safe}><CheckCircle2 size={16}/><span>Exception accepted for routing, subject to separate human sign-off. Issues remain visible.</span></div>}
        </Panel>
-       <Panel label="GUARDRAIL" title="Payments remain outside the automation"><div className={css.callout}><b>Non-negotiable:</b> automated checks and draft approval packets never trigger a bank payment. The real user and approval model would need to be confirmed with Nick and Sarah.</div><button className={css.quiet} disabled style={{marginTop:14}}><LockKeyhole size={14}/> Execute payment · disabled</button></Panel>
+       <Panel label="GUARDRAIL" title="Payments remain outside the automation"><div className={css.callout}><b>Human-controlled:</b> automated checks and approval preparation never trigger payments. Live permissions and approval thresholds are configured during implementation.</div><button className={css.quiet} disabled style={{marginTop:14}}><LockKeyhole size={14}/> Execute payment · disabled</button></Panel>
       </div>
      </div>}
     </>}
