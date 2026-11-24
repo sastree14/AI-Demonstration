@@ -49,12 +49,12 @@ export default function GuidedJourney({invoices,selected,role,create,pick,patch,
     <div className={s.statusGrid}><div><small>Approval state</small><strong>{selected?.status==="approved"?"Controller approved":selected?.status==="pending_approval"?"Pending sign-off":selected?.status==="needs_review"?"Manual exception":selected?.status==="rejected"?"Rejected":"Received"}</strong></div><div><small>Xero record</small><strong>{selected?.staged?"CSV prepared":"Not posted / not exported"}</strong></div></div>
     <div className={s.sectionTitle}><span>01</span><strong>Validate the extracted evidence</strong></div>
     <div className={s.formGrid}>
-     <label className={s.label}>Bookkeeping legal entity<select aria-label="Guided legal entity" value={selected?.assignedCompany||"operating"} disabled={!actionable} onChange={e=>patch({assignedCompany:e.target.value as EntityId,exceptionApproved:false,status:"received"},"Guided correction of legal entity")}>{entities.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select></label>
-     <label className={s.label}>Purchase order in Monday.com<select aria-label="Guided PO reference" value={selected?.poId||""} disabled={!actionable} onChange={e=>patch({poId:e.target.value,exceptionApproved:false,status:"received"},"Guided correction of PO reference")}><option value="">No PO reference</option>{purchaseOrders.map(p=><option value={p.id} key={p.id}>{p.id} · {p.supplier} · {entityName(p.entity)}</option>)}</select></label>
+     <label className={s.label}>Bookkeeping legal entity<select aria-label="Guided legal entity" value={selected?.assignedCompany||"operating"} disabled={!actionable||role!=="controller"} onChange={e=>patch({assignedCompany:e.target.value as EntityId,exceptionApproved:false,status:"received"},"Guided correction of legal entity")}>{entities.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select></label>
+     <label className={s.label}>Purchase order in Monday.com<select aria-label="Guided PO reference" value={selected?.poId||""} disabled={!actionable||role!=="controller"} onChange={e=>patch({poId:e.target.value,exceptionApproved:false,status:"received"},"Guided correction of PO reference")}><option value="">No PO reference</option>{purchaseOrders.map(p=><option value={p.id} key={p.id}>{p.id} · {p.supplier} · {entityName(p.entity)}</option>)}</select></label>
     </div>
     {issues.length?<div className={s.issueList}>{issues.map(x=><div key={x}><ShieldAlert size={15}/>{x}</div>)}</div>:<div className={s.valid}><CheckCircle2 size={16}/> Entity, PO, supplier and duplicate validation checks pass.</div>}
-    <p className={s.hint}>Wrong-company, duplicate or supplier/PO mismatch cannot be waived. Correct the underlying evidence before progressing.</p>
-    <button className={s.secondary} disabled={!actionable} onClick={validate}><ShieldCheck size={16}/> Run checks & prepare approval</button>
+    <p className={s.hint}>Wrong-company, duplicate or supplier/PO mismatch cannot be waived. Switch to Financial Controller to correct the underlying evidence before progressing.</p>
+    <button className={s.secondary} disabled={!actionable||role!=="controller"} onClick={validate}><ShieldCheck size={16}/> Run checks & prepare approval</button>
     <div className={s.rule}/>
     <div className={s.sectionTitle}><span>02</span><strong>Finance Controller decision</strong></div>
     <div className={s.role}>
@@ -62,7 +62,7 @@ export default function GuidedJourney({invoices,selected,role,create,pick,patch,
      <button onClick={()=>changeRole(role==="director"?"controller":"director")}>{role==="director"?"Switch to Controller":"Switch to Director"} <ArrowRight size={14}/></button>
     </div>
     {selected&&issues.length>0&&<div className={s.exception}>
-     <label className={s.label}>Exception justification (only eligible issues)<textarea rows={2} disabled={!actionable} value={selected.exceptionNote} onChange={e=>patch({exceptionNote:e.target.value,exceptionApproved:false})} placeholder="Describe evidence and the responsible reviewer. A note cannot bypass legal entity errors or duplicates." /></label>
+     <label className={s.label}>Exception justification (only eligible issues)<textarea rows={2} disabled={!actionable||role!=="controller"} value={selected.exceptionNote} onChange={e=>patch({exceptionNote:e.target.value,exceptionApproved:false})} placeholder="Describe evidence and the responsible reviewer. A note cannot bypass legal entity errors or duplicates." /></label>
      <button className={s.outline} disabled={role!=="controller"||!actionable||selected.exceptionApproved} onClick={acceptException}><ClipboardCheck size={15}/> Accept eligible documented exception</button>
     </div>}
     <button className={s.primary} onClick={approve} disabled={!selected||!canApprove(selected,invoices,role)}><CheckCircle2 size={16}/> Record human approval</button>
