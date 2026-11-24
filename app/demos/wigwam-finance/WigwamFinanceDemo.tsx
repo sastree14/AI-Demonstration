@@ -6,7 +6,7 @@ import {
  Check,CheckCircle2,ChevronDown,ChevronRight,ClipboardCheck,Clock3,Cloud,Database,Download,
  FileCheck2,FileDown,FileSearch,FileText,GitBranch,Inbox,LayoutDashboard,Link2,LockKeyhole,
  Mail,Menu,MessageCircle,Plus,RefreshCw,Search,Send,Settings2,ShieldCheck,SlidersHorizontal,
- Sparkles,TrendingUp,Upload,Users,WalletCards,Workflow,X
+ Sparkles,TrendingUp,Upload,Users,WalletCards,Workflow,Waypoints,X
 } from "lucide-react";
 import {
  type Invoice,type InvoiceStatus,type BankLine,type CardSpend,type Audit,type EntityId,
