@@ -7,42 +7,42 @@ import s from "./operations.module.css";
 type Destination="journey"|"reconciliations"|"reporting"|"spend"|"assistant"|"overview";
 type Specialist={name:string;systems:string;input:string;output:string;limit:string;target:Destination};
 const specialists:Specialist[]=[
- {name:"Invoice Intake & Extraction",systems:"Shared finance inbox · Hubdoc · SharePoint",input:"Supplier PDF and its email reference",output:"Document fields ready for validation",limit:"The bookkeeper verifies unreadable or missing fields.",target:"journey"},
- {name:"Entity & PO Validation",systems:"Hubdoc · Monday.com · Xero",input:"Document company, proposed ledger, supplier, PO and invoice register",output:"Evidence checks and blocking discrepancies",limit:"Only finance can change the proposed company or accept an eligible exception.",target:"journey"},
- {name:"AP Exception Assistant",systems:"Xero · Monday.com · ApprovalMax",input:"Flagged invoice and supporting evidence",output:"An explanation and the next permitted action",limit:"Sarah resolves the exception. An authorised person signs off separately.",target:"journey"},
- {name:"Reconciliation Assistant",systems:"Stripe · GoCardless · Space Manager · bank · Xero",input:"Collection reference and amount alongside the ledger entry",output:"A proposed match or a reason to investigate",limit:"Reviewing a difference leaves both balances intact.",target:"reconciliations"},
- {name:"Financial Reporting Assistant",systems:"Xero · Stripe · GoCardless · Space Manager · SharePoint",input:"Selected quarter, sample ledger, collections and occupancy",output:"Investor commentary with sources for review",limit:"Sarah checks the draft before any external distribution.",target:"reporting"},
- {name:"Spend Control Assistant",systems:"Monday.com · SharePoint · Xero",input:"Card transaction, receipt, legal entity and approved PO",output:"Missing evidence and spend-policy exceptions",limit:"A person verifies the receipt and the spending authority.",target:"spend"},
- {name:"Finance Operations Guide",systems:"Power Automate · workspace audit trail",input:"Current invoice, review queues and hand-off status",output:"A plain-English explanation for the finance team",limit:"Read-only guidance. Approval and payment authority stay with people.",target:"assistant"}
+ {name:"Invoice Intake & Extraction",systems:"Existing: shared finance inbox and Hubdoc · Optional: SharePoint evidence storage",input:"Supplier PDF and its email reference",output:"Document fields ready for validation",limit:"The bookkeeper verifies unreadable or missing fields.",target:"journey"},
+ {name:"Entity & PO Validation",systems:"Named by Nick: Hubdoc, Monday.com and Xero · Proposed cross-check",input:"Document company, proposed ledger, supplier, PO and invoice register",output:"Evidence checks and blocking discrepancies",limit:"Only finance can change the proposed company or accept an eligible exception.",target:"journey"},
+ {name:"AP Exception Assistant",systems:"Named by Nick: Xero, Monday.com and ApprovalMax · Proposed exception handling",input:"Flagged invoice and supporting evidence",output:"An explanation and the next permitted action",limit:"Exception ownership and approver roles require confirmation. People make the decisions.",target:"journey"},
+ {name:"Reconciliation Assistant",systems:"Named by Nick: Stripe, GoCardless, Space Manager and Xero · Links unverified",input:"Collection reference and amount alongside the ledger entry",output:"A proposed match or a reason to investigate",limit:"Reviewing a difference leaves both balances intact.",target:"reconciliations"},
+ {name:"Financial Reporting Assistant",systems:"Potential source combination only · Existing reporting connections unverified",input:"Selected quarter, sample ledger, collections and occupancy",output:"Investor commentary with sources for review",limit:"An authorised reviewer would check the fictional draft. Actual report owners are unconfirmed.",target:"reporting"},
+ {name:"Spend Control Assistant",systems:"Named by Nick: Monday.com, SharePoint and Xero · Proposed policy checks",input:"Card transaction, receipt, legal entity and approved PO",output:"Missing evidence and spend-policy exceptions",limit:"A person verifies the receipt and the spending authority.",target:"spend"},
+ {name:"Finance Operations Guide",systems:"Possible orchestration with Power Automate · No live AI or external tool access",input:"Current invoice, review queues and hand-off status",output:"A plain-English explanation for the finance team",limit:"Read-only guidance. Approval and payment authority stay with people.",target:"assistant"}
 ];
 const routes=[
  {name:"Supplier invoices",target:"journey",steps:[
- ["Capture","Shared finance inbox → Hubdoc","Receive a supplier PDF and capture supplier, net amount, VAT and invoice number.","Retain the original in SharePoint for a reviewer."],
- ["Validate","Monday.com + Xero","Match the PO owner and supplier to the document and proposed ledger.","Missing PO or wrong company sends the item to Sarah."],
- ["Sign off","Sarah → ApprovalMax","Prepare the evidence packet after validation.","An authorised person records the decision."],
- ["Hand off","Bookkeeper → Xero","Prepare an approved-only CSV and retain its run reference.","The bookkeeper controls posting. Payments are separate."]]},
+ ["Capture","Shared finance inbox → Hubdoc","Nick described supplier PDFs moving from the shared inbox to Hubdoc.","The precise capture setup and any optional SharePoint archive require confirmation."],
+ ["Validate","Proposed: Monday.com + Xero","Where POs are required, compare the reference, legal entity, supplier and limits.","Actual PO exemptions, entity structure and reviewers are not yet known."],
+ ["Sign off","Existing tool: ApprovalMax","A possible review packet could use the existing approval product.","Authorised approvers and delegation rules remain to be confirmed."],
+ ["Hand off","Proposed: controlled Xero preparation","Generate a fictional approved-only CSV for discussion.","Actual posting process, import format and authority require discovery."]]},
  {name:"Bank reconciliation",target:"reconciliations",steps:[
  ["Collect","Stripe + GoCardless","Read settlement and direct debit references, dates and amounts.","Separate settlement timing from missing receipts."],
- ["Compare","Bank + Space Manager → Xero","Compare the receipt, settlement and ledger records.","Require the reference and amount to agree."],
- ["Investigate","Sarah → review log","Record the supporting evidence for any difference.","An investigation note cannot change either balance."]]},
+ ["Compare","Possible source matching","Compare example payment references, bank amounts and accounting entries.","We do not know the actual bank feeds or how Space Manager is involved."],
+ ["Investigate","Finance team → sample review log","Demonstrate a documented human check of a difference.","No actual reconciliations or ledger balances are changed."]]},
  {name:"Investor reporting",target:"reporting",steps:[
- ["Assemble","Xero + Space Manager","Take revenue, costs and closing cash from the sample ledger and occupancy from operations.","Keep the quarter and forecast status attached."],
- ["Cross-check","Stripe + GoCardless","Use collection records to explain cash timing.","Distinguish cash received from recognised revenue."],
- ["Review","Sarah → SharePoint","Review exceptions and commentary, then prepare the quarterly pack.","External distribution requires a separate human decision."]]},
+ ["Assemble","Potential: Xero + operating data","Explore combining ledger figures with an optional operating metric.","We must confirm whether Space Manager supplies these figures."],
+ ["Cross-check","Possible: Stripe + GoCardless","Explore settlement timing with fictional collection records.","Current reporting sources and integrations are unknown."],
+ ["Review","Finance team → optional archive","Document draft checks, with SharePoint as one possible archive.","No actual approval or distribution practice has been confirmed."]]},
  {name:"Purchasing & cards",target:"spend",steps:[
- ["Authorise","Monday.com","Look up the approved order, company and value.","The PO sets the authorised amount."],
- ["Check evidence","Card record + SharePoint","Compare spend and receipt against the order.","Missing evidence or overspend requires investigation."],
- ["Resolve","Sarah → Xero preparation","Record corrected references after inspecting the purchase.","No card charge is authorised by this workflow."]]}
+ ["Authorise","Monday.com (named source)","Inspect a fictional PO and applicable spending limits.","Which purchases need POs, and who authorises them, must be confirmed."],
+ ["Check evidence","Possible card + document sources","Demonstrate matching cards, receipts and PO where policy requires it.","Wigwam card providers, receipt policy and document locations are unconfirmed."],
+ ["Resolve","Authorised finance reviewer","Demonstrate an example exception note and reviewed reference.","Actual roles and accounting hand-off are still to be defined."]]}
 ] as const;
 
 export function SystemMap({open}:{open:(target:Destination)=>void}){
  const [lane,setLane]=useState(0),[stage,setStage]=useState(0);
  const route=routes[lane], step=route.steps[stage];
- return <section className={s.surface}><div className={s.head}><Network/><div><small>PROPOSED SYSTEM CONNECTIONS</small><h2>How evidence moves through finance</h2></div></div>
+ return <section className={s.surface}><div className={s.head}><Network/><div><small>ILLUSTRATIVE ARCHITECTURE · NOT AN AS-IS SYSTEM MAP</small><h2>How the existing tools could work together</h2></div></div>
  <div className={s.tabs}>{routes.map((r,i)=><button key={r.name} aria-pressed={lane===i} onClick={()=>{setLane(i);setStage(0)}}>{r.name}</button>)}</div>
  <div className={s.flow}>{route.steps.map((v,i)=><button key={v[0]} aria-pressed={stage===i} onClick={()=>setStage(i)}><small>{v[0]}</small><strong>{v[1]}</strong>{i<route.steps.length-1&&<ArrowRight size={15}/>}</button>)}</div>
  <div className={s.detail}><strong>{step[0]} evidence</strong><p>{step[2]}</p><p><ShieldCheck size={14}/> {step[3]}</p></div>
- <div className={s.foot}><span>Power Automate could route events between stages. All connections are proposed.</span><button onClick={()=>open(route.target)}>Open sample workflow <ArrowRight size={15}/></button></div></section>
+ <div className={s.foot}><span>Nick named the tools; most connections are unverified. Power Automate is one possible way to orchestrate the steps.</span><button onClick={()=>open(route.target)}>Open sample workflow <ArrowRight size={15}/></button></div></section>
 }
 
 type Props={invoice:Invoice;invoices:Invoice[];bank:BankLine;card:CardSpend;period:string;open:(target:Destination)=>void;selectInvoice:(id:string)=>void;selectBank:(id:string)=>void;selectCard:(id:string)=>void;banks:BankLine[];cards:CardSpend[];selectPeriod:(id:string)=>void;quarters:{id:string;name:string}[]};
@@ -61,10 +61,10 @@ export function Specialists(p:Props){
   }
  };
  return <div className={s.desk}><div className={s.list}>{specialists.map((v,i)=><button key={v.name} aria-pressed={i===id} onClick={()=>{setId(i);setRun(false)}}><GitBranch size={16}/>{v.name}</button>)}</div>
- <section className={s.surface}><div className={s.head}><FileSearch/><div><small>RULE-BASED SIMULATION</small><h2>{a.name}</h2></div></div><p>{a.systems}</p><dl className={s.facts}><div><dt>Reads</dt><dd>{a.input}</dd></div><div><dt>Prepares</dt><dd>{a.output}</dd></div></dl>
+ <section className={s.surface}><div className={s.head}><FileSearch/><div><small>OPTIONAL AI-ASSISTED CAPABILITY · RULE-BASED EXAMPLE</small><h2>{a.name}</h2></div></div><p>{a.systems}</p><dl className={s.facts}><div><dt>Reads</dt><dd>{a.input}</dd></div><div><dt>Prepares</dt><dd>{a.output}</dd></div></dl>
  <label className={s.field}>Sample evidence<select value={id===3?p.bank.id:id===4?p.period:id===5?p.card.id:inv.id} onChange={e=>{setRun(false);const value=e.target.value;if(id===3)p.selectBank(value);else if(id===4)p.selectPeriod(value);else if(id===5)p.selectCard(value);else p.selectInvoice(value)}}>
  {(id===3?p.banks.map(x=>[x.id,x.system+" · "+x.reference]):id===4?p.quarters.map(x=>[x.id,x.name]):id===5?p.cards.map(x=>[x.id,x.merchant]):p.invoices.map(x=>[x.id,x.number+" · "+x.supplier])).map(([v,t])=><option value={v} key={v}>{t}</option>)}</select></label>
  <button className={s.run} onClick={()=>setRun(true)}><Play size={15}/> Run sample check</button>
- {run&&<div className={s.result} role="status"><strong>Sample result</strong>{result().map((x,i)=><p key={i}>{x}</p>)}</div>}
+ {run&&<div className={s.result} role="status"><strong>Illustrative result · not connected to company records</strong>{result().map((x,i)=><p key={i}>{x}</p>)}</div>}
  <div className={s.foot}><span><ClipboardCheck size={15}/> {a.limit}</span><button onClick={()=>p.open(a.target)}>Open relevant workflow <ArrowRight size={15}/></button></div></section></div>
 }
