@@ -292,7 +292,7 @@ export default function WigwamFinanceDemo(){
     </>}
     {screen==="overview"&&<>
      <div className={css.hero}>
-      <div className={css.heroBody}><p className={css.eyebrow}>A PRACTICAL STARTING POINT FOR NICK & SARAH</p><h1>One controlled finance workflow. Fewer manual hand-offs.</h1><p>Explore how supplier invoices, entity checks, purchase orders and human approvals could work together — then expand into reconciliations, quarterly reporting and spend controls.</p><div className={css.heroBtns}><button className={css.primary} onClick={()=>navigate("journey")}>Run guided AP walkthrough <ArrowRight size={15}/></button><button className={css.secondary} onClick={()=>navigate("automation")}>See proposed architecture <GitBranch size={15}/></button></div><small>Concept demonstrator · Synthetic UK financial data · No accounts or payment systems connected</small></div>
+      <div className={css.heroBody}><p className={css.eyebrow}>{role==="director"?"EXECUTIVE VIEW / FINANCE TRANSFORMATION":"CONTROLLER VIEW / DAILY FINANCE DESK"}</p><h1>{role==="director"?"One controlled finance workflow. Fewer manual hand-offs.":"Every exception explained. Every approval accountable."}</h1><p>{role==="director"?"See how a first accounts-payable pilot could cut repetitive administration, strengthen controls and provide visibility across financial workstreams.":"Validate supplier invoices, investigate exceptions and record human decisions before anything is prepared for accounting."}</p><div className={css.heroBtns}><button className={css.primary} onClick={()=>navigate("journey")}>Run guided AP walkthrough <ArrowRight size={15}/></button><button className={css.secondary} onClick={()=>navigate("automation")}>See proposed architecture <GitBranch size={15}/></button></div><small>Concept demonstrator · Synthetic UK financial data · No accounts or payment systems connected</small></div>
       <div className={css.heroAside}><small>FIRST PILOT PRIORITY</small><strong>Supplier invoice processing</strong><div><b>{flagged.length}</b><span>sample invoices<br/>requiring investigation</span></div><p>Entity assignment, missing PO references, suspected duplicates and an approval trail — without autonomous payments.</p></div>
      </div>
      <div className={css.metrics}>
@@ -300,6 +300,12 @@ export default function WigwamFinanceDemo(){
       <Metric label="Validation exceptions" value={flagged.length} sub="Require evidence or review" tone="alert"/>
       <Metric label="Awaiting human sign-off" value={awaiting.length} sub="No automatic approval"/>
       <Metric label="Bank mismatches" value={unreconciled.length} sub="Unresolved sample reconciliation lines" tone="accent"/>
+     </div>
+     <div className={css.executiveStrip}>
+       <div><p className={css.eyebrow}>{role==="director"?"ILLUSTRATIVE BUSINESS CASE":"CONTROLLER WORKLOAD"}</p><h3>{role==="director"?"What the first pilot could release":"Where manual attention is needed"}</h3><p>{role==="director"?"No savings have been verified. Adjust these assumptions in the implementation-plan calculator.":"A controller must check evidence and approve; the sample automation cannot approve or pay on its own."}</p></div>
+       <div className={css.executiveFigure}><strong>{role==="director"?Math.round(roi.freed).toLocaleString()+" h":String(awaiting.length)}</strong><span>{role==="director"?"Potential hours per year":"Pending approval packets"}</span></div>
+       <div className={css.executiveFigure}><strong>{role==="director"?money(roi.value):String(stagedCount)}</strong><span>{role==="director"?"Nominal capacity value, not cash saved":"Accounting staging files prepared"}</span></div>
+       <button className={css.secondary} onClick={()=>navigate(role==="director"?"roadmap":"invoices")}>{role==="director"?"Inspect assumptions":"Open controller queue"} <ArrowRight size={14}/></button>
      </div>
      <div className={css.grid2}>
       <Panel label="01 / SUPPLIER INVOICES" title="From a fragmented process to controlled review" action={<button className={css.textLink} onClick={()=>navigate("automation")}>Full workflow <ArrowRight size={13}/></button>}>
@@ -322,7 +328,7 @@ export default function WigwamFinanceDemo(){
     </>}
     {screen==="invoices"&&<>
      {page("Supplier invoices","01 / ACCOUNTS PAYABLE","A practical response to the shared inbox → Hubdoc → Xero → ApprovalMax logjam. Inspect each example, correct company allocation, check purchase orders and record an auditable human approval.",<><button className={css.secondary} onClick={()=>navigate("journey")}><Waypoints size={14}/> Guided walkthrough</button><button className={css.secondary} onClick={exportInvoices}><Download size={14}/> Export example CSV</button><button className={css.primary} onClick={validateBatch}><Sparkles size={15}/> Validate received invoices</button></>)}
-     <div className={css.metrics}>
+     <div className={css.metrics+" "+css.metricsFive}>
       <Metric label="Invoices in example" value={invoices.length} sub="Source PDFs simulated"/>
       <Metric label="Total face value" value={money(invoices.reduce((a,x)=>a+x.amount,0))} sub="No payment execution"/>
       <Metric label="Open validation flags" value={flagged.length} sub="Wrong entity, PO or duplicate" tone="alert"/>
