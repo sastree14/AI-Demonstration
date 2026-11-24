@@ -1,5 +1,7 @@
 // All transactions, financial periods, company entities and ROI assumptions below
 // are synthetic demonstration data. Real Wigwam Storage data is NOT included.
+// Demo policies are configurable hypotheses: actual PO exemptions, company structure,
+// role permissions, approval thresholds and source-system mappings are unverified.
 export type EntityId="operating"|"property"|"services";
 export const entities:{id:EntityId;name:string;short:string}[]=[
  {id:"operating",name:"Operating entity A",short:"Operating A"},
@@ -64,10 +66,10 @@ export const investorPeriods=[
  {id:"2026-Q4F",name:"Q4 2026 · forecast",revenue:320000,costs:230000,collections:312000,cash:256000,occupancy:87}
 ];
 export const scenarios=[
- {id:"ap",title:"Supplier invoice handling",problem:"Shared inbox → Hubdoc → Xero → ApprovalMax with manual re-keying and handoffs",value:"Reduced re-entry, fewer entity errors and controlled approvals",type:"Core pilot"},
- {id:"bank",title:"Multi-system reconciliation",problem:"Stripe, GoCardless, bank and operational receipts need cross-checking",value:"Automatic match proposals and a reviewer-controlled exception queue",type:"Expansion"},
- {id:"report",title:"Quarterly investor reporting",problem:"Quarterly internal and external packs require repeatable source reconciliation",value:"Consistent financial views with explicit source and sign-off",type:"Expansion"},
- {id:"spend",title:"Purchase orders & card spending",problem:"POs in Monday.com, missing references and unverified card receipts",value:"Policy checks, PO matching and transparent expense exceptions",type:"Expansion"}
+ {id:"ap",title:"Supplier invoice handling",problem:"Nick described a manual, fragmented shared inbox → Hubdoc → Xero → ApprovalMax process",value:"Potentially fewer hand-offs, earlier validation and retained human approvals",type:"Suggested first discussion"},
+ {id:"bank",title:"Multi-system reconciliation",problem:"Nick identified reconciliation as an improvement area; actual source connections are unverified",value:"Could propose matches and expose differences for finance review",type:"Possible expansion"},
+ {id:"report",title:"Quarterly investor reporting",problem:"Nick wants to improve quarterly investor reports; actual templates and sources are unknown",value:"Could prepare draft reporting views with traceable inputs and human review",type:"Possible expansion"},
+ {id:"spend",title:"Purchase orders & card spending",problem:"POs are in Monday.com and card controls are an area of interest; receipt policies are unknown",value:"Could test agreed PO and receipt rules and explain exceptions",type:"Possible expansion"}
 ];
 export function money(n:number){return new Intl.NumberFormat("en-GB",{style:"currency",currency:"GBP",maximumFractionDigits:0}).format(n)}
 export function moneyPrecise(n:number){return new Intl.NumberFormat("en-GB",{style:"currency",currency:"GBP",minimumFractionDigits:2,maximumFractionDigits:2}).format(n)}
