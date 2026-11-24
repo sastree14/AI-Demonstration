@@ -130,7 +130,15 @@ export function calculateRoi(invoicesPerWeek:number,minutesPerInvoice:number,aut
  const paybackNominal=value>annualRun?setupCost/((value-annualRun)/12):null;
  return {baseline,freed,value,annualRun,cashBenefit,netNominal,netCash,paybackNominal};
 }
-export function csv(rows:(string|number)[][]){return rows.map(row=>row.map(cell=>'"'+String(cell).replaceAll('"','""')+'"').join(",")).join("\r\n")}
+export function csv(rows:(string|number)[][]){
+ return rows.map(row=>row.map(cell=>{
+  const raw=String(cell);
+  // Spreadsheet applications may evaluate cells starting with formula operators.
+  // Prefix untrusted text with apostrophe; numeric values remain numeric.
+  const guarded=typeof cell==="string"&&/^[\s\u0000-\u001f]*[=+\-@]/.test(raw)?"'"+raw:raw;
+  return '"'+guarded.replaceAll('"','""')+'"';
+ }).join(",")).join("\r\n");
+}
 export function safeDownload(name:string,content:string,mime="text/csv;charset=utf-8"){
  const blob=new Blob([content],{type:mime});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
