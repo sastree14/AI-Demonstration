@@ -82,3 +82,10 @@ test("a rejected duplicate invoice no longer blocks review",()=>{
  const lines=seedInvoices.map(x=>x.id==="wi-4"?{...x,status:"rejected"}:x);
  assert.ok(!invoiceIssues(original,lines).some(x=>/duplicate/i.test(x)));
 });
+
+test("card policy checks PO existence, entity and value rather than checking a nonempty reference only",()=>{
+ const original=cardSpends[0];
+ assert.ok(cardIssues({...original,receipt:true,poId:"UNKNOWN"}).includes("PO record not found"));
+ assert.ok(cardIssues({...original,receipt:true,poId:"PO-1022"}).some(s=>/different legal entity/.test(s)));
+ assert.ok(cardIssues({...original,receipt:true,poId:"PO-1021",amount:9000}).some(s=>/exceeds/.test(s)));
+});
