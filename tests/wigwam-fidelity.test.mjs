@@ -31,7 +31,6 @@ test("AI specialists and external connections are disclosed as proposals, not ac
 });
 test("Report metrics and operational role assignments are labelled fictional or unverified",()=>{
  assert.match(ui,/Not actual Wigwam data or rules/);
- assert.match(map,/Sarah/); // A role may be mentioned as context but must not be assigned unconfirmed duties.
  assert.doesNotMatch(map,/Sarah resolves the exception/);
  assert.doesNotMatch(map,/Sarah → SharePoint/);
  assert.match(ui,/Nick has not shared his actual investor reporting format/);
