@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {seedInvoices,purchaseOrders,invoiceIssues,canRoute,canApprove,seedBank,bankCheck,cardSpends,cardIssues,investorPeriods,investorMetrics,calculateRoi} from "../app/demos/wigwam-finance/engine.ts";
+import {seedInvoices,purchaseOrders,invoiceIssues,canRoute,canApprove,seedBank,bankCheck,cardSpends,cardIssues,investorPeriods,investorMetrics,calculateRoi,canStage,workflowStage} from "../app/demos/wigwam-finance/engine.ts";
 
 test("Source-based AP case includes proposed wrong company and other high-risk exceptions",()=>{
  const wrong=seedInvoices.find(x=>x.id==="wi-2");
@@ -24,12 +24,14 @@ test("Approvals never happen as director or before a controlled hand-off",()=>{
  const invalid=seedInvoices.find(x=>x.id==="wi-2");
  assert.equal(canApprove(invalid,seedInvoices,"controller"),false);
  const override={...invalid,exceptionApproved:true,exceptionNote:"Investigated by Finance Controller",status:"pending_approval"};
- assert.ok(canApprove(override,seedInvoices,"controller"));
+ assert.equal(canApprove(override,seedInvoices,"controller"),false);
 });
 test("An exception note is required for any override",()=>{
  const x=seedInvoices.find(x=>x.id==="wi-2");
  assert.equal(canRoute({...x,exceptionApproved:true,exceptionNote:"short"},seedInvoices),false);
- assert.equal(canRoute({...x,exceptionApproved:true,exceptionNote:"Signed off after checking the source company"},seedInvoices),true);
+ assert.equal(canRoute({...x,exceptionApproved:true,exceptionNote:"Signed off after checking the source company"},seedInvoices),false);
+ const missingPo=seedInvoices.find(y=>y.id==="wi-10");
+ assert.equal(canRoute({...missingPo,exceptionApproved:true,exceptionNote:"PO not supplied: Controller authorised without PO"},seedInvoices),true);
 });
 test("Bank line checks distinguish exact, amount, reference and missing",()=>{
  assert.deepEqual(seedBank.map(bankCheck),["match","match","match","amount","reference","match","missing"]);
@@ -57,4 +59,26 @@ test("Proposed PO register and invoices contain only fictional entity IDs",()=>{
  const valid=new Set(["operating","property","services"]);
  assert.ok(seedInvoices.every(x=>valid.has(x.sourceCompany)&&valid.has(x.assignedCompany)));
  assert.ok(purchaseOrders.every(x=>valid.has(x.entity)));
+});
+
+test("approved-only Xero staging requires a human decision and cannot be repeated",()=>{
+ const candidate=seedInvoices.find(x=>x.id==="wi-1");
+ assert.equal(canStage(candidate,seedInvoices,"controller"),false);
+ const approved={...candidate,status:"approved"};
+ assert.equal(canStage(approved,seedInvoices,"director"),false);
+ assert.equal(canStage(approved,seedInvoices,"controller"),true);
+ assert.equal(canStage({...approved,staged:true},seedInvoices,"controller"),false);
+});
+test("shared workflow reflects evidence correction, approval and staging",()=>{
+ const bad=seedInvoices.find(x=>x.id==="wi-2");
+ assert.equal(workflowStage(bad,seedInvoices),"exceptions");
+ const corrected={...bad,assignedCompany:"property",status:"pending_approval"};
+ assert.equal(workflowStage(corrected,seedInvoices),"approval");
+ assert.equal(workflowStage({...corrected,status:"approved"},seedInvoices),"staging");
+ assert.equal(workflowStage({...corrected,status:"approved",staged:true},seedInvoices),"ready");
+});
+test("a rejected duplicate invoice no longer blocks review",()=>{
+ const original=seedInvoices.find(x=>x.id==="wi-8");
+ const lines=seedInvoices.map(x=>x.id==="wi-4"?{...x,status:"rejected"}:x);
+ assert.ok(!invoiceIssues(original,lines).some(x=>/duplicate/i.test(x)));
 });
