@@ -221,13 +221,12 @@ export default function WigwamFinanceDemo(){
   setNotice("Review recorded locally. No bank feed, source ledger or Xero balance was changed.");
  }
  function createGuidedInvoice(){
-  const existing=invoices.find(x=>x.id==="journey-demo"&&!x.staged&&x.status!=="rejected");
-  if(existing){setSelectedInvoiceId(existing.id);setNotice("The latest sample is already available. Correct its entity and run the checks.");return;}
-  const sample:Invoice={id:"journey-demo",number:"NS-DEMO-6041",supplier:"Northpoint Security",date:"2026-11-23",due:"2026-12-15",amount:3690,vat:738,sourceCompany:"property",assignedCompany:"operating",poId:"PO-1022",document:"fictional-Northpoint-6041.pdf",status:"received",exceptionApproved:false,exceptionNote:"",booked:false,staged:false};
-  setInvoices(xs=>[sample,...xs.filter(x=>x.id!=="journey-demo")]);
+  const serial=6041+invoices.filter(x=>x.id.startsWith("journey-demo-")).length;
+  const sample:Invoice={id:"journey-demo-"+serial,number:"NS-DEMO-"+serial,supplier:"Northpoint Security",date:"2026-11-23",due:"2026-12-15",amount:3690,vat:738,sourceCompany:"property",assignedCompany:"operating",poId:"PO-1022",document:"fictional-Northpoint-"+serial+".pdf",status:"received",exceptionApproved:false,exceptionNote:"",booked:false,staged:false};
+  setInvoices(xs=>[sample,...xs]);
   setSelectedInvoiceId(sample.id);
-  log("Demonstration intake","Fictional supplier PDF arrived via simulated inbox → Hubdoc (no external connection)");
-  setNotice("A new synthetic supplier invoice has arrived. Review entity assignment before any approval.");
+  log("Fictional supplier intake","Synthetic invoice "+sample.number+" entered via illustrated inbox → Hubdoc pathway");
+  setNotice("New fictional supplier invoice "+sample.number+" received. Correct the wrong legal entity before approval.");
  }
  function stageSelected(){
   if(!selected||!canStage(selected,invoices,role)){setNotice("Staging is blocked until a Controller approves a validated invoice. No Xero posting occurs.");return;}
