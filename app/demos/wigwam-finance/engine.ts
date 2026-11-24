@@ -10,7 +10,7 @@ export type InvoiceStatus="received"|"needs_review"|"pending_approval"|"approved
 export type Invoice={
  id:string;number:string;supplier:string;date:string;due:string;amount:number;vat:number;
  sourceCompany:EntityId;assignedCompany:EntityId;poId:string;document:string;status:InvoiceStatus;
- exceptionApproved:boolean;exceptionNote:string;booked:boolean
+ exceptionApproved:boolean;exceptionNote:string;booked:boolean;staged?:boolean
 };
 export type PurchaseOrder={id:string;supplier:string;entity:EntityId;amount:number;category:string;owner:string;status:"issued"|"received"|"closed"};
 export type BankLine={id:string;date:string;system:"Stripe"|"GoCardless"|"Bank transfer"|"Space Manager";reference:string;amount:number;ledgerReference:string;ledgerAmount:number;entity:EntityId;reviewed:boolean;note:string};
@@ -85,13 +85,31 @@ export function invoiceIssues(inv:Invoice,items:Invoice[]=seedInvoices,orders:Pu
    if(inv.amount>po.amount*1.05)issues.push("Invoice exceeds authorised PO value");
   }
  }
- const duplicates=items.filter(x=>x.id!==inv.id&&x.number.trim().toLowerCase()===inv.number.trim().toLowerCase()&&x.supplier.trim().toLowerCase()===inv.supplier.trim().toLowerCase());
+ const duplicates=items.filter(x=>x.id!==inv.id&&x.status!=="rejected"&&x.number.trim().toLowerCase()===inv.number.trim().toLowerCase()&&x.supplier.trim().toLowerCase()===inv.supplier.trim().toLowerCase());
  if(duplicates.length)issues.push("Potential duplicate supplier invoice number");
  return issues;
 }
-export function canRoute(inv:Invoice,all:Invoice[]){return invoiceIssues(inv,all).length===0||inv.exceptionApproved&&inv.exceptionNote.trim().length>=12}
+export function canRoute(inv:Invoice,all:Invoice[]){
+ const issues=invoiceIssues(inv,all);
+ if(!issues.length)return true;
+ // Entity misclassification, duplicate invoices, and PO supplier/entity mismatches
+ // are hard stops, regardless of any waiver notes.
+ const hardStop=issues.some(x=>/entity|duplicate|supplier and PO/i.test(x));
+ if(hardStop)return false;
+ return inv.exceptionApproved&&inv.exceptionNote.trim().length>=12;
+}
+export function canStage(inv:Invoice,all:Invoice[],role:"director"|"controller"){
+ return role==="controller"&&inv.status==="approved"&&!inv.staged&&canRoute(inv,all);
+}
+export function workflowStage(inv:Invoice,all:Invoice[]):"intake"|"exceptions"|"approval"|"staging"|"ready"{
+ if(inv.staged)return "ready";
+ if(inv.status==="approved")return "staging";
+ if(inv.status==="pending_approval")return "approval";
+ if(inv.status==="needs_review"||invoiceIssues(inv,all).length)return "exceptions";
+ return "intake";
+}
 export function canApprove(inv:Invoice,all:Invoice[],role:"director"|"controller"){
- return role==="controller"&&inv.status==="pending_approval"&&canRoute(inv,all);
+ return role==="controller"&&inv.status==="pending_approval"&&!inv.staged&&canRoute(inv,all);
 }
 export function bankCheck(item:BankLine):"match"|"amount"|"reference"|"missing"{
  if(item.ledgerAmount===0)return "missing";
