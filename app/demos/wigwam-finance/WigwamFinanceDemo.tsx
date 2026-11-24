@@ -297,22 +297,10 @@ export default function WigwamFinanceDemo(){
       <div className={css.heroBody}><p className={css.eyebrow}>{role==="director"?"EXECUTIVE VIEW / FINANCE TRANSFORMATION":"CONTROLLER VIEW / DAILY FINANCE DESK"}</p><h1>{role==="director"?"One controlled finance workflow. Fewer manual hand-offs.":"Every exception explained. Every approval accountable."}</h1><p>{role==="director"?"Explore a connected approach to supplier invoice processing: fewer manual hand-offs, clearer exceptions and human-controlled approvals, designed to work alongside existing finance software.":"Review supplier invoices, investigate exceptions and record controlled decisions before accounting preparation."}</p><div className={css.heroBtns}><button className={css.primary} onClick={()=>navigate("journey")}>Run guided AP walkthrough <ArrowRight size={15}/></button><button className={css.secondary} onClick={()=>navigate("integrations")}>See proposed architecture <GitBranch size={15}/></button><button className={css.secondary} onClick={()=>navigate("agents")}>Explore possible AI support <Bot size={15}/></button></div><small>Interactive concept · Sample records and rules · No live financial system access</small></div>
       <div className={css.heroAside}><small>PROPOSED FIRST USE CASE</small><strong>Supplier invoice processing</strong><div><b>{flagged.length}</b><span>sample invoices<br/>requiring investigation</span></div><p>Entity assignment, missing PO references, suspected duplicates and an approval trail — without autonomous payments.</p></div>
      </div>
-     <section className={css.discoveryBanner} aria-label="Confirmed context and discovery questions">
-      <div>
-       <span className={css.discoveryTag}>CONFIRMED BY NICK</span>
-       <strong>Invoice flow and priorities</strong>
-       <p>Shared email PDFs → Hubdoc → Xero → ApprovalMax; manual work, missing POs and wrong-company details. He also raised reconciliations, reporting and spending controls.</p>
-      </div>
-      <div>
-       <span className={css.discoveryTag}>ILLUSTRATIVE EXAMPLES</span>
-       <strong>Not actual Wigwam data or rules</strong>
-       <p>Three sample legal entities, supplier names, transaction values, PO requirements, proposed AI specialists, role permissions and cross-tool integrations are fictional.</p>
-      </div>
-      <div>
-       <span className={css.discoveryTag}>QUESTIONS FOR THE FINANCE TEAM</span>
-       <strong>Validate before scoping</strong>
-       <p>Where is the manual bottleneck? Which purchases need POs? What can Hubdoc and ApprovalMax already automate? Who reviews exceptions and approves?</p>
-      </div>
+     <section className={css.discoveryBanner} aria-label="Finance workflow capabilities">
+      <div><span className={css.discoveryTag}>DOCUMENT INTAKE</span><strong>From inbox to structured evidence</strong><p>Supplier PDFs can be captured, checked and prepared for review using existing document and accounting tools.</p></div>
+      <div><span className={css.discoveryTag}>CONTROLLED VALIDATION</span><strong>Clear exceptions, fewer hand-offs</strong><p>Example entity, purchase-order and duplicate checks highlight what needs attention before approval.</p></div>
+      <div><span className={css.discoveryTag}>HUMAN OVERSIGHT</span><strong>Finance stays in control</strong><p>Reviewer decisions, audit evidence and accounting preparation remain separate from payment execution.</p></div>
      </section>
      <div className={css.metrics}>
       <Metric label="Open supplier invoices" value={invoices.filter(x=>x.status!=="approved"&&x.status!=="rejected").length} sub="Fictional shared-inbox cases"/>
@@ -400,10 +388,10 @@ export default function WigwamFinanceDemo(){
      </div>
     </>}
     {screen==="reporting"&&<>
-     {page("Quarterly investor reporting","03 / BOARD & INVESTOR PACK","Explore a possible quarterly report. Metrics, figures, data sources, reviewer roles and templates are hypothetical; Nick has not shared his actual investor reporting format.",<><button className={css.secondary} onClick={exportReport}><Download size={14}/> Export quarter data</button><button className={css.primary} onClick={()=>window.print()}><FileDown size={14}/> Print / Save PDF</button></>)}
+     {page("Quarterly investor reporting","03 / BOARD & INVESTOR PACK","Explore quarterly reporting with sample financial and operating metrics, potential source mappings and documented human review. All values are illustrative.",<><button className={css.secondary} onClick={exportReport}><Download size={14}/> Export quarter data</button><button className={css.primary} onClick={()=>window.print()}><FileDown size={14}/> Print / Save PDF</button></>)}
      <div className={css.filterBar}><label className={css.viewSwitch}>Reporting period <select value={period} onChange={e=>setPeriod(e.target.value)}>{investorPeriods.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select></label><Badge type={period.endsWith("F")?"warn":"neutral"}>{period.endsWith("F")?"Illustrative forecast":"Illustrative historical quarter"}</Badge></div>
      <div className={css.metrics}>
-      <Metric label="Quarterly revenue" value={money(current.revenue)} sub="Synthetic, not Wigwam actuals"/>
+      <Metric label="Quarterly revenue" value={money(current.revenue)} sub="Illustrative data only"/>
       <Metric label="Operating result" value={money(current.operatingResult)} sub={"Margin "+current.margin.toFixed(1)+"%"} tone="accent"/>
       <Metric label="Period-end cash" value={money(current.cash)} sub="Snapshot, not sum of quarters"/>
       <Metric label="Illustrative occupancy" value={current.occupancy+"%"} sub="Requires operating source validation"/>
@@ -429,18 +417,18 @@ export default function WigwamFinanceDemo(){
        <div className={css.smallDivider}/><label className={css.field}>Controller review notes<textarea rows={3} value={reportNote} onChange={e=>setReportNote(e.target.value)} disabled={role!=="controller"} placeholder="Document checks, source verification, unresolved items and owner." /></label><button className={css.secondary} onClick={signInvestorDraft} disabled={role!=="controller"||reportNote.trim().length<20||reportSigned}><ShieldCheck size={15}/> Record controller review</button><p className={css.smallTip}>{reportSigned?"Review recorded locally for this exact set of figures and sections. Any material changes require another sign-off.":"This remains an unreviewed draft. You can print it for discussion, but it is not a real investor statement."} Export using the browser's Print / Save PDF function.</p>
       </Panel>
       <div className={css.printArea}><div className={css.reportPaper}>
-       <div className={css.reportPaperHead}><small>WIGWAM STORAGE / ILLUSTRATIVE FINANCE DEMO</small><h2>Quarterly investor overview</h2><p>{current.name} · fictional numbers · {reportSigned?"Controller-reviewed DEMO draft":"UNREVIEWED draft"}</p></div>
+       <div className={css.reportPaperHead}><small>ILLUSTRATIVE FINANCE REPORT · SAMPLE DATA</small><h2>Quarterly investor overview</h2><p>{current.name} · fictional numbers · {reportSigned?"Controller-reviewed DEMO draft":"UNREVIEWED draft"}</p></div>
        <div className={css.reportPaperBody}>
         {reportSections.includes("Summary")&&<section><h3>01 · Financial highlights</h3><p>Modelled revenue {money(current.revenue)}, operating costs {money(current.costs)}, operating result {money(current.operatingResult)} ({current.margin.toFixed(1)}% margin), closing cash {money(current.cash)} and occupancy {current.occupancy}%.</p></section>}
         {reportSections.includes("Exceptions")&&<section><h3>02 · Exceptions requiring attention</h3><p>{unreconciled.length} outstanding example bank exceptions and {flagged.length} invoice validation flags. These are independent synthetic cases and must not be presented as real company issues.</p></section>}
-        {reportSections.includes("Source mapping")&&<section><h3>03 · Data lineage plan</h3><p>Possible mapping for discussion: Xero for ledger figures, Stripe or GoCardless for collections, Space Manager for operating metrics and SharePoint for an optional document destination. None of these reporting links, metrics or review responsibilities have been confirmed. All figures are fictional.</p></section>}
+        {reportSections.includes("Source mapping")&&<section><h3>03 · Data lineage plan</h3><p>Illustrative source mapping: Xero for ledger figures, Stripe or GoCardless for collections, Space Manager for potential operating metrics and SharePoint as an optional archive. The connections are proposed; all financial figures are synthetic.</p></section>}
         {reportSections.includes("Approval notice")&&<section><h3>04 · Approval and distribution</h3><p>{reportSigned?"Controller review documented in this browser. Notes: "+(reportReview?.note||""):"Unreviewed: controller must validate all reconciliations, adjustments, periods and commentary."} All data are fictional and never approved for actual investor distribution.</p></section>}
        </div><div className={css.reportPaperFoot}>Demonstration only · No source verification · Not an actual investor statement</div>
       </div></div>
      </div>
     </>}
     {screen==="spend"&&<>
-     {page("Purchase orders & card spending","04 / EXPENDITURE CONTROL · SAMPLE POLICY","Nick confirmed Monday.com is used for POs and identified card spending control as an opportunity. This fictional example assumes PO and receipt rules that must be agreed with the finance team.")}
+     {page("Purchase orders & card spending","04 / EXPENDITURE CONTROL · SAMPLE POLICY","Explore how Monday.com purchase orders and supporting evidence could help review card expenses. PO requirements and receipt rules are configurable examples.")}
      <div className={css.metrics}>
       <Metric label="Example purchase orders" value={purchaseOrders.length} sub="Monday.com connector proposed"/>
       <Metric label="Card transactions" value={cards.length} sub="Invented merchant records"/>
@@ -474,7 +462,7 @@ export default function WigwamFinanceDemo(){
      </div>
     </>}
     {screen==="automation"&&<>
-     {page("Approval-first workflow blueprint","05 / PROPOSED OPERATING DESIGN","A configurable illustration, not a reconstruction of Wigwam's existing automation or approval rules. The AP workflow is a potential first pilot; the finance team must confirm what adds value beyond existing tools.",<button className={css.primary} onClick={()=>navigate("invoices")}>Try invoice review <ArrowRight size={14}/></button>)}
+     {page("Approval-first workflow blueprint","05 / PROPOSED OPERATING DESIGN","Explore an approval-first approach using existing finance tools. The workflow and checks are illustrative, with configurable rules and human decisions.",<button className={css.primary} onClick={()=>navigate("invoices")}>Try invoice review <ArrowRight size={14}/></button>)}
      <div className={css.grid2}>
       <Panel label="TARGET WORKFLOW" title="Six verifiable stages" action={<Badge type="good">Payments excluded</Badge>}>
        <div className={css.flow}>{phases.map((p,i)=><div className={css.flowStep} key={p.n}><div className={css.flowRail}><span>{p.n}</span>{i<phases.length-1&&<i/>}</div><div className={css.flowInfo}><div><strong>{p.title}</strong><small>{p.owner}</small></div><p>{p.detail}</p></div></div>)}</div>
@@ -491,17 +479,17 @@ export default function WigwamFinanceDemo(){
         <div className={css.buttons}><button className={css.primary} disabled={role!=="controller"} onClick={validateBatch}><Sparkles size={15}/> Run example AP validation</button><button className={css.secondary} onClick={()=>navigate("invoices")}>See review queue</button></div>
        </Panel>
        <Panel label="NON-NEGOTIABLE" title="People in charge of approvals and payments">
-        <div className={css.callout}><b>Human-in-the-loop:</b> the authorised Wigwam team reviews evidence and makes approval and payment decisions. Actual roles, limits and delegation remain to be confirmed; this demo never executes payments.</div>
+        <div className={css.callout}><b>Human-in-the-loop:</b> authorised finance staff review evidence and make approval and payment decisions. Live permissions and thresholds are configurable; no payments are executed here.</div>
        </Panel>
       </div>
      </div>
-     <Panel label="POTENTIAL LATER MODULES" title="One workflow first. Expand once the pilot is reliable."><div className={css.capGrid}>{scenarios.slice(1).map((x,i)=>{const Icon=[GitBranch,BarChart3,WalletCards][i],routes:Screen[]=["reconciliations","reporting","spend"];return <button className={css.cap} key={x.id} onClick={()=>navigate(routes[i])}><Icon size={20}/><strong>{x.title}</strong><span>{x.value}</span><small>DISCOVERY-DEPENDENT EXPANSION</small></button>})}</div></Panel>
+     <Panel label="POTENTIAL LATER MODULES" title="One workflow first. Expand once the pilot is reliable."><div className={css.capGrid}>{scenarios.slice(1).map((x,i)=>{const Icon=[GitBranch,BarChart3,WalletCards][i],routes:Screen[]=["reconciliations","reporting","spend"];return <button className={css.cap} key={x.id} onClick={()=>navigate(routes[i])}><Icon size={20}/><strong>{x.title}</strong><span>{x.value}</span><small>OPTIONAL CAPABILITY</small></button>})}</div></Panel>
     </>}
     {screen==="integrations"&&<>
-     {page("Connected ecosystem","06 / CONFIRMED SOFTWARE · POSSIBLE LINKS","Nick named these systems, but did not describe most of their current connections. The map below is a proposed architecture for discussion. None of the software has been accessed or connected by this demo.")}
-     <div className={css.discoveryNotice}><ShieldCheck size={17}/><span><b>Confirmed:</b> Nick named these tools and described the shared-inbox → Hubdoc → Xero → ApprovalMax invoice flow. <b>Not verified:</b> connections to Monday.com, Power Automate, SharePoint, payment systems, the exact Space Manager product or any approval matrix. Everything in the architecture below is a possible design.</span></div>
+     {page("Connected ecosystem","06 / CONFIRMED SOFTWARE · POSSIBLE LINKS","Explore how finance, purchasing, document and payment tools could work together. The connections shown are conceptual, not live integrations.")}
+     <div className={css.discoveryNotice}><ShieldCheck size={17}/><span><b>Existing tools, potential connections.</b> Supplier inbox, Hubdoc, Xero and ApprovalMax form the described invoice route. Other data flows on this page illustrate possible integrations. No software connection is active in this demonstration.</span></div>
      <SystemMap open={navigate}/>
-     <div className={css.connectorGrid}>{connectors.map(c=><div className={css.connector} key={c.name}><Link2 size={20}/><strong>{c.name}</strong><p>{c.role}</p><small>{c.category.toUpperCase()} · USED BY WIGWAM / DEMO NOT CONNECTED</small></div>)}</div>
+     <div className={css.connectorGrid}>{connectors.map(c=><div className={css.connector} key={c.name}><Link2 size={20}/><strong>{c.name}</strong><p>{c.role}</p><small>{c.category.toUpperCase()} · DEMO NOT CONNECTED</small></div>)}</div>
      <div style={{height:12}}/>
      <Panel label="SECURITY & DELIVERY REQUIREMENTS" title="Conditions for a real implementation"><div className={css.rules}>{[
       ["Entity separation and permissions","Confirm which company owns each record and which staff may view or approve it."],
@@ -512,7 +500,7 @@ export default function WigwamFinanceDemo(){
      ].map(([a,b])=><div key={a}><ShieldCheck size={16}/><div><strong>{a}</strong><p>{b}</p></div></div>)}</div></Panel>
     </>}
     {screen==="agents"&&<>
-     {page("Potential AI assistants","OPTIONAL CAPABILITIES · NOT AN AGREED SCOPE","Explore seven possible assistive functions—not seven agents Wigwam has requested. These are rules-based demonstrations using fictional records. Their necessity depends on the current tools and discovery with the finance team.")}
+     {page("Potential AI assistants","OPTIONAL CAPABILITIES · NOT AN AGREED SCOPE","Explore specialist tasks for document intake, validation, exception handling, reconciliation, reporting and spending. Each example uses rule-based simulation and synthetic records.")}
      <Specialists invoice={selected} invoices={invoices} bank={selBank} card={selCard} period={period} open={navigate} selectInvoice={setSelectedInvoiceId} selectBank={id=>{setSelectedBankId(id);setReviewNote("")}} selectCard={setSelectedCardId} banks={banks} cards={cards} selectPeriod={setPeriod} quarters={investorPeriods}/>
     </>}
     {screen==="assistant"&&<>
@@ -523,7 +511,7 @@ export default function WigwamFinanceDemo(){
        <Panel label="GUARDRAILS" title="What an implementation-ready assistant needs">
         <div className={css.rules}>{[
          ["Verified data access","Answers grounded in authorised Xero, Hubdoc and SharePoint records, not model guesses."],
-         ["Context for Nick and Sarah","Director-facing summaries and controller-level evidence with distinct privileges."],
+         ["Role-aware explanations","Director-facing summaries and controller-level evidence, with permissions defined by the organisation."],
          ["Reviewable recommendations","AI suggests; financial staff decide. No autonomous bank or approval actions."],
          ["Traceability","Link each recommendation to a source record and explain confidence and limitations."]
         ].map(([a,b])=><div key={a}><ShieldCheck size={16}/><div><strong>{a}</strong><p>{b}</p></div></div>)}</div>
@@ -535,21 +523,21 @@ export default function WigwamFinanceDemo(){
      </div>
     </>}
     {screen==="roadmap"&&<>
-     {page("Implementation plan","08 / DELIVERY DESIGN","A practical phased starting point based on Nick's request for hands-on implementation alongside Sarah. Timelines are provisional until we validate volumes, permissions, and provider API access.")}
+     {page("Implementation plan","08 / DELIVERY DESIGN","Explore an incremental approach: configure existing capabilities, validate one finance workflow, expand based on measured value and document the handover.")}
      <div className={css.grid2}>
       <Panel label="WHAT SHOULD BE IMPLEMENTED FIRST?" title="Proposed staged delivery">
        <div className={css.flow}>{[
-        {n:"01",title:"Discovery and baseline",owner:"Define and validate",detail:"Map shared inbox, entities, supplier counts, PO exception rates, approval limits and current staff effort."},
+        {n:"01",title:"Process and baseline",owner:"Review existing workflows",detail:"Map volumes, company allocation, exceptions, approvals and current handling time."},
         {n:"02",title:"Accounts payable pilot",owner:"First implementation candidate",detail:"Connect approved source feeds; extract PDF metadata; validate entity and PO; queue exceptions; preserve ApprovalMax and human sign-off."},
         {n:"03",title:"Reconciliations",owner:"After pilot acceptance",detail:"Introduce matching for payment-system references with a human-controlled exception workflow."},
         {n:"04",title:"Investor reporting and spend controls",owner:"Subsequent implementation",detail:"Prepare quarterly reporting with reconciled sources; expand to Monday.com PO policy and card receipts."},
         {n:"05",title:"Handover and adoption",owner:"Ongoing",detail:"Train the bookkeeper/Financial Controller, document decisions, test edge cases and measure saved time."}
        ].map((x,i,a)=><div className={css.flowStep} key={x.n}><div className={css.flowRail}><span>{x.n}</span>{i<a.length-1&&<i/>}</div><div className={css.flowInfo}><div><strong>{x.title}</strong><small>{x.owner}</small></div><p>{x.detail}</p></div></div>)}</div>
-       <p className={css.smallTip}>No binding scope, schedule or implementation cost has been agreed. The initial review with Nick and Sarah should determine one measurable pilot.</p>
+       <p className={css.smallTip}>Indicative delivery sequence. Final scope, schedule and cost depend on system access, policies and requirements.</p>
       </Panel>
       <div>
        <Panel label="ROI HYPOTHESES" title="Estimate the first AP use case">
-        <p className={css.panelIntro}>The client has not shared invoice volumes or costs. These are adjustable illustration-only assumptions and must be replaced during discovery.</p>
+        <p className={css.panelIntro}>Adjust the example assumptions to explore possible time released. These figures do not represent measured operations or guaranteed savings.</p>
         <div className={css.formGrid}><label className={css.field}>Supplier invoices per week<input type="number" min="0" value={weeklyVolume} onChange={e=>setWeeklyVolume(Math.max(0,Number(e.target.value)||0))}/></label><label className={css.field}>Current minutes per invoice<input type="number" min="0" value={minutes} onChange={e=>setMinutes(Math.max(0,Number(e.target.value)||0))}/></label><label className={css.field}>Loaded value per hour (£)<input type="number" min="0" value={hourlyRate} onChange={e=>setHourlyRate(Math.max(0,Number(e.target.value)||0))}/></label><label className={css.field}>One-off implementation (£)<input type="number" min="0" value={setupCost} onChange={e=>setSetupCost(Math.max(0,Number(e.target.value)||0))}/></label></div>
         <div className={css.roiSlider}><label>Share of time automatable <b>{coverage}%</b></label><input type="range" min="0" max="95" step="5" value={coverage} onChange={e=>setCoverage(Number(e.target.value))}/></div>
         <div className={css.roiSlider}><label>Realisation of released time <b>{realisation}%</b></label><input type="range" min="0" max="100" step="5" value={realisation} onChange={e=>setRealisation(Number(e.target.value))}/></div>
@@ -561,17 +549,17 @@ export default function WigwamFinanceDemo(){
         <div className={css.kpiLine}><span>First-year nominal net value</span><strong>{money(roi.netNominal)}</strong></div>
         <div className={css.roiSlider}><label>Share turned into real cash savings <b>{cashPct}%</b></label><input type="range" min="0" max="100" step="5" value={cashPct} onChange={e=>setCashPct(Number(e.target.value))}/></div>
         <div className={css.kpiLine}><span>First-year cash-based net</span><strong>{money(roi.netCash)}</strong></div>
-        <p className={css.finePrint}>Freed capacity is not necessarily cash saved. Default cash monetisation is 0%. This calculator does not know Wigwam's actual process volumes or employee costs and should not be treated as a quotation.</p>
+        <p className={css.finePrint}>Released capacity is not necessarily cash saved. Default cash conversion is 0%. This scenario calculator is not a measured financial result or quotation.</p>
        </Panel>
-       <Panel label="SCOPE QUALIFICATION" title="Pilot design choices">
-        <p className={css.panelIntro}>Which workflow should the discovery prioritise?</p>
+       <Panel label="ILLUSTRATIVE OPTIONS" title="Select a focus area">
+        <p className={css.panelIntro}>Select a workstream to preview an illustrative starting point.</p>
         {scenarios.map(s=><label className={css.kpiLine} key={s.id}><span>{s.title}</span><input type="radio" name="pilot" checked={pickedPilot===s.id} onChange={()=>setPickedPilot(s.id)}/></label>)}
-        <div className={css.callout} style={{marginTop:14}}><b>Suggested first pilot:</b> {scenarios.find(x=>x.id===pickedPilot)?.value}. The actual first use case should be confirmed with Nick and Sarah.</div>
+        <div className={css.callout} style={{marginTop:14}}><b>Suggested first pilot:</b> {scenarios.find(x=>x.id===pickedPilot)?.value}. Scope and integrations can be configured for the selected workflow.</div>
        </Panel>
       </div>
      </div>
     </>}
-    <footer className={css.footer}><span>Wigwam Storage · SC-Analytics finance operations concept</span><span>All values, documents and financial records fictional · Local-browser actions only · No live system access</span></footer>
+    <footer className={css.footer}><span>Finance operations · Interactive concept by SC-Analytics</span><span>All values, documents and financial records fictional · Local-browser actions only · No live system access</span></footer>
    </main>
   </div>
  </div>;
