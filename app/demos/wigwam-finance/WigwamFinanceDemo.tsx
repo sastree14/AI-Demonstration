@@ -15,9 +15,10 @@ import {
  investorMetrics,calculateRoi,csv,safeDownload,canStage
 } from "./engine";
 import css from "./wigwam.module.css";
+import {SystemMap,Specialists} from "./OperationsDesk";
 import GuidedJourney from "./GuidedJourney";
 
-type Screen="overview"|"journey"|"invoices"|"reconciliations"|"reporting"|"spend"|"automation"|"integrations"|"assistant"|"roadmap";
+type Screen="agents"|"overview"|"journey"|"invoices"|"reconciliations"|"reporting"|"spend"|"automation"|"integrations"|"assistant"|"roadmap";
 type Role="director"|"controller";
 type Conversation={id:string;from:"user"|"assistant";text:string};
 type Store={invoices:Invoice[];bank:BankLine[];cards:CardSpend[];audit:Audit[];reportReview?:{signature:string;note:string}|null;reportNote?:string};
@@ -32,6 +33,7 @@ const menuGroups:{title:string;items:{id:Screen;label:string;icon:typeof LayoutD
   {id:"spend",label:"POs & card spending",icon:WalletCards}
  ]},
  {title:"AUTOMATION & DELIVERY",items:[
+  {id:"agents",label:"Finance specialists",icon:Bot},
   {id:"automation",label:"Workflow blueprint",icon:Workflow},
   {id:"integrations",label:"Connected ecosystem",icon:Cloud},
   {id:"assistant",label:"Finance AI guide",icon:Bot},
@@ -39,7 +41,7 @@ const menuGroups:{title:string;items:{id:Screen;label:string;icon:typeof LayoutD
  ]}
 ];
 const names:Record<Screen,string>={
- overview:"Command centre",journey:"Guided AP walkthrough",invoices:"Supplier invoices",reconciliations:"Bank reconciliations",reporting:"Investor reporting",
+ agents:"Finance specialists",overview:"Command centre",journey:"Guided AP walkthrough",invoices:"Supplier invoices",reconciliations:"Bank reconciliations",reporting:"Investor reporting",
  spend:"POs & card spending",automation:"Workflow blueprint",integrations:"Connected ecosystem",assistant:"Finance AI guide",roadmap:"Implementation plan"
 };
 const phases=[
@@ -157,9 +159,9 @@ export default function WigwamFinanceDemo(){
   setHydrated(true);
  },[]);
  useEffect(()=>{if(hydrated){try{localStorage.setItem(storageKey,JSON.stringify({invoices,bank:banks,cards,audit,reportReview,reportNote}));}catch{}}},[invoices,banks,cards,audit,reportReview,reportNote,hydrated]);
- const flagged=useMemo(()=>invoices.filter(x=>x.status!=="rejected"&&invoiceIssues(x,invoices).length>0),[invoices]);
+ const flagged=useMemo(()=>invoices.filter(x=>!["rejected","approved"].includes(x.status)&&invoiceIssues(x,invoices).length>0),[invoices]);
  const awaiting=useMemo(()=>invoices.filter(x=>x.status==="pending_approval"),[invoices]);
- const unreconciled=useMemo(()=>banks.filter(x=>!x.reviewed&&bankCheck(x)!=="match"),[banks]);
+ const unreconciled=useMemo(()=>banks.filter(x=>bankCheck(x)!=="match"),[banks]);
  const readyAuto=useMemo(()=>invoices.filter(x=>x.status==="received"&&invoiceIssues(x,invoices).length===0),[invoices]);
  const selected=useMemo(()=>invoices.find(x=>x.id===selectedInvoiceId)||invoices[0],[invoices,selectedInvoiceId]);
  const selBank=useMemo(()=>banks.find(x=>x.id===selectedBankId)||banks[0],[banks,selectedBankId]);
@@ -181,7 +183,7 @@ export default function WigwamFinanceDemo(){
  function validateSelected(){
   if(!selected||["approved","rejected"].includes(selected.status)||selected.staged){setNotice("Closed invoices cannot be revalidated. Use a new sample invoice.");return;}
   const issues=invoiceIssues(selected,invoices);
-  if(issues.length>0&&!selected.exceptionApproved){
+  if(!canRoute(selected,invoices)){
    patchInvoice({status:"needs_review"},"Validation: exception");
    setNotice("Validation found "+issues.length+" issue(s). Correct the fields or document a finance exception.");
   }else{
@@ -202,6 +204,7 @@ export default function WigwamFinanceDemo(){
   setNotice("Exception justified. You can now prepare the approval request; the exception remains visible in the audit trail.");
  }
  function validateBatch(){
+  if(role!=="controller"){setNotice("Switch to Financial Controller to route the sample invoices.");return;}
   let passed=0,blocked=0;
   const next=invoices.map(x=>{
    if(x.status!=="received")return x;
@@ -271,7 +274,7 @@ export default function WigwamFinanceDemo(){
  function navLink(item:{id:Screen;label:string;icon:typeof LayoutDashboard}){const Icon=item.icon;return <button key={item.id} onClick={()=>navigate(item.id)} className={screen===item.id?css.navCurrent:css.navLink}><Icon size={16}/><span>{item.label}</span>{screen===item.id&&<i/>}</button>;}
  const reviewCases=flagged.slice(0,4);
  const stagedCount=invoices.filter(x=>x.staged).length;
- const reportSignature=JSON.stringify({period,reportSections,reportNote,inv:invoices.map(x=>[x.id,x.status,x.assignedCompany,x.poId,x.exceptionApproved]),bank:banks.map(x=>[x.id,x.reviewed,x.note])});
+ const reportSignature=JSON.stringify({period,reportSections,reportNote,inv:invoices.map(x=>[x.id,x.status,x.assignedCompany,x.poId,x.exceptionApproved,x.exceptionNote,x.staged]),cards:cards.map(x=>[x.id,x.poId,x.receipt]),bank:banks.map(x=>[x.id,x.reviewed,x.note])});
  const reportSigned=reportReview?.signature===reportSignature;
  return <div className={css.shell}>
   {menuOpen&&<button className={css.mobileBackdrop} aria-label="Close navigation" onClick={()=>setMenuOpen(false)}/>}
@@ -287,18 +290,18 @@ export default function WigwamFinanceDemo(){
     {notice&&<div className={css.banner} role="status"><CheckCircle2 size={16}/><span>{notice}</span><button onClick={()=>setNotice("")} aria-label="Dismiss"><X size={14}/></button></div>}
     {screen==="journey"&&<>
      {page("Guided supplier invoice walkthrough","LIVE CLIENT STORY / FIRST AP PILOT","A single connected story for Nick and Sarah: synthetic invoice arrival, rule-based validation, finance correction, human approval and download of an approved-only staging file.",<button className={css.secondary} onClick={reset}><RefreshCw size={14}/> Reset the fictional scenario</button>)}
-     <GuidedJourney invoices={invoices} selected={selected} role={role} create={createGuidedInvoice} pick={setSelectedInvoiceId} patch={patchInvoice} validate={validateSelected} acceptException={acceptException} approve={approveSelected} stage={stageSelected} changeRole={switchRole} openQueue={()=>navigate("invoices")}/>
+     <GuidedJourney invoices={invoices} selected={selected} role={role} create={createGuidedInvoice} pick={setSelectedInvoiceId} patch={patchInvoice} validate={validateSelected} acceptException={acceptException} approve={approveSelected} stage={stageSelected} changeRole={switchRole} openQueue={()=>navigate("invoices")} openDashboard={()=>navigate("overview")}/>
     </>}
     {screen==="overview"&&<>
      <div className={css.hero}>
-      <div className={css.heroBody}><p className={css.eyebrow}>{role==="director"?"EXECUTIVE VIEW / FINANCE TRANSFORMATION":"CONTROLLER VIEW / DAILY FINANCE DESK"}</p><h1>{role==="director"?"One controlled finance workflow. Fewer manual hand-offs.":"Every exception explained. Every approval accountable."}</h1><p>{role==="director"?"See how a first accounts-payable pilot could cut repetitive administration, strengthen controls and provide visibility across financial workstreams.":"Validate supplier invoices, investigate exceptions and record human decisions before anything is prepared for accounting."}</p><div className={css.heroBtns}><button className={css.primary} onClick={()=>navigate("journey")}>Run guided AP walkthrough <ArrowRight size={15}/></button><button className={css.secondary} onClick={()=>navigate("automation")}>See proposed architecture <GitBranch size={15}/></button></div><small>Concept demonstrator · Synthetic UK financial data · No accounts or payment systems connected</small></div>
+      <div className={css.heroBody}><p className={css.eyebrow}>{role==="director"?"EXECUTIVE VIEW / FINANCE TRANSFORMATION":"CONTROLLER VIEW / DAILY FINANCE DESK"}</p><h1>{role==="director"?"One controlled finance workflow. Fewer manual hand-offs.":"Every exception explained. Every approval accountable."}</h1><p>{role==="director"?"An invoice arrives by email. The bookkeeper re-enters details across Hubdoc, Xero and ApprovalMax, then chases the right company or PO. Follow one invoice to see what can be prepared for Sarah and where she decides.":"Validate supplier invoices, investigate exceptions and record human decisions before anything is prepared for accounting."}</p><div className={css.heroBtns}><button className={css.primary} onClick={()=>navigate("journey")}>Run guided AP walkthrough <ArrowRight size={15}/></button><button className={css.secondary} onClick={()=>navigate("integrations")}>See proposed architecture <GitBranch size={15}/></button><button className={css.secondary} onClick={()=>navigate("agents")}>Meet the specialists <Bot size={15}/></button></div><small>Concept demonstrator · Synthetic UK financial data · No accounts or payment systems connected</small></div>
       <div className={css.heroAside}><small>FIRST PILOT PRIORITY</small><strong>Supplier invoice processing</strong><div><b>{flagged.length}</b><span>sample invoices<br/>requiring investigation</span></div><p>Entity assignment, missing PO references, suspected duplicates and an approval trail — without autonomous payments.</p></div>
      </div>
      <div className={css.metrics}>
       <Metric label="Open supplier invoices" value={invoices.filter(x=>x.status!=="approved"&&x.status!=="rejected").length} sub="Fictional shared-inbox cases"/>
       <Metric label="Validation exceptions" value={flagged.length} sub="Require evidence or review" tone="alert"/>
       <Metric label="Awaiting human sign-off" value={awaiting.length} sub="No automatic approval"/>
-      <Metric label="Bank mismatches" value={unreconciled.length} sub="Unresolved sample reconciliation lines" tone="accent"/>
+      <Metric label="Bank mismatches" value={unreconciled.length} sub={unreconciled.filter(x=>!x.reviewed).length+" still need investigation"} tone="accent"/>
      </div>
      <div className={css.executiveStrip}>
        <div><p className={css.eyebrow}>{role==="director"?"ILLUSTRATIVE BUSINESS CASE":"CONTROLLER WORKLOAD"}</p><h3>{role==="director"?"What the first pilot could release":"Where manual attention is needed"}</h3><p>{role==="director"?"No savings have been verified. Adjust these assumptions in the implementation-plan calculator.":"A controller must check evidence and approve; the sample automation cannot approve or pay on its own."}</p></div>
@@ -326,7 +329,7 @@ export default function WigwamFinanceDemo(){
      </Panel>
     </>}
     {screen==="invoices"&&<>
-     {page("Supplier invoices","01 / ACCOUNTS PAYABLE","A practical response to the shared inbox → Hubdoc → Xero → ApprovalMax logjam. Inspect each example, correct company allocation, check purchase orders and record an auditable human approval.",<><button className={css.secondary} onClick={()=>navigate("journey")}><Waypoints size={14}/> Guided walkthrough</button><button className={css.secondary} onClick={exportInvoices}><Download size={14}/> Export example CSV</button><button className={css.primary} onClick={validateBatch}><Sparkles size={15}/> Validate received invoices</button></>)}
+     {page("Supplier invoices","01 / ACCOUNTS PAYABLE","A practical response to the shared inbox → Hubdoc → Xero → ApprovalMax logjam. Inspect each example, correct company allocation, check purchase orders and record an auditable human approval.",<><button className={css.secondary} onClick={()=>navigate("journey")}><Waypoints size={14}/> Guided walkthrough</button><button className={css.secondary} onClick={exportInvoices}><Download size={14}/> Export example CSV</button><button className={css.primary} disabled={role!=="controller"} onClick={validateBatch}><Sparkles size={15}/> Validate received invoices</button></>)}
      <div className={css.metrics+" "+css.metricsFive}>
       <Metric label="Invoices in example" value={invoices.length} sub="Source PDFs simulated"/>
       <Metric label="Total face value" value={money(invoices.reduce((a,x)=>a+x.amount,0))} sub="No payment execution"/>
@@ -360,12 +363,12 @@ export default function WigwamFinanceDemo(){
     {screen==="reconciliations"&&<>
      {page("Bank reconciliations","02 / CROSS-SYSTEM CONTROL","Compare illustrative settlements and financial ledger records from Stripe, GoCardless, bank feeds and Space Manager. Exact matches may be proposed; mismatches must be explained by a person.",<button className={css.secondary} onClick={()=>safeDownload("wigwam-synthetic-reconciliations.csv",csv([["Reference","Source","External amount","Ledger reference","Ledger amount","Difference","Status"],...banks.map(x=>[x.reference,x.system,x.amount,x.ledgerReference,x.ledgerAmount,x.amount-x.ledgerAmount,bankCheck(x)])]))}><Download size={14}/> Export examples</button>)}
      <div className={css.metrics}><Metric label="Illustrative settlement lines" value={banks.length} sub="Four hypothetical sources"/><Metric label="Exact reference + amount" value={banks.filter(x=>bankCheck(x)==="match").length} sub="Potential auto-matches" tone="accent"/><Metric label="Exceptions outstanding" value={unreconciled.length} sub="Reference, amount or missing entry" tone="alert"/><Metric label="Reviewer-completed checks" value={banks.filter(x=>x.reviewed).length} sub="Notes retained locally"/></div>
-     <Panel label="RECONCILIATION QUEUE" title="Suggested ledger matches"><div className={css.dataTableWrap}><table className={css.dataTable}><thead><tr><th>Date / source</th><th>Reference</th><th>Source amount</th><th>Ledger amount</th><th>Difference</th><th>Check result</th><th/></tr></thead><tbody>{banks.map(x=><tr key={x.id}><td><strong>{x.system}</strong><small>{x.date}</small></td><td>{x.reference}</td><td>{money(x.amount)}</td><td>{money(x.ledgerAmount)}</td><td><strong>{money(x.amount-x.ledgerAmount)}</strong></td><td>{x.reviewed?<Badge type="good">Reviewed</Badge>:bankCheck(x)==="match"?<Badge type="good">Exact match</Badge>:<Badge type="warn">{bankCheck(x)==="amount"?"Amount mismatch":bankCheck(x)==="reference"?"Reference mismatch":"Missing ledger value"}</Badge>}</td><td><button className={css.selectRow} onClick={()=>{setSelectedBankId(x.id);setReviewNote(x.note);}}>Inspect <ArrowRight size={13}/></button></td></tr>)}</tbody></table></div></Panel>
+     <Panel label="RECONCILIATION QUEUE" title="Suggested ledger matches"><div className={css.dataTableWrap}><table className={css.dataTable}><thead><tr><th>Date / source</th><th>Reference</th><th>Source amount</th><th>Ledger amount</th><th>Difference</th><th>Check result</th><th/></tr></thead><tbody>{banks.map(x=><tr key={x.id}><td><strong>{x.system}</strong><small>{x.date}</small></td><td>{x.reference}</td><td>{money(x.amount)}</td><td>{money(x.ledgerAmount)}</td><td><strong>{money(x.amount-x.ledgerAmount)}</strong></td><td>{x.reviewed?<Badge type={bankCheck(x)==="match"?"good":"warn"}>{bankCheck(x)==="match"?"Match reviewed":"Investigated · "+bankCheck(x)+" difference"}</Badge>:bankCheck(x)==="match"?<Badge type="good">Exact match</Badge>:<Badge type="warn">{bankCheck(x)==="amount"?"Amount mismatch":bankCheck(x)==="reference"?"Reference mismatch":"Missing ledger value"}</Badge>}</td><td><button className={css.selectRow} onClick={()=>{setSelectedBankId(x.id);setReviewNote(x.note);}}>Inspect <ArrowRight size={13}/></button></td></tr>)}</tbody></table></div></Panel>
      <div className={css.grid2}>
       <Panel label="REVIEW THE DIFFERENCE" title={selBank.reference+" · "+selBank.system} action={<Badge type={selBank.reviewed?"good":bankCheck(selBank)==="match"?"good":"warn"}>{selBank.reviewed?"Reviewed":bankCheck(selBank)==="match"?"Candidate match":"Exception"}</Badge>}>
        <div className={css.detailMini}><div><small>External reference</small><strong>{selBank.reference}</strong></div><div><small>Ledger reference</small><strong>{selBank.ledgerReference}</strong></div><div><small>External value</small><strong>{moneyPrecise(selBank.amount)}</strong></div><div><small>Ledger value</small><strong>{moneyPrecise(selBank.ledgerAmount)}</strong></div><div><small>Difference</small><strong>{moneyPrecise(selBank.amount-selBank.ledgerAmount)}</strong></div><div><small>Entity</small><strong>{entityName(selBank.entity)}</strong></div></div>
        {bankCheck(selBank)!=="match"&&<div className={css.issue}><AlertCircle size={16}/><span>Review required: {bankCheck(selBank)==="amount"?"value does not reconcile":bankCheck(selBank)==="reference"?"reference identifiers differ":"corresponding ledger amount is missing"}.</span></div>}
-       <label className={css.field}>Document your review<textarea rows={3} value={reviewNote} disabled={selBank.reviewed} placeholder="Explain the difference, evidence consulted, and follow-up owner" onChange={e=>setReviewNote(e.target.value)}/></label>
+       <label className={css.field}>Document your review<textarea rows={3} value={selBank.reviewed?selBank.note:reviewNote} disabled={role!=="controller"||selBank.reviewed} placeholder="Explain the difference, evidence consulted, and follow-up owner" onChange={e=>setReviewNote(e.target.value)}/></label>
        <button className={css.primary} onClick={reviewBank} disabled={role!=="controller"||selBank.reviewed}><Check size={14}/> Record controller review</button>
        <p className={css.smallTip}>Reviewing an unmatched transaction records the investigation only; it does not force amounts to match, create entries or move money.</p>
       </Panel>
@@ -413,7 +416,7 @@ export default function WigwamFinanceDemo(){
        <div className={css.reportPaperBody}>
         {reportSections.includes("Summary")&&<section><h3>01 · Financial highlights</h3><p>Modelled revenue {money(current.revenue)}, operating costs {money(current.costs)}, operating result {money(current.operatingResult)} ({current.margin.toFixed(1)}% margin), closing cash {money(current.cash)} and occupancy {current.occupancy}%.</p></section>}
         {reportSections.includes("Exceptions")&&<section><h3>02 · Exceptions requiring attention</h3><p>{unreconciled.length} outstanding example bank exceptions and {flagged.length} invoice validation flags. These are independent synthetic cases and must not be presented as real company issues.</p></section>}
-        {reportSections.includes("Source mapping")&&<section><h3>03 · Data lineage plan</h3><p>Proposed sources: Xero (ledger), Stripe and GoCardless (settlements), Space Manager (operations) and SharePoint (approved board documents). No sources are live-connected.</p></section>}
+        {reportSections.includes("Source mapping")&&<section><h3>03 · Data lineage plan</h3><p>Xero supplies the proposed revenue, cost and closing cash figures. Stripe and GoCardless settlements explain collection timing. Space Manager supplies occupancy. Sarah reviews exceptions and commentary before the pack is retained in SharePoint. All figures are fictional.</p></section>}
         {reportSections.includes("Approval notice")&&<section><h3>04 · Approval and distribution</h3><p>{reportSigned?"Controller review documented in this browser. Notes: "+(reportReview?.note||""):"Unreviewed: controller must validate all reconciliations, adjustments, periods and commentary."} All data are fictional and never approved for actual investor distribution.</p></section>}
        </div><div className={css.reportPaperFoot}>Demonstration only · No source verification · Not an actual investor statement</div>
       </div></div>
@@ -463,12 +466,12 @@ export default function WigwamFinanceDemo(){
        <Panel label="RULES FOR FIRST PILOT" title="What the assistant can check">
         <div className={css.rules}>{[
          ["Company allocation","Compare invoice evidence, internal company and PO company."],
-         ["PO and amount","Check authorised purchase order exists and value is within tolerance."],
+         ["PO and amount","Check authorised purchase order exists and value stays within the authorised amount."],
          ["Duplicate detection","Flag matching supplier and invoice number, even across batches."],
          ["Approval routing","Create a draft request and wait for a controller to approve."],
          ["Audit evidence","Keep every explanation, correction and reviewer decision visible."]
         ].map(([a,b])=><div key={a}><CheckCircle2 size={16}/><div><strong>{a}</strong><p>{b}</p></div></div>)}</div>
-        <div className={css.buttons}><button className={css.primary} onClick={validateBatch}><Sparkles size={15}/> Run example AP validation</button><button className={css.secondary} onClick={()=>navigate("invoices")}>See review queue</button></div>
+        <div className={css.buttons}><button className={css.primary} disabled={role!=="controller"} onClick={validateBatch}><Sparkles size={15}/> Run example AP validation</button><button className={css.secondary} onClick={()=>navigate("invoices")}>See review queue</button></div>
        </Panel>
        <Panel label="NON-NEGOTIABLE" title="People in charge of approvals and payments">
         <div className={css.callout}><b>Human-in-the-loop:</b> the bookkeeper and Financial Controller review evidence, handle exceptions and retain delegated authority. No automation can bypass approval limits or execute a payment in this demonstration.</div>
@@ -479,15 +482,7 @@ export default function WigwamFinanceDemo(){
     </>}
     {screen==="integrations"&&<>
      {page("Connected ecosystem","06 / CURRENT SYSTEMS & FUTURE CONNECTIONS","The architecture uses the software Nick explicitly identified. Every connector below is a proposed integration point. Nothing in this prototype has accessed, authenticated to or modified a real system.")}
-     <Panel label="SOURCE → VALIDATION → CONTROL → OUTPUT" title="A joined-up finance operating model">
-      <div className={css.architecture}>{[
-       {title:"Capture",detail:"Shared inbox, Hubdoc, SharePoint",icon:Inbox},
-       {title:"Cross-check",detail:"Xero entities, Monday.com POs",icon:FileSearch},
-       {title:"Review",detail:"Controller and ApprovalMax",icon:ShieldCheck},
-       {title:"Reconcile & report",detail:"Payment sources, investor pack",icon:BarChart3}
-      ].map(x=>{const Icon=x.icon;return <div key={x.title} className={css.archStep}><Icon size={20}/><strong>{x.title}</strong><p>{x.detail}</p></div>})}</div>
-      <div className={css.callout}><b>Recommended architecture:</b> reuse existing software where possible; add custom integrations only where existing workflows cannot solve the manual handoff. Confirm API availability and authorised company access before committing to a scope.</div>
-     </Panel>
+     <SystemMap open={navigate}/>
      <div className={css.connectorGrid}>{connectors.map(c=><div className={css.connector} key={c.name}><Link2 size={20}/><strong>{c.name}</strong><p>{c.role}</p><small>{c.category.toUpperCase()} · NOT CONNECTED</small></div>)}</div>
      <div style={{height:12}}/>
      <Panel label="SECURITY & DELIVERY REQUIREMENTS" title="Conditions for a real implementation"><div className={css.rules}>{[
@@ -495,8 +490,12 @@ export default function WigwamFinanceDemo(){
       ["Document handling","Encrypt stored documents; retain references and delete under an agreed retention policy."],
       ["API review and sandbox testing","Use provider-supported authentication and test with permitted sample records."],
       ["Auditability","Log who corrected a supplier, changed a company, approved an exception or released a report."],
-      ["Human payment authority","Never allow an LLM or background workflow to execute a payment without explicit approved controls."]
+      ["Human payment authority","Payment authorisation and execution remain with designated people outside this workflow."]
      ].map(([a,b])=><div key={a}><ShieldCheck size={16}/><div><strong>{a}</strong><p>{b}</p></div></div>)}</div></Panel>
+    </>}
+    {screen==="agents"&&<>
+     {page("Finance specialists","PROPOSED PILOT DESIGN","Run a rules-based example using the current workspace evidence. Each specialist prepares a result for finance review.")}
+     <Specialists invoice={selected} invoices={invoices} bank={selBank} card={selCard} period={period} open={navigate} selectInvoice={setSelectedInvoiceId} selectBank={id=>{setSelectedBankId(id);setReviewNote("")}} selectCard={setSelectedCardId} banks={banks} cards={cards} selectPeriod={setPeriod} quarters={investorPeriods}/>
     </>}
     {screen==="assistant"&&<>
      {page("Finance AI guide","07 / EXPLAINABILITY & USER SUPPORT","Ask how the proposed processes work, why an invoice is flagged, or what the sample numbers mean. This prototype uses deterministic answers; a production assistant would require secured, source-grounded access.")}

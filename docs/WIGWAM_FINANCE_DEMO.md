@@ -87,3 +87,12 @@ The Director perspective focuses on commercial value and oversight. Financial Co
 `GITHUB_PAGES=true npm run build`
 
 Existing Finance Intelligence and AI Transformation routes are unchanged.
+
+## Meeting route (12 minutes)
+- 0–2: Open Command centre as Director. Compare today's inbox/Hubdoc/Xero/ApprovalMax hand-offs with one controlled AP pilot. Open the assumptions behind annual hours released. Ask Nick which manual step consumes most time.
+- 2–7: Receive a new sample in Guided AP walkthrough. Inspect the PDF, extracted company and Monday.com PO. Show that the Director cannot approve. As Controller, correct the company, run checks and explicitly sign off. Download the staging CSV, then open the updated command centre.
+- 7–9: Open Connected ecosystem and inspect the settlement comparison. In Finance specialists run the reconciliation sample STR-1029; open its workflow and document the difference. The source amounts never change.
+- 9–11: Inspect a missing card receipt, then select a quarter in Investor reporting. Show Xero, collections, occupancy and the review note before printing the fictional pack.
+- 11–12: In Implementation plan, ask Sarah for sample invoice volume, handling time, actual PO rules and who owns each approval. Use those inputs to scope the first AP pilot. Dates, scope and costs require separate agreement.
+
+The seven proposed specialist examples read the same selected invoice, settlement, card or reporting quarter as their linked workspaces. Running a specialist changes no financial record. The nine-stage evidence trail can be inspected in any order; actual mutations still require the workflow controls. Sample PO checks compare against the authorised value without an implicit tolerance.

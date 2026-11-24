@@ -89,3 +89,10 @@ test("card policy checks PO existence, entity and value rather than checking a n
  assert.ok(cardIssues({...original,receipt:true,poId:"PO-1022"}).some(s=>/different legal entity/.test(s)));
  assert.ok(cardIssues({...original,receipt:true,poId:"PO-1021",amount:9000}).some(s=>/exceeds/.test(s)));
 });
+
+test("An amount one penny above the authorised PO needs review",()=>{
+ const po=purchaseOrders.find(x=>x.id==="PO-1022");
+ const invoice={...seedInvoices[1],sourceCompany:po.entity,assignedCompany:po.entity,supplier:po.supplier,poId:po.id,amount:po.amount+.01};
+ assert.ok(invoiceIssues(invoice,[invoice]).some(issue=>issue.includes("exceeds")));
+ assert.ok(cardIssues({...cardSpends[0],entity:po.entity,poId:po.id,amount:po.amount+.01}).some(issue=>issue.includes("exceeds")));
+});
