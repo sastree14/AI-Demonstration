@@ -103,7 +103,7 @@ function FinanceGuide(query:string,role:Role,invoices:Invoice[],bank:BankLine[],
   return "The reconciliation view proposes matches across fictional Stripe, GoCardless, bank transfers and operational references. "+mismatches.length+" sample rows have a missing item, a reference mismatch or a value discrepancy. Exceptions require a documented human review, and marking them reviewed never changes ledger balances.";
  }
  if(/report|quarter|investor|dashboard|forecast/.test(q)){
-  return "The investor pack uses completely invented revenue, cash and occupancy data to illustrate possible reporting. Xero, payment systems and Space Manager are potential inputs only. We must confirm actual data sources, metrics and approvers. Q4 2026 is marked as a sample forecast.";
+  return "The investor pack uses completely invented revenue, cash and occupancy data to illustrate possible reporting. Xero, payment systems and Space Manager are potential inputs only. The source mapping, metrics and review authority are illustrative. Q4 2026 is marked as a sample forecast.";
  }
  if(/roi|value|save|cost|hour|money|budget/.test(q)){
   return "The opportunity model calculates estimated time released from invoices per week × minutes each × automatable share × realised share. It separates nominal productive-capacity value from actual cash savings, defaulting cash conversion to zero. Use verified volumes and labour costs before treating any result as a business case.";
