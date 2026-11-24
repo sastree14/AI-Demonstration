@@ -109,7 +109,7 @@ with sync_playwright() as p:
   button('Record controller review').click()
   expect(page.get_by_text('Controller-reviewed DEMO draft')).to_be_visible()
   page.get_by_label('Reporting period').select_option('2026-Q2')
-  expect(page.get_by_text('UNREVIEWED draft')).to_be_visible()
+  expect(page.locator('[class*="reportPaperHead"] p')).to_contain_text('UNREVIEWED draft')
   for section in ['Guided AP walkthrough','Bank reconciliations','Investor reporting','POs & card spending','Workflow blueprint','Connected ecosystem','Finance AI guide','Implementation plan']:
    nav(section)
    assert page.locator('main').inner_text().strip()
