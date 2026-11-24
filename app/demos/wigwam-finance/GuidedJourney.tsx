@@ -1,4 +1,5 @@
 "use client";
+import {useState} from "react";
 import {ArrowRight,Check,CheckCircle2,ClipboardCheck,FileDown,FileText,GitBranch,Inbox,LockKeyhole,RefreshCcw,ShieldAlert,ShieldCheck,Waypoints,XCircle} from "lucide-react";
 import {type Invoice,type EntityId,entities,entityName,invoiceIssues,canApprove,canStage,workflowStage,money,purchaseOrders} from "./engine";
 import s from "./journey.module.css";
@@ -7,29 +8,38 @@ type Props={
  invoices:Invoice[];selected:Invoice|undefined;role:"director"|"controller";
  create:()=>void;pick:(id:string)=>void;patch:(changes:Partial<Invoice>,action?:string)=>void;
  validate:()=>void;acceptException:()=>void;approve:()=>void;stage:()=>void;
- changeRole:(role:"director"|"controller")=>void;openQueue:()=>void;
+ changeRole:(role:"director"|"controller")=>void;openQueue:()=>void;openDashboard:()=>void;
 };
-const steps=[
- {id:"intake",title:"Receive & extract",sub:"Email → Hubdoc",icon:Inbox},
- {id:"exceptions",title:"Validate & correct",sub:"Entity / supplier / PO",icon:ShieldAlert},
- {id:"approval",title:"Human sign-off",sub:"ApprovalMax → Controller",icon:ClipboardCheck},
- {id:"staging",title:"Prepare Xero hand-off",sub:"Approved-only export",icon:FileDown}
-] as const;
-const index:Record<ReturnType<typeof workflowStage>,number>={intake:0,exceptions:1,approval:2,staging:3,ready:4};
-export default function GuidedJourney({invoices,selected,role,create,pick,patch,validate,acceptException,approve,stage,changeRole,openQueue}:Props){
+export default function GuidedJourney({invoices,selected,role,create,pick,patch,validate,acceptException,approve,stage,changeRole,openQueue,openDashboard}:Props){
  const issues=selected?invoiceIssues(selected,invoices):[];
  const current=selected?workflowStage(selected,invoices):"intake";
- const position=index[current];
+ const [inspect,setInspect]=useState<number|null>(null);
+ const active=selected?.staged?8:selected?.status==="approved"?7:current==="approval"?6:issues.length?3:5;
+ const steps=[
+  ["Receive","Shared inbox",selected?.document||"Receive a sample PDF to begin."],
+  ["Extract","Intake specialist",selected?selected.supplier+" · "+selected.number+" · net "+money(selected.amount)+" + VAT "+money(selected.vat):"No document selected."],
+  ["Cross-check","Validation specialist",selected?"Compare "+entityName(selected.sourceCompany)+" on the document with "+entityName(selected.assignedCompany)+" in the ledger and "+(selected.poId||"the missing PO")+".":"Waiting for source evidence."],
+  ["Explain","Exception assistant",issues.length?issues.join(" · "):"The current evidence passes the sample checks."],
+  ["Correct","Sarah",selected?"The proposed ledger is "+entityName(selected.assignedCompany)+". Sarah can correct the company against the supplier document below.":"Select an invoice first."],
+  ["Prepare","Approval packet",selected?"Packet: "+selected.number+" · "+(selected.poId||"PO exception")+" · "+money(selected.amount)+". Run checks before requesting sign-off.":"Waiting for a validated packet."],
+  ["Sign off","ApprovalMax route",selected?.status==="approved"?"Controller decision recorded in this browser.":"The authorised reviewer must record a separate decision."],
+  ["Hand off","Xero preparation",selected?.staged?"Approved staging file prepared for the bookkeeper.":"The CSV is available only after a human approval."],
+  ["Review outcome","Command centre",selected?.staged?"The shared queue and audit trail now show the approved file.":"The dashboard follows each change to this invoice."]
+ ];
+ const viewed=inspect??active;
  const completed=selected?.staged===true;
  const actionable=selected?.status!=="approved"&&selected?.status!=="rejected"&&!selected?.staged;
  return <div className={s.journey}>
   <div className={s.summary}>
    <div><p className={s.eyebrow}>END-TO-END WORKFLOW · FICTIONAL TRANSACTION</p><h2>Follow one invoice from arrival to controlled hand-off</h2><p>This is the journey Nick can understand and Sarah can validate. Changes you make here update the same queue, metrics and audit log across the demonstration.</p></div>
-   <button onClick={create} className={s.primary}><RefreshCcw size={15}/> Receive a new sample invoice</button>
+   <button onClick={()=>{setInspect(null);create()}} className={s.primary}><RefreshCcw size={15}/> Receive a new sample invoice</button>
   </div>
-  <div className={s.flowRail}>
-   {steps.map((st,i)=>{const Icon=st.icon;return <div key={st.id} className={i<position?s.finished:i===position?s.active:s.future}><span className={s.icon}>{i<position?<Check size={17}/>:<Icon size={17}/>}</span><strong>{st.title}</strong><small>{st.sub}</small>{i<steps.length-1&&<ArrowRight className={s.nextIcon} size={16}/>}</div>})}
-  </div>
+  <section className={s.story}><div className={s.storyHead}><strong>Invoice evidence trail</strong><small>Inspect any stage · controls below change the case</small></div>
+   <div className={s.storyRail}>{steps.map(([title,owner],i)=><button key={title} aria-pressed={viewed===i} onClick={()=>setInspect(i)}><small>{String(i+1).padStart(2,"0")}</small><strong>{title}</strong><span>{owner}</span></button>)}</div>
+   <div className={s.storyDetail}><div><strong>{steps[viewed][0]} · {steps[viewed][1]}</strong><p>{steps[viewed][2]}</p></div>
+   {viewed===8?<button className={s.secondary} onClick={openDashboard}>See dashboard impact</button>:<button className={s.secondary} onClick={()=>setInspect(viewed+1)}>Inspect next stage</button>}
+   {inspect!==null&&<button className={s.link} onClick={()=>setInspect(null)}>Follow current invoice</button>}</div>
+  </section>
   <div className={s.columns}>
    <div className={s.document}>
     <div className={s.documentHeader}><span><FileText size={17}/> INVOICE · SAMPLE SOURCE</span><span>Fictional PDF preview</span></div>
@@ -70,7 +80,7 @@ export default function GuidedJourney({invoices,selected,role,create,pick,patch,
     <div className={s.rule}/>
     <div className={s.sectionTitle}><span>03</span><strong>Prepare a verified Xero staging file</strong></div>
     <button className={s.primary} onClick={stage} disabled={!selected||!canStage(selected,invoices,role)}><FileDown size={16}/> Download approved invoice CSV</button>
-    {completed&&<div className={s.valid}><CheckCircle2 size={16}/> Approved-only CSV downloaded or prepared. The accounting system has not been modified.</div>}
+    {completed&&<div className={s.valid}><CheckCircle2 size={16}/> Approved-only CSV prepared. <button className={s.link} onClick={openDashboard}>View updated command centre</button></div>}
     <p className={s.hint}>Export records only after the human decision. This demo never posts a bill to Xero or creates payment instructions.</p>
     <button className={s.link} onClick={openQueue}>Open detailed accounts payable queue <ArrowRight size={14}/></button>
    </div>

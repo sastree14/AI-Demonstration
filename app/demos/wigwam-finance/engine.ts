@@ -82,7 +82,7 @@ export function invoiceIssues(inv:Invoice,items:Invoice[]=seedInvoices,orders:Pu
   else{
    if(po.entity!==inv.assignedCompany)issues.push("PO belongs to a different entity");
    if(po.supplier!==inv.supplier)issues.push("Supplier and PO do not match");
-   if(inv.amount>po.amount*1.05)issues.push("Invoice exceeds authorised PO value");
+   if(inv.amount>po.amount)issues.push("Invoice exceeds authorised PO value");
   }
  }
  const duplicates=items.filter(x=>x.id!==inv.id&&x.status!=="rejected"&&x.number.trim().toLowerCase()===inv.number.trim().toLowerCase()&&x.supplier.trim().toLowerCase()===inv.supplier.trim().toLowerCase());
@@ -126,7 +126,7 @@ export function cardIssues(c:CardSpend,orders:PurchaseOrder[]=purchaseOrders){
   if(!po)issues.push("PO record not found");
   else{
    if(po.entity!==c.entity)issues.push("PO belongs to a different legal entity");
-   if(c.amount>po.amount*1.05)issues.push("Card value exceeds the PO amount");
+   if(c.amount>po.amount)issues.push("Card value exceeds the PO amount");
   }
  }
  return issues;
