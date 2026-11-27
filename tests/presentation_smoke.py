@@ -79,7 +79,9 @@ with sync_playwright() as p:
   expect(page.get_by_role('heading',name='Accounts Payable',exact=True)).to_be_visible()
   expect(page.get_by_role('heading',name='Current workflow')).to_be_visible()
   expect(page.get_by_role('heading',name='What we could improve')).to_be_visible()
-  expect(page.get_by_role('heading',name='Questions for you')).to_be_visible()
+  expect(page.get_by_role('heading',name='Questions arising from the workflow')).to_be_visible()
+  expect(page.get_by_role('heading',name='Email → Hubdoc')).to_be_visible()
+  assert page.locator('textarea').count()==0
   assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
   for tab,heading in [('Bank Reconciliation','Bank Reconciliation'),('Financial Reporting','Financial Reporting'),('AI Agents','Seven agents. One coordinated workflow.'),('Platform example','Your own finance workspace.'),('Feasibility & security','Feasibility, security and operating costs.')]:
    meeting.get_by_role('button',name=tab,exact=False).click()
