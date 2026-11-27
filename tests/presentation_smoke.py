@@ -101,9 +101,11 @@ with sync_playwright() as p:
   meeting=page.get_by_role('navigation',name='Meeting presentation')
   expect(page.get_by_role('heading',name='Accounts Payable',exact=True)).to_be_visible()
   expect(page.get_by_role('heading',name='Current workflow')).to_be_visible()
-  expect(page.get_by_role('heading',name='What we could improve')).to_be_visible()
-  expect(page.get_by_role('heading',name='Questions arising from the workflow')).to_be_visible()
-  expect(page.get_by_role('heading',name='Email → Hubdoc')).to_be_visible()
+  expect(page.get_by_role('heading',name='Future agent-led workflow')).to_be_visible()
+  expect(page.get_by_role('heading',name='Questions arising from the workflow')).to_have_count(0)
+  expect(page.get_by_text('ShareFinance inbox',exact=True)).to_be_visible()
+  expect(page.get_by_text('Power Automate',exact=True)).to_be_visible()
+  expect(page.get_by_role('heading',name='Agent responsibilities')).to_be_visible()
   assert page.locator('textarea').count()==0
   assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
   assert meeting.get_by_role('button').count()==6
