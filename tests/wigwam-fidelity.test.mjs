@@ -1,46 +1,40 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
-
-const ui=readFileSync("app/demos/wigwam-finance/WigwamFinanceDemo.tsx","utf8");
-const guide=readFileSync("app/demos/wigwam-finance/GuidedJourney.tsx","utf8");
-const map=readFileSync("app/demos/wigwam-finance/OperationsDesk.tsx","utf8");
-const engine=readFileSync("app/demos/wigwam-finance/engine.ts","utf8");
-const docs=readFileSync("docs/WIGWAM_FINANCE_DEMO.md","utf8");
-const publicCopy=ui+"\n"+guide+"\n"+map+"\n"+engine;
-
-test("Public presentation focuses on benefits, workflow and human control, not meeting preparation",()=>{
- for(const claim of ["DOCUMENT INTAKE","CONTROLLED VALIDATION","HUMAN OVERSIGHT","FINANCE OPERATIONS","HUMAN-IN-THE-LOOP"]){
-  assert.match(publicCopy,new RegExp(claim.replaceAll(" ","\\s+"),"i"),"Missing presentation concept: "+claim);
- }
- for(const internal of [/\bNick\b/i,/\bSarah\b/i,/QUESTIONS FOR THE FINANCE TEAM/i,/CURRENT OPEN QUESTIONS/i,/LIVE CLIENT STORY/i,/What we must ask in discovery/i,/The client has not shared/i,/Named by Nick/i]){
-  assert.doesNotMatch(publicCopy,internal,"Internal reference leaked into public presentation");
- }
- const brandMentions=[...ui.matchAll(/Wigwam Storage/gi)].length;
- assert.equal(brandMentions,1,"Company name should appear only as presentation branding");
+const read=(file)=>readFileSync(file,"utf8");
+const base="app/demos/wigwam-finance/";
+const ui=read(base+"MeetingPresentation.tsx");
+const route=read(base+"page.tsx");
+const docs=read("docs/WIGWAM_FINANCE_DEMO.md");
+test("Public entry uses only the six-stage meeting presentation in order",()=>{
+ assert.match(route,/return <MeetingPresentation\/>/);
+ assert.doesNotMatch(route,/WigwamFinanceDemo/);
+ assert.match(ui,/const tabs=\["Accounts Payable","Bank Reconciliation","Financial Reporting","AI Agents","Feasibility & security","Platform example"\]/);
+ assert.match(ui,/page===3\?<AgentsPage\/>:page===4\?<FeasibilityPage\/>:<PlatformPage\/>/);
+ assert.doesNotMatch(ui,/\b(?:Nick|Luke|Luc|Sarah|Sara)\b/i);
+ assert.doesNotMatch(ui,/pain points|<textarea/i);
 });
-
-test("Source constraints remain documented internally without turning into visitor questions",()=>{
- assert.match(docs,/What Nick actually confirmed/);
+test("Reported needs and proposed workflows remain distinguished",()=>{
+ assert.match(ui,/initial understanding/i);
+ assert.match(ui,/exact steps are to be confirmed/i);
+ assert.match(ui,/Questions arising from the workflow/);
+ assert.match(ui,/For discussion · not final scope/);
  assert.match(docs,/Do not present these design assumptions as facts/);
- assert.doesNotMatch(publicCopy,/Outlook \/ shared email|bookkeeper re-enters details|Five disconnected hand-offs|Retain the original in SharePoint for a reviewer/i);
- assert.match(guide,/Illustrative PO policy/);
- assert.match(ui,/sample records and rules/i);
-});
-
-test("Optional AI and integration examples are never presented as live connections",()=>{
- assert.match(ui,/OPTIONAL CAPABILITIES/);
- assert.match(map,/SIMULATED EXAMPLE/);
- assert.match(map,/All illustrated connections are proposed, not live/);
- assert.match(ui,/DEMO NOT CONNECTED/);
- assert.match(guide,/sample accounting hand-off CSV/);
- assert.match(ui,/No live financial system access/i);
-});
-
-test("Financial examples preserve clear limits and no unsupported approval assignment",()=>{
- assert.match(ui,/Illustrative data only/);
- assert.match(guide,/Live permissions are configured separately/);
- assert.doesNotMatch(map,/Sarah resolves the exception|Sarah → SharePoint/);
- assert.match(ui,/human review/i);
  assert.match(docs,/precise authority, duties and approval thresholds are not known/);
+});
+test("Seven specialist responsibilities and coordinated handoffs are present",()=>{
+ for(const name of ["Entity Allocation Agent","Purchase Order Agent","AP Exception Assistant","Bank Reconciliation Agent","Card Spend Control Agent","Financial Reporting Agent","Financial Monitoring Agent"])assert.match(ui,new RegExp(name));
+ assert.match(ui,/Finance Orchestrator/);
+ assert.match(ui,/Shared financial evidence/);
+ assert.match(ui,/Seven agent workflows/);
+});
+test("Interactive example preserves financial safety and truthful simulation boundaries",()=>{
+ assert.match(ui,/Scripted, local simulation/);
+ assert.match(ui,/Original invoice evidence stays unchanged/);
+ assert.match(ui,/Approval and payment remain with authorised people/);
+ assert.match(ui,/native reconciliation must be confirmed/);
+ assert.match(ui,/No email was sent/);
+ assert.match(ui,/No system can guarantee zero security risk/);
+ assert.match(ui,/fictional report has not been approved or distributed/);
+ assert.match(ui,/ChatGPT Business.*separate product/);
 });
