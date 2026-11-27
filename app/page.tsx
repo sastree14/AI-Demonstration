@@ -2,6 +2,8 @@
 import PeriodOptions from "./components/PeriodOptions";
 import {reportingPeriod} from "@/lib/reportingPeriods";
 import CfoStudio from "./components/CfoStudio";
+import FinanceMeeting from "./components/FinanceMeeting";
+import meetingStyles from "./components/FinanceMeeting.module.css";
 
 import {useEffect,useMemo,useState} from "react";
 import {
@@ -76,7 +78,7 @@ function TrendChart({rows}:{rows:FinanceRecord[]}){
 }
 function Toast({notice,onClose}:{notice:Notice|null;onClose:()=>void}){if(!notice)return null;return <div className="toast"><CheckCircle2 size={19}/><div><strong>{notice.title}</strong><p>{notice.description}</p></div><button aria-label="Dismiss" onClick={onClose}><X size={16}/></button></div>}
 
-export default function FinanceDemoPage(){
+function FinanceDemoPage(){
  const [view,setView]=useState<View>("pilot");
  const [cfoTab,setCfoTab]=useState<CfoTab>("overview");
  const [cfoOverlay,setCfoOverlay]=useState<CfoOverlay>(emptyOverlay);
@@ -287,3 +289,5 @@ function ScheduleEditor({schedule,onSave,onCancel}:{schedule:Schedule;onSave:(pa
  const [time,setTime]=useState(schedule.time);const [frequency,setFrequency]=useState(schedule.frequency);const [zone,setZone]=useState(schedule.zone);
  return <form className="schedule-form" onSubmit={e=>{e.preventDefault();onSave({time,frequency,zone})}}><div className="row-fields"><label className="field">Time<input type="time" required value={time} onChange={e=>setTime(e.target.value)}/></label><label className="field">Frequency<select value={frequency} onChange={e=>setFrequency(e.target.value as Schedule["frequency"])}><option value="weekdays">Weekdays</option><option value="mondays">Mondays</option><option value="daily">Every day</option></select></label></div><label className="field">Timezone<select value={zone} onChange={e=>setZone(e.target.value)}><option>Asia/Dubai</option><option>Europe/Madrid</option><option>UTC</option></select></label><div className="button-row"><button type="button" className="btn ghost" onClick={onCancel}>Cancel</button><button type="submit" className="btn primary"><Check size={15}/> Save schedule</button></div></form>
 }
+
+export default function FinanceHome(){const [advanced,setAdvanced]=useState(false);const go=(value:boolean)=>{setAdvanced(value);window.scrollTo({top:0,behavior:"auto"});};return advanced?<><FinanceDemoPage/><button className={meetingStyles.legacyBack} onClick={()=>go(false)}>Return to T1 presentation</button></>:<FinanceMeeting onAdvanced={()=>go(true)}/>;}
