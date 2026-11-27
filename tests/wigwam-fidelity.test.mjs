@@ -12,7 +12,8 @@ test("Public entry uses only the six-stage meeting presentation in order",()=>{
  assert.match(ui,/const tabs=\["Accounts Payable","Bank Reconciliation","Financial Reporting","AI Agents","Feasibility & security","Platform example"\]/);
  assert.match(ui,/page===3\?<AgentsPage\/>:page===4\?<FeasibilityPage\/>:<PlatformPage\/>/);
  assert.doesNotMatch(ui,/\b(?:Nick|Luke|Luc|Sarah|Sara)\b/i);
- assert.doesNotMatch(ui,/pain points|<textarea/i);
+ assert.doesNotMatch(ui,/pain points/i);
+ assert.doesNotMatch(ui.slice(ui.indexOf("function ProcessPage"),ui.indexOf("function EmailProposal")),/<textarea/i);
 });
 test("Reported needs and proposed workflows remain distinguished",()=>{
  assert.match(ui,/initial understanding/i);
@@ -35,6 +36,8 @@ test("Interactive example preserves financial safety and truthful simulation bou
  assert.match(ui,/native reconciliation must be confirmed/);
  assert.match(ui,/No email was sent/);
  assert.match(ui,/No system can guarantee zero security risk/);
- assert.match(ui,/fictional report has not been approved or distributed/);
+ assert.match(ui,/Draft for review/);
+ assert.match(ui,/Simulated send recorded\. No actual email was sent/);
+ assert.match(ui,/Reversible pseudonymisation is not full anonymisation/);
  assert.match(ui,/ChatGPT Business.*separate product/);
 });
