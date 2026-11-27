@@ -16,17 +16,20 @@ test("Public entry uses only the six-stage meeting presentation in order",()=>{
  assert.doesNotMatch(ui.slice(ui.indexOf("function ProcessPage"),ui.indexOf("function EmailProposal")),/<textarea/i);
 });
 test("Reported needs and proposed workflows remain distinguished",()=>{
- assert.match(ui,/initial understanding/i);
- assert.match(ui,/exact steps are to be confirmed/i);
- assert.match(ui,/Questions arising from the workflow/);
- assert.match(ui,/For discussion · not final scope/);
+ assert.match(ui,/Phase 1 · confirmed delivery priority/);
+ assert.match(ui,/ShareFinance inbox/);
+ assert.match(ui,/SharePoint → Power Automate → Hubdoc/);
+ assert.match(ui,/Month-end Excel review/);
+ assert.match(ui,/central data warehouse/i);
+ assert.doesNotMatch(ui,/Questions arising from the workflow|workflowQuestionGroups|function Questions/);
+ assert.match(ui,/Proposed implementation · not final scope/);
  assert.match(docs,/Do not present these design assumptions as facts/);
  assert.match(docs,/precise authority, duties and approval thresholds are not known/);
 });
 test("Seven specialist responsibilities and coordinated handoffs are present",()=>{
  for(const name of ["Entity Allocation Agent","Purchase Order Agent","AP Exception Assistant","Bank Reconciliation Agent","Card Spend Control Agent","Financial Reporting Agent","Financial Monitoring Agent"])assert.match(ui,new RegExp(name));
  assert.match(ui,/Finance Orchestrator/);
- assert.match(ui,/Shared financial evidence/);
+ assert.match(ui,/source-linked financial evidence/i);
  assert.match(ui,/Seven agent workflows/);
 });
 test("Interactive example preserves financial safety and truthful simulation boundaries",()=>{

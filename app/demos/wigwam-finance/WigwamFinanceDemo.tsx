@@ -25,7 +25,7 @@ type Conversation={id:string;from:"user"|"assistant";text:string};
 type Store={invoices:Invoice[];bank:BankLine[];cards:CardSpend[];audit:Audit[];reportReview?:{signature:string;note:string}|null;reportNote?:string};
 const storageKey="sc-wigwam-finance-provisional-v1";
 const menuGroups:{title:string;items:{id:Screen;label:string;icon:typeof LayoutDashboard}[]}[]=[
- {title:"MEETING PRESENTATION",items:[{id:"discovery",label:"Discovery presentation",icon:Workflow}]},
+ {title:"MEETING PRESENTATION",items:[{id:"discovery",label:"Finance solution",icon:Workflow}]},
  {title:"INTERACTIVE EXAMPLES",items:[
   {id:"overview",label:"Command centre",icon:LayoutDashboard},
   {id:"journey",label:"Guided AP walkthrough",icon:Waypoints},
@@ -35,36 +35,38 @@ const menuGroups:{title:string;items:{id:Screen;label:string;icon:typeof LayoutD
   {id:"spend",label:"POs & card spending",icon:WalletCards}
  ]},
  {title:"AUTOMATION & DELIVERY",items:[
-  {id:"agents",label:"Potential AI assistants",icon:Bot},
+  {id:"agents",label:"Coordinated finance agents",icon:Bot},
   {id:"automation",label:"Workflow blueprint",icon:Workflow},
   {id:"integrations",label:"Connected ecosystem",icon:Cloud},
-  {id:"assistant",label:"Finance AI guide",icon:Bot},
+  {id:"assistant",label:"Finance operations guide",icon:Bot},
   {id:"roadmap",label:"Implementation plan",icon:ClipboardCheck}
  ]}
 ];
 const names:Record<Screen,string>={
- discovery:"Discovery presentation",agents:"Potential AI assistants",overview:"Command centre",journey:"Guided AP walkthrough",invoices:"Supplier invoices",reconciliations:"Bank reconciliations",reporting:"Investor reporting",
- spend:"POs & card spending",automation:"Workflow blueprint",integrations:"Connected ecosystem",assistant:"Finance AI guide",roadmap:"Implementation plan"
+ discovery:"Finance solution",agents:"Coordinated finance agents",overview:"Command centre",journey:"Guided AP walkthrough",invoices:"Supplier invoices",reconciliations:"Bank reconciliations",reporting:"Investor reporting",
+ spend:"POs & card spending",automation:"Workflow blueprint",integrations:"Connected ecosystem",assistant:"Finance operations guide",roadmap:"Implementation plan"
 };
 const phases=[
- {n:"01",title:"Shared finance inbox",owner:"Shared email (provider unconfirmed)",detail:"Supplier PDFs arrive by email. The exact inbox provider, existing rules and required document fields need confirmation",state:"Source intake"},
- {n:"02",title:"Document capture",owner:"Hubdoc (existing)",detail:"Use the capture capabilities already available, then assess where validation or exception handling could add value",state:"AI-assisted"},
- {n:"03",title:"Entity and PO validation",owner:"Proposed Xero + Monday.com checks",detail:"Compare entity and PO evidence where relevant. Confirm which invoice types require a PO and how entities are configured",state:"Rules + AI"},
- {n:"04",title:"Finance exception queue",owner:"Finance review",detail:"Hold incomplete or inconsistent records for a documented human decision",state:"Human review"},
- {n:"05",title:"Approval request",owner:"ApprovalMax (existing)",detail:"Retain the established human approval process; actual approvers and limits need confirmation",state:"Human approval"},
- {n:"06",title:"Reviewed accounting hand-off",owner:"Controlled preparation",detail:"Prepare an approved-only example file. Live accounting and payment actions remain outside this demonstration",state:"Sample export"}
+ {n:"01",title:"ShareFinance intake",owner:"Existing mailbox",detail:"Capture invoice PDFs and email evidence; detect duplicates and extract structured fields.",state:"Source intake"},
+ {n:"02",title:"Entity and accounting coding",owner:"Entity Allocation Agent",detail:"Validate against the authorised entity register and suggest the correct company and coding.",state:"Rules + AI"},
+ {n:"03",title:"PO validation",owner:"Purchase Order Agent / Monday.com",detail:"Match references and applicable purchasing rules; flag absent or conflicting evidence.",state:"Rules + AI"},
+ {n:"04",title:"Exception resolution",owner:"AP Exception Assistant / finance",detail:"Prepare supplier or internal correction email for human review, track evidence and revalidate; hold unresolved cases.",state:"Human review"},
+ {n:"05",title:"Existing document routing",owner:"SharePoint → Power Automate → Hubdoc",detail:"Route validated PDFs to the appropriate company folder and Hubdoc account through the existing automation.",state:"Controlled hand-off"},
+ {n:"06",title:"Accounting and approvals",owner:"Xero / ApprovalMax",detail:"Prepare accounting records, preserve the existing no-PO approval path and human payment authority. Demo exports only.",state:"Human approval"}
 ];
 const connectors=[
- {name:"Shared finance inbox",category:"Document intake",role:"Supplier invoices arrive as PDF attachments. The exact email provider and intake rules can vary.",status:"Current system"},
+ {name:"ShareFinance inbox",category:"Document intake",role:"Supplier invoices arrive as PDFs; the finance team checks entity and coding before SharePoint routing.",status:"Current system"},
  {name:"Hubdoc",category:"Document capture",role:"Document collection and extraction. Potentially reuse existing configuration before adding checks.",status:"Current system"},
  {name:"Xero",category:"Accounting",role:"Invoice and ledger records. Company allocation and hand-off rules are illustrated, not connected.",status:"Current system"},
  {name:"ApprovalMax",category:"Approvals",role:"Human approval workflows. Existing permissions remain authoritative in a live implementation.",status:"Current system"},
  {name:"Monday.com",category:"Purchase orders",role:"Purchase-order records. An automatic invoice-to-PO check is a possible integration.",status:"Current system"},
  {name:"Stripe",category:"Collections",role:"Payment records and settlement information, potentially useful for reconciliation.",status:"Current system"},
  {name:"GoCardless",category:"Collections",role:"Direct-debit collection information, potentially useful for reconciliation.",status:"Current system"},
- {name:"Space Manager",category:"Operations",role:"Potential operating-data source. Available modules and reporting fields determine its role.",status:"Current system"},
- {name:"SharePoint",category:"Documents",role:"Potential controlled document storage and evidence management.",status:"Current system"},
- {name:"Power Automate",category:"Automation",role:"Potential workflow orchestration and notifications, alongside existing automations.",status:"Current system"}
+ {name:"Space Manager",category:"Operations",role:"Sales uses SpaceManager for customer collections; finance compares it against bank transactions at month-end.",status:"Current system"},
+ {name:"SharePoint",category:"Documents",role:"Existing company-specific folders receive reviewed invoice PDFs.",status:"Current system"},
+ {name:"Power Automate",category:"Automation",role:"Existing automation emails PDFs from SharePoint to the appropriate Hubdoc account.",status:"Current system"},
+ {name:"Central data warehouse",category:"Data foundations",role:"Required central data integration for Xero and other authorised sources; access and schema pending.",status:"Planned integration"},
+ {name:"Excel",category:"Month-end reconciliation",role:"Current manual cross-check between bank transactions and SpaceManager.",status:"Current system"}
 ];
 const initialAudit:Audit[]=[
  {id:"audit-01",when:"2026-11-19 11:02",actor:"Finance Controller (example)",action:"Review completed",detail:"Matched an example bank entry after manual inspection"},
@@ -98,7 +100,7 @@ function FinanceGuide(query:string,role:Role,invoices:Invoice[],bank:BankLine[],
   return "People remain accountable. The rules engine can identify issues and prepare an approval request, but only the simulated Financial Controller view can mark an invoice approved. This is a UI demonstration, not authentication. There is intentionally no payment execution, bank instruction or live Xero posting.";
  }
  if(/company|entity|legal|wrong|duplicate|po\b|purchase/.test(q)){
-  return "This fictional example compares the invoice entity, proposed bookkeeping entity and a sample purchase order. The three legal entities and PO-required rule are fictional and configurable. Open Supplier invoices to inspect the sample evidence.";
+  return "This fictional example compares the invoice entity, proposed bookkeeping entity and a sample purchase order. The sample entity names and PO-required rule are fictional and configurable. Open Supplier invoices to inspect the sample evidence.";
  }
  if(/bank|stripe|gocardless|reconcil|settlement|match/.test(q)){
   const mismatches=bank.filter(x=>bankCheck(x)!=="match");
@@ -138,7 +140,7 @@ export default function WigwamFinanceDemo(){
  const [reviewNote,setReviewNote]=useState("");
  const [period,setPeriod]=useState("2026-Q3");
  const [reportSections,setReportSections]=useState(["Summary","Exceptions","Source mapping","Approval notice"]);
- const [weeklyVolume,setWeeklyVolume]=useState(65);
+ const [weeklyVolume,setWeeklyVolume]=useState(29);
  const [minutes,setMinutes]=useState(11);
  const [coverage,setCoverage]=useState(55);
  const [realisation,setRealisation]=useState(80);
@@ -490,7 +492,7 @@ export default function WigwamFinanceDemo(){
     </>}
     {screen==="integrations"&&<>
      {page("Connected ecosystem","06 / SYSTEM ECOSYSTEM · CONCEPT MAP","Explore how finance, purchasing, document and payment tools could work together. The connections shown are conceptual, not live integrations.")}
-     <div className={css.discoveryNotice}><ShieldCheck size={17}/><span><b>Existing tools, potential connections.</b> Supplier inbox, Hubdoc, Xero and ApprovalMax form the described invoice route. Other data flows on this page illustrate possible integrations. No software connection is active in this demonstration.</span></div>
+     <div className={css.discoveryNotice}><ShieldCheck size={17}/><span><b>Existing tools, potential connections.</b> ShareFinance, SharePoint, Power Automate, Hubdoc, Xero and ApprovalMax form the established invoice route; the central data warehouse is a required integration. Other data flows on this page illustrate possible integrations. No software connection is active in this demonstration.</span></div>
      <SystemMap open={navigate}/>
      <div className={css.connectorGrid}>{connectors.map(c=><div className={css.connector} key={c.name}><Link2 size={20}/><strong>{c.name}</strong><p>{c.role}</p><small>{c.category.toUpperCase()} · DEMO NOT CONNECTED</small></div>)}</div>
      <div style={{height:12}}/>
@@ -503,26 +505,27 @@ export default function WigwamFinanceDemo(){
      ].map(([a,b])=><div key={a}><ShieldCheck size={16}/><div><strong>{a}</strong><p>{b}</p></div></div>)}</div></Panel>
     </>}
     {screen==="agents"&&<>
-     {page("Potential AI assistants","OPTIONAL CAPABILITIES · RULE-BASED CONCEPTS","Explore specialist tasks for document intake, validation, exception handling, reconciliation, reporting and spending. Each example uses rule-based simulation and synthetic records.")}
+     {page("Coordinated finance agents","OPTIONAL CAPABILITIES · RULE-BASED CONCEPTS","Explore specialist tasks for document intake, validation, exception handling, reconciliation, reporting and spending. Each example uses rule-based simulation and synthetic records.")}
      <Specialists invoice={selected} invoices={invoices} bank={selBank} card={selCard} period={period} open={navigate} selectInvoice={setSelectedInvoiceId} selectBank={id=>{setSelectedBankId(id);setReviewNote("")}} selectCard={setSelectedCardId} banks={banks} cards={cards} selectPeriod={setPeriod} quarters={investorPeriods}/>
     </>}
     {screen==="assistant"&&<>
-     {page("Finance AI guide","07 / EXPLAINABILITY & USER SUPPORT","Ask how the proposed processes work, why an invoice is flagged, or what the sample numbers mean. This prototype uses deterministic answers; a production assistant would require secured, source-grounded access.")}
+     {page("Finance operations guide","07 / EXPLAINABILITY & USER SUPPORT","Source-linked operational guidance and human review controls for the proposed finance system.")}
      <div className={css.grid2}>
-      <div className={css.chatBox}><div className={css.chatTop}><span className={css.chatAvatar}><Bot size={19}/></span><div><strong>Finance operations guide</strong><small>Rules-based demo · no external AI calls</small></div><Badge type="neutral">Simulation</Badge></div><div className={css.chatMessages} role="log" aria-live="polite">{messages.map(m=><div key={m.id} className={m.from==="user"?css.userMessage:css.chatMessage}><strong>{m.from==="user"?"You":"Guide · simulated"}</strong><p>{m.text}</p></div>)}</div><form className={css.chatForm} onSubmit={e=>{e.preventDefault();ask();}}><input placeholder="Ask about invoices, reconciliations, controls..." value={chatInput} onChange={e=>setChatInput(e.target.value)} aria-label="Ask finance guide"/><button type="submit" aria-label="Send question"><Send size={16}/></button></form><div className={css.chatHints}>{["Which invoices need review?","Can AI approve payments?","How does bank reconciliation work?","What would the pilot include?"].map(q=><button key={q} onClick={()=>ask(q)}>{q}</button>)}</div></div>
-      <div>
-       <Panel label="GUARDRAILS" title="What an implementation-ready assistant needs">
-        <div className={css.rules}>{[
-         ["Verified data access","Answers grounded in authorised Xero, Hubdoc and SharePoint records, not model guesses."],
-         ["Role-aware explanations","Director-facing summaries and controller-level evidence, with permissions defined by the organisation."],
-         ["Reviewable recommendations","AI suggests; financial staff decide. No autonomous bank or approval actions."],
-         ["Traceability","Link each recommendation to a source record and explain confidence and limitations."]
-        ].map(([a,b])=><div key={a}><ShieldCheck size={16}/><div><strong>{a}</strong><p>{b}</p></div></div>)}</div>
-       </Panel>
-       <Panel label="IMPLEMENTATION FOUNDATIONS" title="Configurable workflow inputs">
-        <div className={css.alertList}>{["Supplier volume and company structure","Document capture and data quality rules","Purchase-order requirements and permitted exceptions","Human approval limits and access permissions","Reporting definitions and reconciliation sources"].map(q=><div className={css.alertItem} key={q}><MessageCircle size={16}/><div><p>{q}</p></div></div>)}</div>
-       </Panel>
-      </div>
+      <Panel label="ACCOUNTS PAYABLE" title="Exception resolution and audit">
+       <div className={css.rules}>{[
+        ["Entity mismatch","Hold the invoice, distinguish internal routing error from incorrectly issued supplier document and prepare a correction request."],
+        ["Missing PO","Check Monday.com references, request evidence if required and preserve the ApprovalMax approval path."],
+        ["Evidence received","Attach evidence to the case and re-run deterministic validation before the existing accounting hand-off."]
+       ].map(([a,b])=><div key={a}><ShieldCheck size={16}/><div><strong>{a}</strong><p>{b}</p></div></div>)}</div>
+       <button className={css.primary} onClick={()=>navigate("journey")}>Open AP walkthrough <ArrowRight size={14}/></button>
+      </Panel>
+      <Panel label="FINANCE OPERATIONS" title="Review and release">
+       <div className={css.rules}>{[
+        ["Reconciliation","Review bank-to-SpaceManager differences and complete authorised confirmation in Xero."],
+        ["Investor reporting","Validate warehouse and Xero evidence, calculate approved indicators and review the quarterly pack before release."],
+        ["Governance","Keep source references, entity permissions, human approvals and case history; no autonomous payments."]
+       ].map(([a,b])=><div key={a}><ShieldCheck size={16}/><div><strong>{a}</strong><p>{b}</p></div></div>)}</div>
+      </Panel>
      </div>
     </>}
     {screen==="roadmap"&&<>
@@ -530,21 +533,21 @@ export default function WigwamFinanceDemo(){
      <div className={css.grid2}>
       <Panel label="PRIORITISED DELIVERY" title="Proposed staged delivery">
        <div className={css.flow}>{[
-        {n:"01",title:"Process and baseline",owner:"Review existing workflows",detail:"Map volumes, company allocation, exceptions, approvals and current handling time."},
-        {n:"02",title:"Accounts payable pilot",owner:"First implementation candidate",detail:"Connect approved source feeds; extract PDF metadata; validate entity and PO; queue exceptions; preserve ApprovalMax and human sign-off."},
-        {n:"03",title:"Reconciliations",owner:"After pilot acceptance",detail:"Introduce matching for payment-system references with a human-controlled exception workflow."},
-        {n:"04",title:"Investor reporting and spend controls",owner:"Subsequent implementation",detail:"Prepare quarterly reporting with reconciled sources; expand to Monday.com PO policy and card receipts."},
+        {n:"01",title:"Configuration and baseline",owner:"Configure confirmed workflows",detail:"Configure the three-entity intake, coding, PO exceptions and ApprovalMax routing; baseline handling time before deployment."},
+        {n:"02",title:"Accounts payable pilot",owner:"Confirmed first priority",detail:"Connect the ShareFinance intake; validate legal entity, coding and PO evidence; prepare correction emails for review; retain SharePoint, Power Automate, Hubdoc, Xero and ApprovalMax where appropriate."},
+        {n:"03",title:"Reconciliations",owner:"After pilot acceptance",detail:"Replace repetitive month-end Excel checks with bank-to-SpaceManager matching and a human-controlled exception workflow."},
+        {n:"04",title:"Investor reporting and spend controls",owner:"Subsequent implementation",detail:"Integrate authorised warehouse and Xero data, automate quarterly investor packs and monitoring; purchasing and card controls remain an optional extension."},
         {n:"05",title:"Handover and adoption",owner:"Ongoing",detail:"Train the bookkeeper/Financial Controller, document decisions, test edge cases and measure saved time."}
        ].map((x,i,a)=><div className={css.flowStep} key={x.n}><div className={css.flowRail}><span>{x.n}</span>{i<a.length-1&&<i/>}</div><div className={css.flowInfo}><div><strong>{x.title}</strong><small>{x.owner}</small></div><p>{x.detail}</p></div></div>)}</div>
        <p className={css.smallTip}>Indicative delivery sequence. Final scope, schedule and cost depend on system access, policies and requirements.</p>
       </Panel>
       <div>
        <Panel label="ILLUSTRATIVE VALUE SCENARIO" title="Estimate the first AP use case">
-        <p className={css.panelIntro}>Adjust the example assumptions to explore possible time released. These figures do not represent measured operations or guaranteed savings.</p>
-        <div className={css.formGrid}><label className={css.field}>Supplier invoices per week<input type="number" min="0" value={weeklyVolume} onChange={e=>setWeeklyVolume(Math.max(0,Number(e.target.value)||0))}/></label><label className={css.field}>Current minutes per invoice<input type="number" min="0" value={minutes} onChange={e=>setMinutes(Math.max(0,Number(e.target.value)||0))}/></label><label className={css.field}>Loaded value per hour (£)<input type="number" min="0" value={hourlyRate} onChange={e=>setHourlyRate(Math.max(0,Number(e.target.value)||0))}/></label><label className={css.field}>One-off implementation (£)<input type="number" min="0" value={setupCost} onChange={e=>setSetupCost(Math.max(0,Number(e.target.value)||0))}/></label></div>
+        <p className={css.panelIntro}>Adjust the planning assumptions to explore possible time released. Processing minutes, labour cost and realised savings are not measured results.</p>
+        <div className={css.formGrid}><label className={css.field}>Supplier invoices per week (planning scenario)<input type="number" min="0" value={weeklyVolume} onChange={e=>setWeeklyVolume(Math.max(0,Number(e.target.value)||0))}/></label><label className={css.field}>Current minutes per invoice<input type="number" min="0" value={minutes} onChange={e=>setMinutes(Math.max(0,Number(e.target.value)||0))}/></label><label className={css.field}>Loaded value per hour (£)<input type="number" min="0" value={hourlyRate} onChange={e=>setHourlyRate(Math.max(0,Number(e.target.value)||0))}/></label><label className={css.field}>One-off implementation (£)<input type="number" min="0" value={setupCost} onChange={e=>setSetupCost(Math.max(0,Number(e.target.value)||0))}/></label></div>
         <div className={css.roiSlider}><label>Share of time automatable <b>{coverage}%</b></label><input type="range" min="0" max="95" step="5" value={coverage} onChange={e=>setCoverage(Number(e.target.value))}/></div>
         <div className={css.roiSlider}><label>Realisation of released time <b>{realisation}%</b></label><input type="range" min="0" max="100" step="5" value={realisation} onChange={e=>setRealisation(Number(e.target.value))}/></div>
-        <label className={css.field}>Monthly infrastructure / service cost (£)<input type="number" min="0" value={monthlyCost} onChange={e=>setMonthlyCost(Math.max(0,Number(e.target.value)||0))}/></label>
+        <label className={css.field}>Monthly infrastructure / service cost (£, illustrative)<input type="number" min="0" value={monthlyCost} onChange={e=>setMonthlyCost(Math.max(0,Number(e.target.value)||0))}/></label>
         <div className={css.smallDivider}/>
         <div className={css.kpiLine}><span>Annual baseline processing effort</span><strong>{Math.round(roi.baseline).toLocaleString()} h</strong></div>
         <div className={css.kpiLine}><span>Potential annual capacity released</span><strong>{Math.round(roi.freed).toLocaleString()} h</strong></div>
@@ -554,10 +557,10 @@ export default function WigwamFinanceDemo(){
         <div className={css.kpiLine}><span>First-year cash-based net</span><strong>{money(roi.netCash)}</strong></div>
         <p className={css.finePrint}>Released capacity is not necessarily cash saved. Default cash conversion is 0%. This scenario calculator is not a measured financial result or quotation.</p>
        </Panel>
-       <Panel label="ILLUSTRATIVE OPTIONS" title="Select a focus area">
-        <p className={css.panelIntro}>Select a workstream to preview an illustrative starting point.</p>
+       <Panel label="ILLUSTRATIVE OPTIONS" title="Delivery priorities">
+        <p className={css.panelIntro}>Accounts Payable is the confirmed first phase. Reconciliation and reporting are later modules; spend controls are optional.</p>
         {scenarios.map(s=><label className={css.kpiLine} key={s.id}><span>{s.title}</span><input type="radio" name="pilot" checked={pickedPilot===s.id} onChange={()=>setPickedPilot(s.id)}/></label>)}
-        <div className={css.callout} style={{marginTop:14}}><b>Suggested first pilot:</b> {scenarios.find(x=>x.id===pickedPilot)?.value}. Scope and integrations can be configured for the selected workflow.</div>
+        <div className={css.callout} style={{marginTop:14}}><b>Workstream value:</b> {scenarios.find(x=>x.id===pickedPilot)?.value}. Accounts Payable remains the confirmed first priority.</div>
        </Panel>
       </div>
      </div>

@@ -1,4 +1,8 @@
-# Wigwam Storage — provisional finance operations demo
+# Wigwam Storage — finance operations demo
+
+## Post-meeting revision (27 November 2026)
+The client-facing route is now a six-stage finance solution presentation, not a discovery questionnaire. Confirmed current AP workflow: ShareFinance intake → manual legal-entity and coding review → SharePoint → Power Automate → relevant Hubdoc account → Xero, with manual ApprovalMax approval for invoices without a PO. Three entities are now confirmed; example names and records remain fictional. AP is the first delivery phase. Bank reconciliation targets the month-end Excel comparison of bank transactions against SpaceManager, preserving existing customer-payment automation. Investor reporting and monitoring will integrate the central data warehouse; details and access remain pending. Card controls are optional later scope. Proposed agents prepare correction communications for review, track evidence, and retain human approval and payment authority. The managed API option uses minimised pseudonymised payloads; private inference is an alternative, not a selected architecture. The exact private meeting notes and operational baseline are retained in restricted Drive rather than published. The earlier section below is historical context and does not override confirmed post-meeting facts.
+
 
 ## Source basis (23 November 2026)
 From the discussion transcribed by the user, Nick Grant asked for practical **implementation**, not only ongoing coaching, to assist the bookkeeper and enable her to become proficient with AI tools. He identified an accounts-payable logjam:
