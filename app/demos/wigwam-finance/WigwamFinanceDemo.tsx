@@ -17,14 +17,16 @@ import {
 import css from "./wigwam.module.css";
 import {SystemMap,Specialists} from "./OperationsDesk";
 import GuidedJourney from "./GuidedJourney";
+import DiscoveryPresentation from "./DiscoveryPresentation";
 
-type Screen="agents"|"overview"|"journey"|"invoices"|"reconciliations"|"reporting"|"spend"|"automation"|"integrations"|"assistant"|"roadmap";
+type Screen="discovery"|"agents"|"overview"|"journey"|"invoices"|"reconciliations"|"reporting"|"spend"|"automation"|"integrations"|"assistant"|"roadmap";
 type Role="director"|"controller";
 type Conversation={id:string;from:"user"|"assistant";text:string};
 type Store={invoices:Invoice[];bank:BankLine[];cards:CardSpend[];audit:Audit[];reportReview?:{signature:string;note:string}|null;reportNote?:string};
 const storageKey="sc-wigwam-finance-provisional-v1";
 const menuGroups:{title:string;items:{id:Screen;label:string;icon:typeof LayoutDashboard}[]}[]=[
- {title:"WORKSPACE",items:[
+ {title:"MEETING PRESENTATION",items:[{id:"discovery",label:"Discovery presentation",icon:Workflow}]},
+ {title:"INTERACTIVE EXAMPLES",items:[
   {id:"overview",label:"Command centre",icon:LayoutDashboard},
   {id:"journey",label:"Guided AP walkthrough",icon:Waypoints},
   {id:"invoices",label:"Supplier invoices",icon:Inbox},
@@ -41,7 +43,7 @@ const menuGroups:{title:string;items:{id:Screen;label:string;icon:typeof LayoutD
  ]}
 ];
 const names:Record<Screen,string>={
- agents:"Potential AI assistants",overview:"Command centre",journey:"Guided AP walkthrough",invoices:"Supplier invoices",reconciliations:"Bank reconciliations",reporting:"Investor reporting",
+ discovery:"Discovery presentation",agents:"Potential AI assistants",overview:"Command centre",journey:"Guided AP walkthrough",invoices:"Supplier invoices",reconciliations:"Bank reconciliations",reporting:"Investor reporting",
  spend:"POs & card spending",automation:"Workflow blueprint",integrations:"Connected ecosystem",assistant:"Finance AI guide",roadmap:"Implementation plan"
 };
 const phases=[
@@ -118,7 +120,7 @@ function FinanceGuide(query:string,role:Role,invoices:Invoice[],bank:BankLine[],
 }
 
 export default function WigwamFinanceDemo(){
- const [screen,setScreen]=useState<Screen>("overview");
+ const [screen,setScreen]=useState<Screen>("discovery");
  const [role,setRole]=useState<Role>("director");
  const [menuOpen,setMenuOpen]=useState(false);
  const [invoices,setInvoices]=useState<Invoice[]>(seedInvoices);
@@ -288,6 +290,7 @@ export default function WigwamFinanceDemo(){
    <header className={css.topbar}><div className={css.crumb}><button className={css.menu} onClick={()=>setMenuOpen(true)} aria-label="Open navigation"><Menu size={19}/></button><span>FINANCE OPERATIONS</span><ChevronRight size={14}/><strong>{names[screen]}</strong></div><div className={css.topRight}><span className={css.simulation}><i/> DEMONSTRATION</span><label className={css.viewSwitch}><span>Perspective</span><select value={role} onChange={e=>switchRole(e.target.value as Role)}><option value="director">Director view</option><option value="controller">Financial Controller view</option></select></label></div></header>
    <main className={css.work}>
     {notice&&<div className={css.banner} role="status"><CheckCircle2 size={16}/><span>{notice}</span><button onClick={()=>setNotice("")} aria-label="Dismiss"><X size={14}/></button></div>}
+    {screen==="discovery"&&<DiscoveryPresentation open={navigate}/>}
     {screen==="journey"&&<>
      {page("Guided supplier invoice walkthrough","ACCOUNTS PAYABLE · INTERACTIVE DEMONSTRATION","Follow a sample invoice from document capture through validation, exception handling and human sign-off to a controlled accounting file.",<button className={css.secondary} onClick={reset}><RefreshCw size={14}/> Reset the fictional scenario</button>)}
      <GuidedJourney invoices={invoices} selected={selected} role={role} create={createGuidedInvoice} pick={setSelectedInvoiceId} patch={patchInvoice} validate={validateSelected} acceptException={acceptException} approve={approveSelected} stage={stageSelected} changeRole={switchRole} openQueue={()=>navigate("invoices")} openDashboard={()=>navigate("overview")}/>
